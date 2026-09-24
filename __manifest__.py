@@ -14,6 +14,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'security/tarombo_security.xml',
         'security/ir.model.access.csv',
         'security/tarombo_usulan_security.xml',
+        'security/tarombo_klaim_akun_security.xml',
         'views/tarombo_pohon_views.xml',
         'views/tarombo_dashboard_views.xml',
         'views/tarombo_orang_views.xml',
@@ -23,6 +24,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'views/tarombo_punguan_views.xml',
         'views/tarombo_direktori_keahlian_views.xml',
         'views/tarombo_usulan_views.xml',
+        'views/tarombo_klaim_akun_views.xml',
         'views/tarombo_arsip_views.xml',
         'wizard/tarombo_partuturan_wizard_views.xml',
         'views/menu.xml',
@@ -30,6 +32,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'data/tarombo_wilayah_data.xml',
         'data/tarombo_punguan_data.xml',
         'data/tarombo_usulan_data.xml',
+        'data/tarombo_klaim_akun_data.xml',
     ],
     'assets': {
         'web.assets_backend': [

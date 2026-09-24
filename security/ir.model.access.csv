@@ -29,3 +29,6 @@ access_tarombo_arsip_admin,tarombo.arsip admin,model_tarombo_arsip,tarombo.group
 access_tarombo_padan_anggota,tarombo.padan anggota,model_tarombo_padan,tarombo.group_tarombo_anggota,1,0,0,0
 access_tarombo_padan_pengurus,tarombo.padan pengurus,model_tarombo_padan,tarombo.group_tarombo_pengurus,1,0,0,0
 access_tarombo_padan_admin,tarombo.padan admin,model_tarombo_padan,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_klaim_akun_anggota,tarombo.klaim_akun anggota,model_tarombo_klaim_akun,tarombo.group_tarombo_anggota,1,0,1,0
+access_tarombo_klaim_akun_pengurus,tarombo.klaim_akun pengurus,model_tarombo_klaim_akun,tarombo.group_tarombo_pengurus,1,1,1,0
+access_tarombo_klaim_akun_admin,tarombo.klaim_akun admin,model_tarombo_klaim_akun,tarombo.group_tarombo_admin,1,1,1,1

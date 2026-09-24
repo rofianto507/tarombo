@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="seq_tarombo_klaim_akun" model="ir.sequence">
+            <field name="name">Klaim Akun Tarombo</field>
+            <field name="code">tarombo.klaim_akun</field>
+            <field name="prefix">KLAIM/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

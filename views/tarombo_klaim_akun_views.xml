@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- LIST VIEW -->
+        <record id="view_tarombo_klaim_akun_list" model="ir.ui.view">
+            <field name="name">tarombo.klaim_akun.list</field>
+            <field name="model">tarombo.klaim_akun</field>
+            <field name="arch" type="xml">
+                <list string="Klaim Akun"
+                      decoration-warning="state == 'menunggu'"
+                      decoration-success="state == 'disetujui'"
+                      decoration-danger="state == 'ditolak'">
+                    <field name="name"/>
+                    <field name="user_id"/>
+                    <field name="jenis"/>
+                    <field name="orang_id"/>
+                    <field name="tanggal_ajukan"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- FORM VIEW -->
+        <record id="view_tarombo_klaim_akun_form" model="ir.ui.view">
+            <field name="name">tarombo.klaim_akun.form</field>
+            <field name="model">tarombo.klaim_akun</field>
+            <field name="arch" type="xml">
+                <form string="Klaim Akun">
+                    <header>
+                        <button name="action_ajukan" type="object" string="Ajukan"
+                                class="btn-primary" invisible="state != 'menunggu' or tanggal_ajukan"/>
+                        <button name="action_setujui" type="object" string="Setujui"
+                                class="btn-primary" invisible="state != 'menunggu'"
+                                groups="tarombo.group_tarombo_pengurus"/>
+                        <button name="action_tolak" type="object" string="Tolak"
+                                invisible="state != 'menunggu'"
+                                groups="tarombo.group_tarombo_pengurus"/>
+                        <field name="state" widget="statusbar" statusbar_visible="menunggu,disetujui"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="user_id"/>
+                                <field name="jenis"/>
+                                <field name="orang_id" invisible="jenis != 'orang_ada'"/>
+                                <field name="usulan_id" invisible="jenis != 'orang_baru'"/>
+                            </group>
+                            <group>
+                                <field name="tanggal_ajukan"/>
+                                <field name="peninjau_id"/>
+                                <field name="tanggal_tinjau"/>
+                            </group>
+                        </group>
+                        <group string="Keterangan Pengklaim">
+                            <field name="catatan_pengklaim" nolabel="1" colspan="2"/>
+                        </group>
+                        <group string="Alasan Penolakan" invisible="state != 'ditolak'">
+                            <field name="alasan_tolak" nolabel="1" colspan="2"/>
+                        </group>
+                        <field name="bukti_ids" widget="many2many_binary" string="Bukti Pendukung"/>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- SEARCH VIEW -->
+        <record id="view_tarombo_klaim_akun_search" model="ir.ui.view">
+            <field name="name">tarombo.klaim_akun.search</field>
+            <field name="model">tarombo.klaim_akun</field>
+            <field name="arch" type="xml">
+                <search string="Cari Klaim Akun">
+                    <field name="name"/>
+                    <field name="user_id"/>
+                    <field name="orang_id"/>
+                    <filter string="Menunggu" name="filter_menunggu" domain="[('state', '=', 'menunggu')]"/>
+                    <filter string="Disetujui" name="filter_disetujui" domain="[('state', '=', 'disetujui')]"/>
+                    <filter string="Ditolak" name="filter_ditolak"
+                            domain="[('state', '=', 'ditolak'), ('active', 'in', [True, False])]"/>
+                    <group>
+                        <filter string="Status" name="groupby_state" context="{'group_by': 'state'}"/>
+                        <filter string="Jenis" name="groupby_jenis" context="{'group_by': 'jenis'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record id="action_tarombo_klaim_akun" model="ir.actions.act_window">
+            <field name="name">Klaim Akun</field>
+            <field name="res_model">tarombo.klaim_akun</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_tarombo_klaim_akun_search"/>
+            <field name="context">{'search_default_filter_menunggu': 1}</field>
+        </record>
+
+    </data>
+</odoo>

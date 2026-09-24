@@ -33,6 +33,16 @@ class TaromboOrang(models.Model):
     marga_id = fields.Many2one('tarombo.marga', string='Marga', index=True, tracking=True)
     punguan_id = fields.Many2one('tarombo.punguan', string='Punguan', required=True, index=True, tracking=True)
     partner_id = fields.Many2one('res.partner', string='Kontak', tracking=True)
+    # Akun login (app mobile) yang mengklaim record ini sebagai dirinya sendiri —
+    # ditautkan lewat alur tarombo.klaim_akun setelah disetujui pengurus, BUKAN
+    # diisi bebas oleh pemilik akun sendiri. SENGAJA TIDAK dibatasi groups= (beda
+    # dari tahun_lahir/alamat/koordinat) — field ini dipakai di domain picker
+    # tarombo.klaim_akun.orang_id (`user_id = False`) yang harus bisa dievaluasi
+    # anggota biasa saat mencari namanya sendiri untuk diklaim; field yang dipakai
+    # di domain untuk grup lebih rendah tidak boleh dibatasi groups= (pelajaran
+    # yang sama seperti masih_hidup — lihat context.md bagian keamanan).
+    user_id = fields.Many2one(
+        'res.users', string='Akun Terhubung', readonly=True, copy=False)
     catatan = fields.Text('Catatan')
 
     # Struktur pohon — ayah_id sengaja Many2one biasa (bukan related lewat
@@ -105,15 +115,24 @@ class TaromboOrang(models.Model):
     alamat_catatan = fields.Char(
         'Catatan Wilayah', help='Untuk wilayah lama yang sudah dimekarkan')
 
-    # Kolom sensitif — hanya pengurus ke atas yang boleh lihat/isi. latitude/
-    # longitude diisi lewat peta interaktif (widget tarombo_geo_picker) di form,
-    # bukan diketik manual. Peta untuk anggota (belum dibangun) TIDAK PERNAH
-    # boleh memakai koordinat perorangan ini, hanya kabupaten_id dan koordinat
-    # pusat wilayah (tarombo.wilayah.latitude/longitude).
+    # Kolom sensitif — hanya pengurus ke atas yang boleh lihat/isi lewat ORM biasa
+    # (form/list/search_read). latitude/longitude diisi lewat peta interaktif
+    # (widget tarombo_geo_picker) di form, bukan diketik manual. Satu-satunya
+    # pengecualian yang diizinkan: method get_lokasi_kerabat() (tarombo_lokasi_mobile.py)
+    # untuk fitur peta "Kerabat Terdekat" di app mobile — HANYA untuk orang yang
+    # berbagi_lokasi=True (opt-in eksplisit), lewat query sudo() yang sempit &
+    # sendirian di file terpisah, bukan pelonggaran groups= di field ini sendiri.
     alamat_jalan = fields.Char('Alamat Lengkap', groups='tarombo.group_tarombo_pengurus')
     kode_pos = fields.Char('Kode Pos', groups='tarombo.group_tarombo_pengurus')
     latitude = fields.Float('Latitude', digits=(10, 7), groups='tarombo.group_tarombo_pengurus')
     longitude = fields.Float('Longitude', digits=(10, 7), groups='tarombo.group_tarombo_pengurus')
+    berbagi_lokasi = fields.Boolean(
+        'Bagikan Lokasi ke Kerabat', default=False,
+        help='Kalau aktif, titik lokasi domisili (bukan alamat lengkap) orang ini '
+             'tampil di peta "Kerabat Terdekat" pada aplikasi mobile, terlihat oleh '
+             'SELURUH anggota — bukan hanya pengurus. Nonaktif secara default; '
+             'anggota yang bersangkutan (lewat akun yang tertaut, lihat user_id) '
+             'sendiri yang mengaktifkan.')
 
     # Riwayat pendidikan & pekerjaan — dasar Direktori Keahlian, dipakai
     # anggota untuk saling mencari keahlian/koneksi, bukan cuma silsilah.

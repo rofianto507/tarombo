@@ -50,6 +50,14 @@
             sequence="10"/>
 
         <menuitem
+            id="menu_tarombo_klaim_akun_list"
+            name="Klaim Akun"
+            parent="menu_tarombo_usulan"
+            action="action_tarombo_klaim_akun"
+            groups="tarombo.group_tarombo_pengurus"
+            sequence="20"/>
+
+        <menuitem
             id="menu_tarombo_laporan"
             name="Laporan"
             parent="menu_tarombo_root"

@@ -1,8 +1,30 @@
-from odoo import models
+from odoo import api, models
 
 
 class TaromboOrang(models.Model):
     _inherit = 'tarombo.orang'
+
+    @api.model
+    def hitung_partuturan_mobile(self, orang_a_id, orang_b_id):
+        """Bungkus hitung_partuturan() jadi JSON-serializable murni untuk
+        dipanggil lewat call_kw dari app mobile — hitung_partuturan() sendiri
+        mengembalikan recordset mentah (anc/jalur_a/jalur_b) yang tidak bisa
+        lewat JSON-RPC apa adanya.
+        """
+        a = self.browse(orang_a_id)
+        b = self.browse(orang_b_id)
+        hasil = a.hitung_partuturan(b)
+        return {
+            'anc_id': hasil['anc'].id if hasil['anc'] else False,
+            'anc_name': hasil['anc'].name if hasil['anc'] else False,
+            'jalur_a': [{'id': o.id, 'name': o.name} for o in hasil['jalur_a']],
+            'jalur_b': [{'id': o.id, 'name': o.name} for o in hasil['jalur_b']],
+            'sebutan_a': hasil['sebutan_a'],
+            'sebutan_b': hasil['sebutan_b'],
+            'senior_a': hasil['senior_a'],
+            'jarak': hasil['jarak'],
+            'keterangan': hasil['keterangan'],
+        }
 
     def leluhur_bersama(self, lain):
         """Leluhur bersama terdekat, lewat perbandingan awalan parent_path."""
