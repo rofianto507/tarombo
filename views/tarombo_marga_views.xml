@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- LIST VIEW -->
+        <record id="view_tarombo_marga_list" model="ir.ui.view">
+            <field name="name">tarombo.marga.list</field>
+            <field name="model">tarombo.marga</field>
+            <field name="arch" type="xml">
+                <list string="Marga">
+                    <field name="complete_name"/>
+                    <field name="kode" optional="hide"/>
+                    <field name="kelompok"/>
+                    <field name="jumlah_anggota"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- FORM VIEW -->
+        <record id="view_tarombo_marga_form" model="ir.ui.view">
+            <field name="name">tarombo.marga.form</field>
+            <field name="model">tarombo.marga</field>
+            <field name="arch" type="xml">
+                <form string="Marga">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Nama Marga"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="kode"/>
+                                <field name="marga_induk_id"/>
+                                <field name="kelompok"/>
+                            </group>
+                            <group>
+                                <field name="jumlah_anggota"/>
+                            </group>
+                        </group>
+                        <group string="Keterangan">
+                            <field name="keterangan" nolabel="1" colspan="2"/>
+                        </group>
+                        <notebook>
+                            <page string="Anak Marga">
+                                <field name="anak_ids">
+                                    <list editable="bottom">
+                                        <field name="name"/>
+                                        <field name="kode"/>
+                                        <field name="kelompok"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- SEARCH VIEW -->
+        <record id="view_tarombo_marga_search" model="ir.ui.view">
+            <field name="name">tarombo.marga.search</field>
+            <field name="model">tarombo.marga</field>
+            <field name="arch" type="xml">
+                <search string="Cari Marga">
+                    <field name="name"/>
+                    <field name="complete_name"/>
+                    <field name="kode"/>
+                    <field name="marga_induk_id"/>
+                    <filter string="Toba" name="filter_toba" domain="[('kelompok', '=', 'toba')]"/>
+                    <filter string="Karo" name="filter_karo" domain="[('kelompok', '=', 'karo')]"/>
+                    <filter string="Simalungun" name="filter_simalungun" domain="[('kelompok', '=', 'simalungun')]"/>
+                    <filter string="Mandailing" name="filter_mandailing" domain="[('kelompok', '=', 'mandailing')]"/>
+                    <filter string="Angkola" name="filter_angkola" domain="[('kelompok', '=', 'angkola')]"/>
+                    <filter string="Pakpak" name="filter_pakpak" domain="[('kelompok', '=', 'pakpak')]"/>
+                    <group>
+                        <filter string="Kelompok" name="groupby_kelompok" context="{'group_by': 'kelompok'}"/>
+                        <filter string="Marga Induk" name="groupby_marga_induk" context="{'group_by': 'marga_induk_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record id="action_tarombo_marga" model="ir.actions.act_window">
+            <field name="name">Marga</field>
+            <field name="res_model">tarombo.marga</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_tarombo_marga_search"/>
+        </record>
+
+    </data>
+</odoo>

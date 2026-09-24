@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- LIST VIEW -->
+        <record id="view_tarombo_orang_direktori_list" model="ir.ui.view">
+            <field name="name">tarombo.orang.direktori.list</field>
+            <field name="model">tarombo.orang</field>
+            <field name="arch" type="xml">
+                <list string="Direktori Keahlian" create="0" edit="0">
+                    <field name="name"/>
+                    <field name="bidang_kini"/>
+                    <field name="pekerjaan_kini"/>
+                    <field name="pendidikan_tertinggi"/>
+                    <field name="wilayah_id"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- SEARCH VIEW -->
+        <record id="view_tarombo_orang_direktori_search" model="ir.ui.view">
+            <field name="name">tarombo.orang.direktori.search</field>
+            <field name="model">tarombo.orang</field>
+            <field name="arch" type="xml">
+                <search string="Cari Direktori Keahlian">
+                    <field name="name"/>
+                    <field name="bidang_kini"/>
+                    <field name="pekerjaan_kini"/>
+                    <field name="wilayah_id"/>
+                    <group>
+                        <filter string="Bidang" name="groupby_bidang_kini" context="{'group_by': 'bidang_kini'}"/>
+                        <filter string="Wilayah" name="groupby_wilayah" context="{'group_by': 'wilayah_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record id="action_tarombo_direktori_keahlian" model="ir.actions.act_window">
+            <field name="name">Direktori Keahlian</field>
+            <field name="res_model">tarombo.orang</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_tarombo_orang_direktori_list"/>
+            <field name="search_view_id" ref="view_tarombo_orang_direktori_search"/>
+            <field name="domain">[('masih_hidup', '=', True)]</field>
+            <field name="context">{'search_default_groupby_bidang_kini': 1, 'search_default_groupby_wilayah': 1}</field>
+        </record>
+
+    </data>
+</odoo>

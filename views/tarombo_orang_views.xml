@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- LIST VIEW -->
+        <record id="view_tarombo_orang_list" model="ir.ui.view">
+            <field name="name">tarombo.orang.list</field>
+            <field name="model">tarombo.orang</field>
+            <field name="arch" type="xml">
+                <list string="Anggota">
+                    <field name="name"/>
+                    <field name="jenis_kelamin"/>
+                    <field name="sundut"/>
+                    <field name="ayah_id"/>
+                    <field name="urutan"/>
+                    <field name="domisili_lengkap" string="Alamat Domisili"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- LIST VIEW RINGKAS — dipakai di dialog pencarian Many2one (mis. pilih Ayah),
+             bukan daftar utama. tarombo.orang sekarang punya >1 list view terdaftar
+             (Anggota, Direktori Keahlian), jadi field Many2one yang mengarah ke model
+             ini WAJIB mengunci list_view_ref eksplisit lewat context, jangan andalkan
+             pemilihan default Odoo (lihat context.md bagian 7 & 8). -->
+        <record id="view_tarombo_orang_list_ref" model="ir.ui.view">
+            <field name="name">tarombo.orang.list.ref</field>
+            <field name="model">tarombo.orang</field>
+            <field name="arch" type="xml">
+                <list string="Pilih Orang">
+                    <field name="name"/>
+                    <field name="sundut"/>
+                    <field name="wilayah_id"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- FORM VIEW -->
+        <record id="view_tarombo_orang_form" model="ir.ui.view">
+            <field name="name">tarombo.orang.form</field>
+            <field name="model">tarombo.orang</field>
+            <field name="arch" type="xml">
+                <form string="Anggota">
+                    <header>
+                        <button name="%(action_tarombo_pohon_silsilah)d" type="action"
+                                string="Pohon Silsilah" class="btn-secondary"/>
+                    </header>
+                    <sheet>
+                        <field name="foto" widget="image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Nama Lengkap"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="jenis_kelamin" widget="radio" options="{'horizontal': true}"/>
+                                <field name="sundut"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Identitas">
+                                <group>
+                                    <group>
+                                        <field name="marga_id" required="ayah_id"/>
+                                        <field name="punguan_id"/>
+                                        <field name="partner_id"/>
+                                        <field name="masih_hidup"/>
+                                    </group>
+                                    <group groups="tarombo.group_tarombo_pengurus">
+                                        <field name="tahun_lahir" options="{'enable_formatting': false}"/>
+                                        <field name="tahun_wafat" options="{'enable_formatting': false}"
+                                               invisible="masih_hidup"/>
+                                    </group>
+                                </group>
+                                <group string="Catatan">
+                                    <field name="catatan" nolabel="1" colspan="2"/>
+                                </group>
+                            </page>
+                            <page string="Keluarga">
+                                <group>
+                                    <group>
+                                        <field name="ayah_id" context="{'list_view_ref': 'tarombo.view_tarombo_orang_list_ref'}"/>
+                                        <field name="pernikahan_id"/>
+                                        <field name="ibu_nama"/>
+                                        <field name="ibu_marga_id"/>
+                                        <field name="urutan"/>
+                                        <field name="urutan_putra"/>
+                                        <field name="jumlah_saudara"/>
+                                    </group>
+                                    <group string="Khusus Perempuan" invisible="jenis_kelamin != 'P'">
+                                        <field name="suami_nama"/>
+                                        <field name="suami_marga_id"/>
+                                    </group>
+                                </group>
+                                <group string="Pernikahan" invisible="jenis_kelamin != 'L'">
+                                    <field name="pernikahan_ids" nolabel="1" colspan="2">
+                                        <list editable="bottom" delete="false" decoration-danger="peringatan_adat">
+                                            <field name="urutan"/>
+                                            <field name="istri_nama"/>
+                                            <field name="istri_marga_id"/>
+                                            <field name="tahun" options="{'enable_formatting': false}"/>
+                                            <field name="anak_ids" widget="many2many_tags" string="Anak" readonly="1"/>
+                                            <field name="peringatan_adat" string="Peringatan Adat"/>
+                                        </list>
+                                    </field>
+                                </group>
+                                <group string="Anak">
+                                    <field name="anak_ids" nolabel="1" colspan="2"
+                                           context="{'default_ayah_id': id, 'default_marga_id': marga_id, 'default_punguan_id': punguan_id}">
+                                        <list delete="false">
+                                            <field name="name"/>
+                                            <field name="jenis_kelamin"/>
+                                            <field name="urutan"/>
+                                            <field name="ibu_nama" string="Nama Ibu"/>
+                                            <field name="status"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+                            <page string="Domisili">
+                                <group>
+                                    <group string="Wilayah Administratif">
+                                        <field name="negara_id"/>
+                                        <field name="provinsi_id" context="{'default_tingkat': '1'}"/>
+                                        <field name="kabupaten_id" context="{'default_tingkat': '2'}"/>
+                                        <field name="kecamatan_id" context="{'default_tingkat': '3'}"/>
+                                        <field name="desa_id" context="{'default_tingkat': '4'}"/>
+                                        <field name="alamat_catatan" placeholder="mis. dimekarkan dari kabupaten X tahun ..."/>
+                                    </group>
+                                    <group string="Alamat Rinci" groups="tarombo.group_tarombo_pengurus">
+                                        <field name="alamat_jalan"/>
+                                        <field name="kode_pos"/>
+                                    </group>
+                                </group>
+                                <group string="Titik Lokasi" groups="tarombo.group_tarombo_pengurus">
+                                    <field name="longitude" invisible="1"/>
+                                    <field name="latitude" widget="tarombo_geo_picker" nolabel="1" colspan="2"/>
+                                </group>
+                            </page>
+                            <page string="Riwayat">
+                                <group>
+                                    <field name="pendidikan_tertinggi" readonly="1"/>
+                                    <field name="pekerjaan_kini" readonly="1"/>
+                                    <field name="bidang_kini" readonly="1"/>
+                                </group>
+                                <group string="Pendidikan">
+                                    <field name="pendidikan_ids" nolabel="1" colspan="2">
+                                        <list editable="bottom">
+                                            <field name="jenjang"/>
+                                            <field name="institusi"/>
+                                            <field name="jurusan"/>
+                                            <field name="wilayah_id"/>
+                                            <field name="tahun_masuk" options="{'enable_formatting': false}"/>
+                                            <field name="tahun_lulus" options="{'enable_formatting': false}"/>
+                                            <field name="lulus"/>
+                                        </list>
+                                    </field>
+                                </group>
+                                <group string="Pekerjaan">
+                                    <field name="pekerjaan_ids" nolabel="1" colspan="2">
+                                        <list editable="bottom">
+                                            <field name="jabatan"/>
+                                            <field name="instansi"/>
+                                            <field name="bidang"/>
+                                            <field name="wilayah_id"/>
+                                            <field name="tahun_mulai" options="{'enable_formatting': false}"/>
+                                            <field name="tahun_selesai" options="{'enable_formatting': false}"/>
+                                            <field name="sekarang"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+                            <page string="Arsip">
+                                <field name="arsip_ids" nolabel="1"
+                                       context="{'default_orang_id': id, 'default_punguan_id': punguan_id}">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="jenis"/>
+                                        <field name="berkas_nama" string="Berkas"/>
+                                        <field name="tahun_perkiraan" options="{'enable_formatting': false}"/>
+                                        <field name="publik"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Keabsahan">
+                                <group>
+                                    <field name="status"/>
+                                    <field name="sumber_ket"/>
+                                    <field name="lengkap"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- SEARCH VIEW -->
+        <record id="view_tarombo_orang_search" model="ir.ui.view">
+            <field name="name">tarombo.orang.search</field>
+            <field name="model">tarombo.orang</field>
+            <field name="arch" type="xml">
+                <search string="Cari Anggota">
+                    <field name="name"/>
+                    <field name="sundut"/>
+                    <field name="marga_id"/>
+                    <field name="ayah_id"/>
+                    <field name="bidang_kini"/>
+                    <field name="pendidikan_tertinggi"/>
+                    <filter string="Laki-laki" name="filter_laki" domain="[('jenis_kelamin', '=', 'L')]"/>
+                    <filter string="Perempuan" name="filter_perempuan" domain="[('jenis_kelamin', '=', 'P')]"/>
+                    <group>
+                        <filter string="Sundut" name="groupby_sundut" context="{'group_by': 'sundut'}"/>
+                        <filter string="Marga" name="groupby_marga" context="{'group_by': 'marga_id'}"/>
+                        <filter string="Jenis Kelamin" name="groupby_jenis_kelamin" context="{'group_by': 'jenis_kelamin'}"/>
+                        <filter string="Bidang Saat Ini" name="groupby_bidang_kini" context="{'group_by': 'bidang_kini'}"/>
+                        <filter string="Pendidikan Tertinggi" name="groupby_pendidikan_tertinggi" context="{'group_by': 'pendidikan_tertinggi'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record id="action_tarombo_orang" model="ir.actions.act_window">
+            <field name="name">Anggota</field>
+            <field name="res_model">tarombo.orang</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_tarombo_orang_search"/>
+            <field name="view_ids" eval="[
+                (5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_tarombo_orang_list')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_tarombo_orang_form')}),
+            ]"/>
+        </record>
+
+    </data>
+</odoo>

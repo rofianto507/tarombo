@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="wilayah_sumatera_utara" model="tarombo.wilayah">
+            <field name="name">Sumatera Utara</field>
+            <field name="tingkat">1</field>
+        </record>
+
+        <record id="wilayah_kab_toba" model="tarombo.wilayah">
+            <field name="name">Kabupaten Toba</field>
+            <field name="tingkat">2</field>
+            <field name="induk_id" ref="wilayah_sumatera_utara"/>
+        </record>
+
+        <record id="wilayah_silaen" model="tarombo.wilayah">
+            <field name="name">Silaen</field>
+            <field name="tingkat">3</field>
+            <field name="induk_id" ref="wilayah_kab_toba"/>
+        </record>
+
+        <record id="wilayah_kab_asahan" model="tarombo.wilayah">
+            <field name="name">Kabupaten Asahan</field>
+            <field name="tingkat">2</field>
+            <field name="induk_id" ref="wilayah_sumatera_utara"/>
+        </record>
+
+        <record id="wilayah_kisaran_barat" model="tarombo.wilayah">
+            <field name="name">Kisaran Barat</field>
+            <field name="tingkat">3</field>
+            <field name="induk_id" ref="wilayah_kab_asahan"/>
+        </record>
+
+    </data>
+</odoo>

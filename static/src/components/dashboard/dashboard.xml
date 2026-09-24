@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tarombo.Dashboard">
+        <Layout display="display">
+            <t t-set-slot="layout-buttons">
+                <button type="button" class="btn btn-sm btn-outline-primary" t-on-click="_muatData">
+                    <i class="fa fa-refresh"/> Muat Ulang
+                </button>
+            </t>
+            <div class="o_tarombo_dashboard" t-ref="root">
+                <t t-if="state.loading">
+                    <div class="o_tarombo_dashboard_status">
+                        <i class="fa fa-spinner fa-spin fa-2x"/>
+                        <div class="mt-2">Memuat dashboard...</div>
+                    </div>
+                </t>
+                <t t-elif="state.error">
+                    <div class="o_tarombo_dashboard_status text-muted">
+                        Data dashboard tidak dapat dimuat.
+                    </div>
+                </t>
+                <t t-else="">
+                    <!-- KPI -->
+                    <div class="o_tarombo_kpi_row">
+                        <div class="o_tarombo_kpi_card">
+                            <div class="o_tarombo_kpi_icon"><i class="fa fa-users"/></div>
+                            <div class="o_tarombo_kpi_body">
+                                <div class="o_tarombo_kpi_value"><t t-esc="state.data.kpi.total_anggota"/></div>
+                                <div class="o_tarombo_kpi_label">Total Anggota</div>
+                                <div class="o_tarombo_kpi_sub">anggota tercatat</div>
+                            </div>
+                        </div>
+                        <div class="o_tarombo_kpi_card">
+                            <div class="o_tarombo_kpi_icon"><i class="fa fa-check-circle"/></div>
+                            <div class="o_tarombo_kpi_body">
+                                <div class="o_tarombo_kpi_value"><t t-esc="state.data.kpi.persen_lengkap"/>%</div>
+                                <div class="o_tarombo_kpi_label">Kelengkapan Data</div>
+                                <div class="o_tarombo_kpi_sub">terverifikasi &amp; lengkap</div>
+                            </div>
+                        </div>
+                        <div class="o_tarombo_kpi_card">
+                            <div class="o_tarombo_kpi_icon"><i class="fa fa-clock-o"/></div>
+                            <div class="o_tarombo_kpi_body">
+                                <div class="o_tarombo_kpi_value"><t t-esc="state.data.kpi.usulan_menunggu"/></div>
+                                <div class="o_tarombo_kpi_label">Usulan Menunggu</div>
+                                <div class="o_tarombo_kpi_sub">perlu ditinjau</div>
+                            </div>
+                        </div>
+                        <div class="o_tarombo_kpi_card">
+                            <div class="o_tarombo_kpi_icon"><i class="fa fa-sitemap"/></div>
+                            <div class="o_tarombo_kpi_body">
+                                <div class="o_tarombo_kpi_value">
+                                    <t t-esc="state.data.kpi.total_punguan"/> / <t t-esc="state.data.kpi.total_marga"/>
+                                </div>
+                                <div class="o_tarombo_kpi_label">Punguan / Marga</div>
+                                <div class="o_tarombo_kpi_sub">terdaftar</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart baris 1 -->
+                    <div class="o_tarombo_chart_row o_tarombo_chart_row--donut">
+                        <div class="o_tarombo_chart_card">
+                            <div class="o_tarombo_chart_title"><i class="fa fa-pie-chart"/> Distribusi Jenis Kelamin</div>
+                            <t t-if="!state.data.jenis_kelamin.length">
+                                <div class="o_tarombo_chart_empty">Tidak ada data</div>
+                            </t>
+                            <div t-else="" t-ref="donut" class="o_tarombo_chart_canvas"/>
+                        </div>
+                        <div class="o_tarombo_chart_card o_tarombo_chart_card--wide">
+                            <div class="o_tarombo_chart_title"><i class="fa fa-line-chart"/> Anggota per Sundut (Generasi)</div>
+                            <t t-if="!state.data.per_sundut.length">
+                                <div class="o_tarombo_chart_empty">Tidak ada data</div>
+                            </t>
+                            <div t-else="" t-ref="sundut" class="o_tarombo_chart_canvas"/>
+                        </div>
+                    </div>
+
+                    <!-- Chart baris 2 -->
+                    <div class="o_tarombo_chart_row">
+                        <div class="o_tarombo_chart_card">
+                            <div class="o_tarombo_chart_title"><i class="fa fa-bar-chart"/> Anggota per Punguan (Top 8)</div>
+                            <t t-if="!state.data.per_punguan.length">
+                                <div class="o_tarombo_chart_empty">Tidak ada data</div>
+                            </t>
+                            <div t-else="" t-ref="punguan" class="o_tarombo_chart_canvas"/>
+                        </div>
+                        <div class="o_tarombo_chart_card">
+                            <div class="o_tarombo_chart_title"><i class="fa fa-bar-chart"/> Anggota per Marga (Top 8)</div>
+                            <t t-if="!state.data.per_marga.length">
+                                <div class="o_tarombo_chart_empty">Tidak ada data</div>
+                            </t>
+                            <div t-else="" t-ref="marga" class="o_tarombo_chart_canvas"/>
+                        </div>
+                    </div>
+
+                    <!-- Tabel -->
+                    <div class="o_tarombo_table_row">
+                        <div class="o_tarombo_table_card">
+                            <div class="o_tarombo_chart_title"><i class="fa fa-list-alt"/> Ringkasan per Punguan</div>
+                            <div class="o_tarombo_table_scroll">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Punguan</th>
+                                            <th class="text-end">Terverifikasi</th>
+                                            <th class="text-end">Belum Terverifikasi</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="!state.data.tabel_punguan.length">
+                                            <tr><td colspan="4" class="text-center text-muted">Tidak ada data</td></tr>
+                                        </t>
+                                        <t t-foreach="state.data.tabel_punguan" t-as="row" t-key="row.id">
+                                            <tr>
+                                                <td><t t-esc="row.name"/></td>
+                                                <td class="text-end"><t t-esc="row.sahih"/></td>
+                                                <td class="text-end"><t t-esc="row.rumpang"/></td>
+                                                <td class="text-end"><strong><t t-esc="row.total"/></strong></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="o_tarombo_table_card">
+                            <div class="o_tarombo_chart_title"><i class="fa fa-clock-o"/> Usulan Menunggu Tinjauan</div>
+                            <div class="o_tarombo_table_scroll">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Usulan</th>
+                                            <th>Jenis</th>
+                                            <th>Sasaran</th>
+                                            <th>Tanggal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="!state.data.usulan_menunggu_list.length">
+                                            <tr><td colspan="4" class="text-center text-muted">Tidak ada usulan menunggu</td></tr>
+                                        </t>
+                                        <t t-foreach="state.data.usulan_menunggu_list" t-as="row" t-key="row.id">
+                                            <tr class="o_tarombo_row_klik" t-on-click="() => this._bukaUsulan(row.id)">
+                                                <td><t t-esc="row.name"/></td>
+                                                <td><t t-esc="row.jenis"/></td>
+                                                <td><t t-esc="row.sasaran"/></td>
+                                                <td><t t-esc="row.tanggal_ajukan"/></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Peta -->
+                    <div class="o_tarombo_map_card">
+                        <div class="o_tarombo_chart_title">
+                            <i class="fa fa-map-marker"/> Sebaran Titik Lokasi Anggota
+                            <span class="badge text-bg-secondary ms-1"><t t-esc="state.data.map_points.length"/> titik</span>
+                        </div>
+                        <t t-if="!state.data.map_points.length">
+                            <div class="o_tarombo_chart_empty">Belum ada titik lokasi tercatat.</div>
+                        </t>
+                        <div t-else="" t-ref="map" class="o_tarombo_map_canvas"/>
+                    </div>
+
+                    <!-- Kanban arsip -->
+                    <div class="o_tarombo_kanban_section">
+                        <div class="o_tarombo_chart_title"><i class="fa fa-th-large"/> Arsip Terbaru</div>
+                        <t t-if="!state.data.arsip_terbaru.length">
+                            <div class="o_tarombo_chart_empty">Belum ada arsip.</div>
+                        </t>
+                        <div t-else="" class="o_tarombo_kanban_grid">
+                            <t t-foreach="state.data.arsip_terbaru" t-as="item" t-key="item.id">
+                                <div class="o_tarombo_kanban_card" t-on-click="() => this._bukaArsip(item.id)">
+                                    <div class="o_tarombo_kanban_thumb">
+                                        <img t-if="item.punya_foto" t-att-src="_urlPratinjau(item.id)" alt=""/>
+                                        <i t-else="" class="fa fa-file-o fa-2x"/>
+                                    </div>
+                                    <div class="o_tarombo_kanban_body">
+                                        <div class="o_tarombo_kanban_name" t-esc="item.name"/>
+                                        <div class="o_tarombo_kanban_sub">
+                                            <t t-esc="item.jenis"/> · <t t-esc="item.orang"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </Layout>
+    </t>
+
+</templates>

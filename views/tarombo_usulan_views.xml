@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- LIST VIEW -->
+        <record id="view_tarombo_usulan_list" model="ir.ui.view">
+            <field name="name">tarombo.usulan.list</field>
+            <field name="model">tarombo.usulan</field>
+            <field name="arch" type="xml">
+                <list string="Usulan"
+                      decoration-muted="state == 'draft'"
+                      decoration-warning="state == 'diajukan'"
+                      decoration-success="state == 'disetujui'"
+                      decoration-danger="state == 'ditolak'">
+                    <field name="name"/>
+                    <field name="jenis"/>
+                    <field name="punguan_id"/>
+                    <field name="orang_id"/>
+                    <field name="ayah_id"/>
+                    <field name="pengusul_id"/>
+                    <field name="tanggal_ajukan"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- FORM VIEW -->
+        <record id="view_tarombo_usulan_form" model="ir.ui.view">
+            <field name="name">tarombo.usulan.form</field>
+            <field name="model">tarombo.usulan</field>
+            <field name="arch" type="xml">
+                <form string="Usulan">
+                    <header>
+                        <button name="action_ajukan" type="object" string="Ajukan"
+                                class="btn-primary" invisible="state != 'draft'"/>
+                        <button name="action_setujui" type="object" string="Setujui"
+                                class="btn-primary" invisible="state != 'diajukan'"
+                                groups="tarombo.group_tarombo_pengurus"/>
+                        <button name="action_tolak" type="object" string="Tolak"
+                                invisible="state != 'diajukan'"
+                                groups="tarombo.group_tarombo_pengurus"/>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,diajukan,disetujui"/>
+                    </header>
+                    <sheet>
+                        <field name="usul_foto" widget="image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="jenis"/>
+                                <field name="punguan_id"/>
+                                <field name="sumber_ket"/>
+                            </group>
+                            <group>
+                                <field name="pengusul_id"/>
+                                <field name="tanggal_ajukan"/>
+                                <field name="peninjau_id"/>
+                                <field name="tanggal_tinjau"/>
+                                <field name="orang_hasil_id"/>
+                            </group>
+                        </group>
+                        <group string="Sasaran">
+                            <field name="ayah_id" invisible="jenis != 'tambah'"
+                                   context="{'list_view_ref': 'tarombo.view_tarombo_orang_list_ref'}"/>
+                            <field name="pernikahan_id" invisible="jenis != 'tambah'"/>
+                            <field name="orang_id" invisible="jenis == 'tambah'"
+                                   context="{'list_view_ref': 'tarombo.view_tarombo_orang_list_ref'}"/>
+                        </group>
+                        <group string="Muatan Usulan">
+                            <group>
+                                <field name="usul_nama"/>
+                                <field name="usul_jenis_kelamin" widget="radio" options="{'horizontal': true}"/>
+                                <field name="usul_masih_hidup" widget="radio" options="{'horizontal': true}"/>
+                                <field name="usul_urutan"/>
+                                <field name="usul_tahun_lahir" options="{'enable_formatting': false}"/>
+                            </group>
+                            <group>
+                                <field name="usul_suami_nama" invisible="usul_jenis_kelamin != 'P'"/>
+                                <field name="usul_suami_marga_id" invisible="usul_jenis_kelamin != 'P'"/>
+                            </group>
+                        </group>
+                        <group string="Wilayah Usulan">
+                            <group>
+                                <field name="usul_provinsi_id" context="{'default_tingkat': '1'}"/>
+                                <field name="usul_kabupaten_id" context="{'default_tingkat': '2'}"/>
+                                <field name="usul_kecamatan_id" context="{'default_tingkat': '3'}"/>
+                                <field name="usul_desa_id" context="{'default_tingkat': '4'}"/>
+                            </group>
+                            <group>
+                                <field name="usul_alamat_jalan"/>
+                            </group>
+                        </group>
+                        <group string="Titik Lokasi Usulan">
+                            <field name="usul_longitude" invisible="1"/>
+                            <field name="usul_latitude" widget="tarombo_geo_picker" nolabel="1" colspan="2"
+                                   options="{'lat_field': 'usul_latitude', 'lng_field': 'usul_longitude'}"/>
+                        </group>
+                        <group string="Catatan">
+                            <field name="catatan" nolabel="1" colspan="2"/>
+                        </group>
+                        <group string="Alasan Penolakan" invisible="state != 'ditolak'">
+                            <field name="alasan_tolak" nolabel="1" colspan="2"/>
+                        </group>
+                        <field name="lampiran_ids" widget="many2many_binary" string="Lampiran"/>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- KANBAN VIEW -->
+        <record id="view_tarombo_usulan_kanban" model="ir.ui.view">
+            <field name="name">tarombo.usulan.kanban</field>
+            <field name="model">tarombo.usulan</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state">
+                    <field name="name"/>
+                    <field name="jenis"/>
+                    <field name="pengusul_id"/>
+                    <field name="state"/>
+                    <templates>
+                        <t t-name="card">
+                            <div class="oe_kanban_global_click">
+                                <strong><field name="name"/></strong>
+                                <div><field name="jenis"/></div>
+                                <div class="text-muted"><field name="pengusul_id"/></div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- SEARCH VIEW -->
+        <record id="view_tarombo_usulan_search" model="ir.ui.view">
+            <field name="name">tarombo.usulan.search</field>
+            <field name="model">tarombo.usulan</field>
+            <field name="arch" type="xml">
+                <search string="Cari Usulan">
+                    <field name="name"/>
+                    <field name="orang_id"/>
+                    <field name="ayah_id"/>
+                    <field name="pengusul_id"/>
+                    <field name="punguan_id"/>
+                    <filter string="Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                    <filter string="Diajukan" name="filter_diajukan" domain="[('state', '=', 'diajukan')]"/>
+                    <filter string="Disetujui" name="filter_disetujui" domain="[('state', '=', 'disetujui')]"/>
+                    <filter string="Ditolak" name="filter_ditolak"
+                            domain="[('state', '=', 'ditolak'), ('active', 'in', [True, False])]"/>
+                    <separator/>
+                    <filter string="Usulan Saya" name="filter_usulan_saya" domain="[('pengusul_id', '=', uid)]"/>
+                    <group>
+                        <filter string="Status" name="groupby_state" context="{'group_by': 'state'}"/>
+                        <filter string="Jenis" name="groupby_jenis" context="{'group_by': 'jenis'}"/>
+                        <filter string="Punguan" name="groupby_punguan" context="{'group_by': 'punguan_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record id="action_tarombo_usulan" model="ir.actions.act_window">
+            <field name="name">Usulan</field>
+            <field name="res_model">tarombo.usulan</field>
+            <field name="view_mode">list,kanban,form</field>
+            <field name="search_view_id" ref="view_tarombo_usulan_search"/>
+            <field name="view_ids" eval="[
+                (5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_tarombo_usulan_list')}),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_tarombo_usulan_kanban')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_tarombo_usulan_form')}),
+            ]"/>
+            <field name="context">{'search_default_groupby_state': 1}</field>
+        </record>
+
+    </data>
+</odoo>

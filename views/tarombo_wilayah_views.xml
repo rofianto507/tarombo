@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- LIST VIEW -->
+        <record id="view_tarombo_wilayah_list" model="ir.ui.view">
+            <field name="name">tarombo.wilayah.list</field>
+            <field name="model">tarombo.wilayah</field>
+            <field name="arch" type="xml">
+                <list string="Wilayah">
+                    <field name="kode"/>
+                    <field name="complete_name"/>
+                    <field name="tingkat"/>
+                    <field name="induk_id"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- FORM VIEW -->
+        <record id="view_tarombo_wilayah_form" model="ir.ui.view">
+            <field name="name">tarombo.wilayah.form</field>
+            <field name="model">tarombo.wilayah</field>
+            <field name="arch" type="xml">
+                <form string="Wilayah">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Nama Wilayah"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="kode"/>
+                                <field name="tingkat" readonly="context.get('default_tingkat')"/>
+                                <field name="tingkat_induk" invisible="1"/>
+                                <field name="induk_id" domain="[('tingkat', '=', tingkat_induk)]"/>
+                            </group>
+                            <group>
+                                <field name="kode_pos"/>
+                            </group>
+                        </group>
+                        <group string="Titik Lokasi">
+                            <field name="longitude" invisible="1"/>
+                            <field name="latitude" widget="tarombo_geo_picker" nolabel="1" colspan="2"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- SEARCH VIEW -->
+        <record id="view_tarombo_wilayah_search" model="ir.ui.view">
+            <field name="name">tarombo.wilayah.search</field>
+            <field name="model">tarombo.wilayah</field>
+            <field name="arch" type="xml">
+                <search string="Cari Wilayah">
+                    <field name="name"/>
+                    <field name="kode"/>
+                    <field name="complete_name"/>
+                    <field name="induk_id"/>
+                    <filter string="Provinsi" name="filter_tingkat_1" domain="[('tingkat', '=', '1')]"/>
+                    <filter string="Kabupaten/Kota" name="filter_tingkat_2" domain="[('tingkat', '=', '2')]"/>
+                    <filter string="Kecamatan" name="filter_tingkat_3" domain="[('tingkat', '=', '3')]"/>
+                    <filter string="Desa/Kelurahan" name="filter_tingkat_4" domain="[('tingkat', '=', '4')]"/>
+                    <group>
+                        <filter string="Tingkat" name="groupby_tingkat" context="{'group_by': 'tingkat'}"/>
+                        <filter string="Induk" name="groupby_induk" context="{'group_by': 'induk_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record id="action_tarombo_wilayah" model="ir.actions.act_window">
+            <field name="name">Wilayah</field>
+            <field name="res_model">tarombo.wilayah</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_tarombo_wilayah_search"/>
+        </record>
+
+    </data>
+</odoo>

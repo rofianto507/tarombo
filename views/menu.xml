@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem
+            id="menu_tarombo_root"
+            name="Tarombo"
+            web_icon="tarombo,static/description/icon.png"
+            groups="tarombo.group_tarombo_anggota"
+            sequence="1"/>
+
+        <menuitem
+            id="menu_tarombo_dashboard"
+            name="Dashboard"
+            parent="menu_tarombo_root"
+            action="action_tarombo_dashboard"
+            groups="tarombo.group_tarombo_pengurus"
+            sequence="5"/>
+
+        <menuitem
+            id="menu_tarombo_anggota"
+            name="Anggota"
+            parent="menu_tarombo_root"
+            sequence="10"/>
+
+        <menuitem
+            id="menu_tarombo_anggota_list"
+            name="Daftar Anggota"
+            parent="menu_tarombo_anggota"
+            action="action_tarombo_orang"
+            sequence="10"/>
+
+        <menuitem
+            id="menu_tarombo_arsip"
+            name="Arsip"
+            parent="menu_tarombo_anggota"
+            action="action_tarombo_arsip"
+            sequence="20"/>
+
+        <menuitem
+            id="menu_tarombo_usulan"
+            name="Usulan"
+            parent="menu_tarombo_root"
+            sequence="20"/>
+
+        <menuitem
+            id="menu_tarombo_usulan_list"
+            name="Daftar Usulan"
+            parent="menu_tarombo_usulan"
+            action="action_tarombo_usulan"
+            sequence="10"/>
+
+        <menuitem
+            id="menu_tarombo_laporan"
+            name="Laporan"
+            parent="menu_tarombo_root"
+            sequence="30"/>
+
+        <menuitem
+            id="menu_tarombo_partuturan"
+            name="Hitung Partuturan"
+            parent="menu_tarombo_laporan"
+            action="action_tarombo_partuturan_wizard"
+            sequence="10"/>
+
+        <menuitem
+            id="menu_tarombo_direktori_keahlian"
+            name="Direktori Keahlian"
+            parent="menu_tarombo_laporan"
+            action="action_tarombo_direktori_keahlian"
+            sequence="20"/>
+
+        <menuitem
+            id="menu_tarombo_konfigurasi"
+            name="Konfigurasi"
+            parent="menu_tarombo_root"
+            groups="tarombo.group_tarombo_admin"
+            sequence="40"/>
+
+        <menuitem
+            id="menu_tarombo_marga"
+            name="Marga"
+            parent="menu_tarombo_konfigurasi"
+            action="action_tarombo_marga"
+            groups="tarombo.group_tarombo_admin"
+            sequence="10"/>
+
+        <menuitem
+            id="menu_tarombo_padan"
+            name="Padan"
+            parent="menu_tarombo_konfigurasi"
+            action="action_tarombo_padan"
+            groups="tarombo.group_tarombo_admin"
+            sequence="15"/>
+
+        <menuitem
+            id="menu_tarombo_wilayah"
+            name="Wilayah"
+            parent="menu_tarombo_konfigurasi"
+            action="action_tarombo_wilayah"
+            groups="tarombo.group_tarombo_admin"
+            sequence="20"/>
+
+        <menuitem
+            id="menu_tarombo_punguan"
+            name="Punguan"
+            parent="menu_tarombo_konfigurasi"
+            action="action_tarombo_punguan"
+            groups="tarombo.group_tarombo_admin"
+            sequence="30"/>
+    </data>
+</odoo>

@@ -1,0 +1,31 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tarombo_orang_anggota,tarombo.orang anggota,model_tarombo_orang,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_orang_pengurus,tarombo.orang pengurus,model_tarombo_orang,tarombo.group_tarombo_pengurus,1,1,1,1
+access_tarombo_orang_admin,tarombo.orang admin,model_tarombo_orang,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_marga_anggota,tarombo.marga anggota,model_tarombo_marga,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_marga_pengurus,tarombo.marga pengurus,model_tarombo_marga,tarombo.group_tarombo_pengurus,1,0,0,0
+access_tarombo_marga_admin,tarombo.marga admin,model_tarombo_marga,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_wilayah_anggota,tarombo.wilayah anggota,model_tarombo_wilayah,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_wilayah_admin,tarombo.wilayah admin,model_tarombo_wilayah,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_punguan_anggota,tarombo.punguan anggota,model_tarombo_punguan,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_punguan_pengurus,tarombo.punguan pengurus,model_tarombo_punguan,tarombo.group_tarombo_pengurus,1,0,0,0
+access_tarombo_punguan_admin,tarombo.punguan admin,model_tarombo_punguan,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_pernikahan_anggota,tarombo.pernikahan anggota,model_tarombo_pernikahan,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_pernikahan_pengurus,tarombo.pernikahan pengurus,model_tarombo_pernikahan,tarombo.group_tarombo_pengurus,1,1,1,1
+access_tarombo_pernikahan_admin,tarombo.pernikahan admin,model_tarombo_pernikahan,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_partuturan_wizard,tarombo.partuturan.wizard,model_tarombo_partuturan_wizard,tarombo.group_tarombo_anggota,1,1,1,1
+access_tarombo_pendidikan_anggota,tarombo.pendidikan anggota,model_tarombo_pendidikan,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_pendidikan_pengurus,tarombo.pendidikan pengurus,model_tarombo_pendidikan,tarombo.group_tarombo_pengurus,1,1,1,1
+access_tarombo_pendidikan_admin,tarombo.pendidikan admin,model_tarombo_pendidikan,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_pekerjaan_anggota,tarombo.pekerjaan anggota,model_tarombo_pekerjaan,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_pekerjaan_pengurus,tarombo.pekerjaan pengurus,model_tarombo_pekerjaan,tarombo.group_tarombo_pengurus,1,1,1,1
+access_tarombo_pekerjaan_admin,tarombo.pekerjaan admin,model_tarombo_pekerjaan,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_usulan_anggota,tarombo.usulan anggota,model_tarombo_usulan,tarombo.group_tarombo_anggota,1,1,1,0
+access_tarombo_usulan_pengurus,tarombo.usulan pengurus,model_tarombo_usulan,tarombo.group_tarombo_pengurus,1,1,1,0
+access_tarombo_usulan_admin,tarombo.usulan admin,model_tarombo_usulan,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_arsip_anggota,tarombo.arsip anggota,model_tarombo_arsip,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_arsip_pengurus,tarombo.arsip pengurus,model_tarombo_arsip,tarombo.group_tarombo_pengurus,1,1,1,1
+access_tarombo_arsip_admin,tarombo.arsip admin,model_tarombo_arsip,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_padan_anggota,tarombo.padan anggota,model_tarombo_padan,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_padan_pengurus,tarombo.padan pengurus,model_tarombo_padan,tarombo.group_tarombo_pengurus,1,0,0,0
+access_tarombo_padan_admin,tarombo.padan admin,model_tarombo_padan,tarombo.group_tarombo_admin,1,1,1,1

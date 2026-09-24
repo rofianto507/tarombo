@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- KANBAN VIEW -->
+        <record id="view_tarombo_arsip_kanban" model="ir.ui.view">
+            <field name="name">tarombo.arsip.kanban</field>
+            <field name="model">tarombo.arsip</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="jenis"/>
+                    <field name="orang_id"/>
+                    <field name="pratinjau"/>
+                    <templates>
+                        <t t-name="card">
+                            <field name="pratinjau" widget="image"
+                                   options="{'img_class': 'w-100 object-fit-contain'}"
+                                   alt="Pratinjau" invisible="not pratinjau"/>
+                            <div class="d-flex align-items-center justify-content-center bg-light p-4"
+                                 invisible="pratinjau">
+                                <i class="fa fa-file-o fa-2x text-muted"/>
+                            </div>
+                            <div class="p-2">
+                                <strong><field name="name"/></strong>
+                                <div><field name="jenis"/></div>
+                                <div t-if="record.orang_id.value"><field name="orang_id"/></div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- FORM VIEW -->
+        <record id="view_tarombo_arsip_form" model="ir.ui.view">
+            <field name="name">tarombo.arsip.form</field>
+            <field name="model">tarombo.arsip</field>
+            <field name="arch" type="xml">
+                <form string="Arsip">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="Nama Arsip"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="jenis"/>
+                                <field name="berkas_nama" invisible="1"/>
+                                <field name="berkas" filename="berkas_nama"/>
+                                <field name="orang_id"/>
+                                <field name="punguan_id"/>
+                            </group>
+                            <group>
+                                <field name="tahun_perkiraan" options="{'enable_formatting': false}"/>
+                                <field name="sumber"/>
+                                <field name="publik"/>
+                            </group>
+                        </group>
+                        <group string="Pratinjau" invisible="not pratinjau">
+                            <field name="pratinjau" widget="image" nolabel="1" options="{'img_class': 'w-50'}"/>
+                        </group>
+                        <group string="Keterangan">
+                            <field name="keterangan" nolabel="1" colspan="2"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- SEARCH VIEW -->
+        <record id="view_tarombo_arsip_search" model="ir.ui.view">
+            <field name="name">tarombo.arsip.search</field>
+            <field name="model">tarombo.arsip</field>
+            <field name="arch" type="xml">
+                <search string="Cari Arsip">
+                    <field name="name"/>
+                    <field name="orang_id"/>
+                    <field name="punguan_id"/>
+                    <field name="sumber"/>
+                    <filter string="Publik" name="filter_publik" domain="[('publik', '=', True)]"/>
+                    <group>
+                        <filter string="Jenis" name="groupby_jenis" context="{'group_by': 'jenis'}"/>
+                        <filter string="Orang" name="groupby_orang" context="{'group_by': 'orang_id'}"/>
+                        <filter string="Punguan" name="groupby_punguan" context="{'group_by': 'punguan_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record id="action_tarombo_arsip" model="ir.actions.act_window">
+            <field name="name">Arsip</field>
+            <field name="res_model">tarombo.arsip</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="search_view_id" ref="view_tarombo_arsip_search"/>
+            <field name="view_ids" eval="[
+                (5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_tarombo_arsip_kanban')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_tarombo_arsip_form')}),
+            ]"/>
+        </record>
+
+    </data>
+</odoo>

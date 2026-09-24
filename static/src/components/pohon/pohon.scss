@@ -1,0 +1,95 @@
+.o_tarombo_pohon_body {
+    min-height: 400px;
+    background-color: #fff;
+}
+
+.o_tarombo_pohon_chart {
+    min-height: 400px;
+}
+
+.o_tarombo_pohon_overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.75);
+    pointer-events: none;
+}
+
+.o_tarombo_pohon_search {
+    width: 200px;
+}
+
+.o_tarombo_pohon_search_hasil {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.o_tarombo_pohon_kanvas_kontrol {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 500;
+}
+
+.o_tarombo_pohon_kanvas_kontrol .btn-group .btn {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.o_tarombo_pohon_legenda_canvas {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    z-index: 500;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #495057;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    pointer-events: none;
+}
+
+.o_tarombo_legenda_simbol,
+.o_tarombo_legenda_warna {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.o_tarombo_legenda_simbol {
+    background-color: #6c757d;
+}
+
+.o_tarombo_legenda_lingkaran {
+    border-radius: 50%;
+}
+
+.o_tarombo_legenda_wajik {
+    transform: rotate(45deg);
+}
+
+.o_tarombo_legenda_warna {
+    border-radius: 2px;
+}
+
+.o_tarombo_legenda_sahih {
+    background-color: #3b6fb4;
+}
+
+.o_tarombo_legenda_rumpang {
+    background-color: #adb5bd;
+}

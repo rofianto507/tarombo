@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!--
+            Punguan administratif/kurator — dipakai untuk leluhur puncak/historis
+            (mis. Tuan Sihubil) yang tidak benar-benar anggota organisasi punguan
+            modern mana pun. punguan_id tetap wajib diisi di semua record
+            tarombo.orang; untuk leluhur semacam ini, field itu menandai siapa
+            yang merawat data historisnya, bukan klaim keanggotaan sesungguhnya.
+        -->
+        <record id="punguan_kurator_leluhur" model="tarombo.punguan">
+            <field name="name">Punguan Pusat (Kurator Leluhur)</field>
+            <field name="kode">PUSAT</field>
+            <field name="keterangan">Dipakai sebagai punguan administratif untuk leluhur puncak/historis yang mendahului keberadaan punguan modern. Bukan klaim keanggotaan asli.</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_tarombo_partuturan_wizard_form" model="ir.ui.view">
+            <field name="name">tarombo.partuturan.wizard.form</field>
+            <field name="model">tarombo.partuturan.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Hitung Partuturan">
+                    <div class="alert alert-info" role="alert">
+                        Perhitungan ini hanya menangani dongan tubu, yaitu sesama keturunan
+                        patrilineal lewat garis ayah. Jalur tulang dan hula-hula lewat garis ibu
+                        baru bisa dihitung setelah marga istri terisi lengkap.
+                    </div>
+                    <group>
+                        <field name="orang_a_id"/>
+                        <field name="orang_b_id"/>
+                    </group>
+                    <group string="Hasil" invisible="not sebutan_a">
+                        <field name="anc_id"/>
+                        <field name="jarak"/>
+                        <field name="senior_a"/>
+                        <field name="sebutan_a"/>
+                        <field name="sebutan_b"/>
+                        <field name="keterangan"/>
+                    </group>
+                    <group string="Jalur" invisible="not sebutan_a">
+                        <field name="jalur_a_ids" widget="many2many_tags"/>
+                        <field name="jalur_b_ids" widget="many2many_tags"/>
+                    </group>
+                    <footer>
+                        <button name="action_hitung" type="object" string="Hitung" class="btn-primary"/>
+                        <button special="cancel" string="Tutup" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_tarombo_partuturan_wizard" model="ir.actions.act_window">
+            <field name="name">Hitung Partuturan</field>
+            <field name="res_model">tarombo.partuturan.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

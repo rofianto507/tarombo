@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tarombo.PohonSilsilah">
+        <Layout display="display">
+            <t t-set-slot="layout-buttons">
+                <div class="btn-group me-2" role="group">
+                    <button type="button"
+                            t-att-class="'btn btn-sm ' + (state.mode === 'cabang' ? 'btn-primary' : 'btn-outline-primary')"
+                            t-on-click="() => this._gantiMode('cabang')">
+                        Cabang Terpilih
+                    </button>
+                    <button type="button"
+                            t-att-class="'btn btn-sm ' + (state.mode === 'radial' ? 'btn-primary' : 'btn-outline-primary')"
+                            t-on-click="() => this._gantiMode('radial')">
+                        Seluruh Keturunan
+                    </button>
+                </div>
+                <div class="o_tarombo_pohon_search position-relative">
+                    <input type="text" class="form-control form-control-sm"
+                           placeholder="Cari nama..."
+                           t-att-value="state.pencarian"
+                           t-on-input="_onInputPencarian"/>
+                    <div class="o_tarombo_pohon_search_hasil list-group" t-if="state.hasilPencarian.length">
+                        <t t-foreach="state.hasilPencarian" t-as="hasil" t-key="hasil.id">
+                            <a href="#" class="list-group-item list-group-item-action py-1 px-2 small"
+                               t-on-click.prevent="() => this._pilihHasilPencarian(hasil.id)">
+                                <t t-esc="hasil.name"/>
+                                <span class="text-muted">(sundut <t t-esc="hasil.sundut"/>)</span>
+                            </a>
+                        </t>
+                    </div>
+                </div>
+            </t>
+            <div class="o_tarombo_pohon_body position-relative w-100" t-ref="body">
+                <div t-ref="chart" class="o_tarombo_pohon_chart h-100 w-100"/>
+                <div class="o_tarombo_pohon_kanvas_kontrol">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-light border" title="Kembalikan tampilan"
+                                t-on-click="_resetTampilan">
+                            <i class="fa fa-refresh"/>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border" title="Unduh gambar"
+                                t-on-click="_unduhGambar">
+                            <i class="fa fa-download"/>
+                        </button>
+                    </div>
+                </div>
+                <div class="o_tarombo_pohon_legenda_canvas">
+                    <div><span class="o_tarombo_legenda_simbol o_tarombo_legenda_lingkaran"/> Laki-laki</div>
+                    <div><span class="o_tarombo_legenda_simbol o_tarombo_legenda_wajik"/> Perempuan</div>
+                    <div><span class="o_tarombo_legenda_warna o_tarombo_legenda_sahih"/> Terverifikasi</div>
+                    <div><span class="o_tarombo_legenda_warna o_tarombo_legenda_rumpang"/> Belum Terverifikasi</div>
+                </div>
+                <div t-if="state.loading" class="o_tarombo_pohon_overlay">
+                    <i class="fa fa-spinner fa-spin fa-2x"/>
+                </div>
+                <div t-elif="state.error" class="o_tarombo_pohon_overlay text-muted">
+                    Data pohon silsilah tidak dapat dimuat.
+                </div>
+            </div>
+        </Layout>
+    </t>
+
+</templates>

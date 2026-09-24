@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+    <record id="module_category_tarombo" model="ir.module.category">
+        <field name="name">Tarombo</field>
+        <field name="sequence">55</field>
+    </record>
+
+    <record id="privilege_tarombo_access" model="res.groups.privilege">
+        <field name="name">Tarombo</field>
+        <field name="category_id" ref="module_category_tarombo"/>
+    </record>
+
+    <record id="group_tarombo_anggota" model="res.groups">
+        <field name="name">Anggota Punguan</field>
+        <field name="privilege_id" ref="privilege_tarombo_access"/>
+        <!-- Harus internal user agar bisa buka menu backend Tarombo -->
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_tarombo_pengurus" model="res.groups">
+        <field name="name">Pengurus Punguan</field>
+        <field name="privilege_id" ref="privilege_tarombo_access"/>
+        <field name="implied_ids" eval="[(4, ref('group_tarombo_anggota'))]"/>
+    </record>
+
+    <record id="group_tarombo_admin" model="res.groups">
+        <field name="name">Administrator Tarombo</field>
+        <field name="privilege_id" ref="privilege_tarombo_access"/>
+        <field name="implied_ids" eval="[(4, ref('group_tarombo_pengurus'))]"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="group_ids" eval="[(4, ref('group_tarombo_admin'))]"/>
+    </record>
+
+    </data>
+</odoo>

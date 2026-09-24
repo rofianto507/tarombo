@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tarombo.GeoPicker">
+        <div class="o_tarombo_geo_picker" t-ref="mapDiv">
+            <t t-if="props.readonly">
+                <div class="o_tarombo_geo_picker_overlay">
+                    Klik <b>Edit</b> untuk mengubah titik lokasi.
+                </div>
+            </t>
+        </div>
+        <div class="o_tarombo_geo_picker_koordinat text-muted small mt-1">
+            <t t-esc="koordinatText"/>
+        </div>
+    </t>
+
+</templates>

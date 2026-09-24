@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="marga_tampubolon" model="tarombo.marga">
+            <field name="name">Tampubolon</field>
+            <field name="kelompok">toba</field>
+        </record>
+
+        <record id="marga_baringbing" model="tarombo.marga">
+            <field name="name">Baringbing</field>
+            <field name="kelompok">toba</field>
+            <field name="marga_induk_id" ref="marga_tampubolon"/>
+        </record>
+
+        <record id="marga_silaen" model="tarombo.marga">
+            <field name="name">Silaen</field>
+            <field name="kelompok">toba</field>
+            <field name="marga_induk_id" ref="marga_tampubolon"/>
+        </record>
+
+    </data>
+</odoo>
