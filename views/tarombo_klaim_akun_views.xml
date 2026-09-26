@@ -8,6 +8,7 @@
             <field name="model">tarombo.klaim_akun</field>
             <field name="arch" type="xml">
                 <list string="Klaim Akun"
+                      decoration-muted="state == 'draft'"
                       decoration-warning="state == 'menunggu'"
                       decoration-success="state == 'disetujui'"
                       decoration-danger="state == 'ditolak'">
@@ -29,14 +30,14 @@
                 <form string="Klaim Akun">
                     <header>
                         <button name="action_ajukan" type="object" string="Ajukan"
-                                class="btn-primary" invisible="state != 'menunggu' or tanggal_ajukan"/>
+                                class="btn-primary" invisible="state != 'draft'"/>
                         <button name="action_setujui" type="object" string="Setujui"
                                 class="btn-primary" invisible="state != 'menunggu'"
                                 groups="tarombo.group_tarombo_pengurus"/>
                         <button name="action_tolak" type="object" string="Tolak"
                                 invisible="state != 'menunggu'"
                                 groups="tarombo.group_tarombo_pengurus"/>
-                        <field name="state" widget="statusbar" statusbar_visible="menunggu,disetujui"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,menunggu,disetujui"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -77,6 +78,7 @@
                     <field name="name"/>
                     <field name="user_id"/>
                     <field name="orang_id"/>
+                    <filter string="Draft (belum diajukan)" name="filter_draft" domain="[('state', '=', 'draft')]"/>
                     <filter string="Menunggu" name="filter_menunggu" domain="[('state', '=', 'menunggu')]"/>
                     <filter string="Disetujui" name="filter_disetujui" domain="[('state', '=', 'disetujui')]"/>
                     <filter string="Ditolak" name="filter_ditolak"

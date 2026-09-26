@@ -7,6 +7,7 @@ JENIS_KLAIM_SELECTION = [
 ]
 
 STATE_SELECTION = [
+    ('draft', 'Draft'),
     ('menunggu', 'Menunggu Verifikasi'),
     ('disetujui', 'Disetujui'),
     ('ditolak', 'Ditolak'),
@@ -40,7 +41,17 @@ class TaromboKlaimAkun(models.Model):
     catatan_pengklaim = fields.Text(
         'Alasan/Keterangan', help='Mis. "Saya anak dari X, sundut Y" — bantu pengurus verifikasi.')
     bukti_ids = fields.Many2many('ir.attachment', string='Bukti Pendukung')
-    state = fields.Selection(STATE_SELECTION, string='Status', default='menunggu', tracking=True)
+    # default='draft', BUKAN 'menunggu': kalau create() langsung menandai
+    # "menunggu" (sudah "disubmit" secara default), maka klaim yang create()-
+    # nya sukses tapi action_ajukan()-nya GAGAL (mis. kena race guard karena
+    # orang yang sama masih ada klaim lain yang menggantung) akan tetap
+    # tampil sebagai "Menunggu Verifikasi" yang valid — padahal sebenarnya
+    # cacat/yatim (tanggal_ajukan tetap kosong). Insiden nyata: baris begini
+    # sempat jadi baris ber-id TERBARU dan membuat app mobile salah membaca
+    # status akun (menampilkan klaim yatim ini, bukan klaim lain yang sudah
+    # disetujui pengurus). Sekarang "menunggu" HANYA dicapai lewat
+    # action_ajukan() yang benar-benar berhasil.
+    state = fields.Selection(STATE_SELECTION, string='Status', default='draft', tracking=True)
     peninjau_id = fields.Many2one('res.users', string='Peninjau', readonly=True)
     tanggal_ajukan = fields.Datetime('Tanggal Diajukan', readonly=True)
     tanggal_tinjau = fields.Datetime('Tanggal Ditinjau', readonly=True)
@@ -70,8 +81,23 @@ class TaromboKlaimAkun(models.Model):
                 'Hubungi pengurus kalau menurut Anda ini keliru.'
             ))
 
+    def _cek_akun_belum_tertaut(self):
+        """Satu akun cuma boleh tertaut ke SATU orang. Tanpa cek ini, akun yang
+        klaimnya sudah disetujui (tertaut ke orang A) tetap bisa berhasil
+        create()+action_ajukan() klaim baru ke orang B lain — karena
+        _cek_orang_belum_diklaim() cuma memeriksa sisi ORANG (apakah orang B
+        sudah dipakai), bukan sisi AKUN (apakah akun ini sudah dipakai)."""
+        self.ensure_one()
+        sudah = self.env['tarombo.orang'].sudo().search([('user_id', '=', self.user_id.id)], limit=1)
+        if sudah and sudah.id != self.orang_id.id:
+            raise UserError(_(
+                'Akun ini sudah tertaut ke %(nama)s. Satu akun hanya boleh terhubung ke satu orang.',
+                nama=sudah.name,
+            ))
+
     def action_ajukan(self):
         for r in self:
+            r._cek_akun_belum_tertaut()
             if r.jenis == 'orang_ada':
                 if not r.orang_id:
                     raise UserError(_('Pilih orang yang diklaim terlebih dahulu.'))
@@ -90,6 +116,7 @@ class TaromboKlaimAkun(models.Model):
 
     def action_setujui(self):
         for r in self:
+            r._cek_akun_belum_tertaut()
             if r.jenis == 'orang_baru':
                 if r.usulan_id.state != 'disetujui':
                     raise UserError(_(

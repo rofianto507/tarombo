@@ -1,5 +1,5 @@
 from odoo import api, models, _
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, UserError
 
 
 class TaromboOrang(models.Model):
@@ -57,3 +57,30 @@ class TaromboOrang(models.Model):
             'punya_foto': bool(orang.foto),
             'berbagi_lokasi': orang.berbagi_lokasi,
         }
+
+    @api.model
+    def set_berbagi_lokasi(self, aktif, lat=False, lng=False):
+        """Toggle opt-in "Bagikan Lokasi ke Kerabat" untuk akun yang login —
+        HANYA pada record tarombo.orang milik sendiri (user_id == uid).
+
+        sudo() sengaja dipakai: anggota TIDAK punya perm_write sama sekali di
+        tarombo.orang (lihat ir.model.access.csv) — bukan hanya latitude/
+        longitude yang groups=pengurus, seluruh model tertutup untuk write
+        anggota. Pengecualian ini sempit (field & record ditentukan di sini,
+        bukan lewat parameter bebas dari client) dan TIDAK menambahkan
+        anggota ke group_tarombo_pengurus dengan cara apa pun.
+
+        Mengaktifkan (aktif=True) wajib menyertakan lat/lng dari GPS device
+        saat itu juga — supaya tidak ada jeda di mana berbagi_lokasi=True
+        tapi titiknya masih kosong/usang. Menonaktifkan tidak perlu koordinat.
+        """
+        orang = self.sudo().search([('user_id', '=', self.env.uid)], limit=1)
+        if not orang:
+            raise UserError(_('Akun Anda belum tertaut ke data orang mana pun.'))
+        if aktif:
+            if not lat or not lng:
+                raise UserError(_('Titik lokasi GPS wajib diisi untuk mengaktifkan berbagi lokasi.'))
+            orang.write({'berbagi_lokasi': True, 'latitude': lat, 'longitude': lng})
+        else:
+            orang.write({'berbagi_lokasi': False})
+        return True

@@ -15,6 +15,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'security/ir.model.access.csv',
         'security/tarombo_usulan_security.xml',
         'security/tarombo_klaim_akun_security.xml',
+        'security/tarombo_arsip_security.xml',
         'views/tarombo_pohon_views.xml',
         'views/tarombo_dashboard_views.xml',
         'views/tarombo_orang_views.xml',

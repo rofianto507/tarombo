@@ -13,12 +13,17 @@
                     <field name="pratinjau"/>
                     <templates>
                         <t t-name="card">
-                            <field name="pratinjau" widget="image"
-                                   options="{'img_class': 'w-100 object-fit-contain'}"
-                                   alt="Pratinjau" invisible="not pratinjau"/>
-                            <div class="d-flex align-items-center justify-content-center bg-light p-4"
-                                 invisible="pratinjau">
-                                <i class="fa fa-file-o fa-2x text-muted"/>
+                            <!-- Tinggi tetap 180px untuk SEMUA kartu (ada pratinjau atau
+                                 tidak, potret atau lanskap) — sebelumnya tinggi kartu
+                                 mengikuti rasio asli tiap foto sehingga grid jadi tidak
+                                 rata/tidak proporsional. object-fit-contain dipertahankan
+                                 (bukan cover) supaya foto arsip lama tidak terpotong. -->
+                            <div class="d-flex align-items-center justify-content-center bg-light overflow-hidden"
+                                 style="height: 180px;">
+                                <field name="pratinjau" widget="image"
+                                       options="{'img_class': 'w-100 h-100 object-fit-contain'}"
+                                       alt="Pratinjau" invisible="not pratinjau"/>
+                                <i class="fa fa-file-o fa-3x text-muted" invisible="pratinjau"/>
                             </div>
                             <div class="p-2">
                                 <strong><field name="name"/></strong>
@@ -28,6 +33,23 @@
                         </t>
                     </templates>
                 </kanban>
+            </field>
+        </record>
+
+        <!-- LIST VIEW -->
+        <record id="view_tarombo_arsip_list" model="ir.ui.view">
+            <field name="name">tarombo.arsip.list</field>
+            <field name="model">tarombo.arsip</field>
+            <field name="arch" type="xml">
+                <list string="Arsip">
+                    <field name="name"/>
+                    <field name="jenis"/>
+                    <field name="orang_id"/>
+                    <field name="punguan_id"/>
+                    <field name="tahun_perkiraan"/>
+                    <field name="sumber"/>
+                    <field name="publik" widget="boolean_toggle"/>
+                </list>
             </field>
         </record>
 
@@ -62,6 +84,7 @@
                             <field name="keterangan" nolabel="1" colspan="2"/>
                         </group>
                     </sheet>
+                    <chatter/>
                 </form>
             </field>
         </record>
@@ -90,11 +113,12 @@
         <record id="action_tarombo_arsip" model="ir.actions.act_window">
             <field name="name">Arsip</field>
             <field name="res_model">tarombo.arsip</field>
-            <field name="view_mode">kanban,form</field>
+            <field name="view_mode">kanban,list,form</field>
             <field name="search_view_id" ref="view_tarombo_arsip_search"/>
             <field name="view_ids" eval="[
                 (5, 0, 0),
                 (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_tarombo_arsip_kanban')}),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_tarombo_arsip_list')}),
                 (0, 0, {'view_mode': 'form', 'view_id': ref('view_tarombo_arsip_form')}),
             ]"/>
         </record>
