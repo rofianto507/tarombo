@@ -20,21 +20,15 @@
             id="menu_tarombo_anggota"
             name="Anggota"
             parent="menu_tarombo_root"
-            sequence="10"/>
-
-        <menuitem
-            id="menu_tarombo_anggota_list"
-            name="Daftar Anggota"
-            parent="menu_tarombo_anggota"
             action="action_tarombo_orang"
             sequence="10"/>
 
         <menuitem
             id="menu_tarombo_arsip"
             name="Arsip"
-            parent="menu_tarombo_anggota"
+            parent="menu_tarombo_root"
             action="action_tarombo_arsip"
-            sequence="20"/>
+            sequence="15"/>
 
         <menuitem
             id="menu_tarombo_usulan"
