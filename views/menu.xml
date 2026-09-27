@@ -109,5 +109,13 @@
             action="action_tarombo_punguan"
             groups="tarombo.group_tarombo_admin"
             sequence="30"/>
+
+        <menuitem
+            id="menu_tarombo_bidang"
+            name="Bidang"
+            parent="menu_tarombo_konfigurasi"
+            action="action_tarombo_bidang"
+            groups="tarombo.group_tarombo_admin"
+            sequence="40"/>
     </data>
 </odoo>

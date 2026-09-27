@@ -27,6 +27,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'views/tarombo_usulan_views.xml',
         'views/tarombo_klaim_akun_views.xml',
         'views/tarombo_arsip_views.xml',
+        'views/tarombo_bidang_views.xml',
         'wizard/tarombo_partuturan_wizard_views.xml',
         'views/menu.xml',
         'data/tarombo_marga_data.xml',
@@ -34,6 +35,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'data/tarombo_punguan_data.xml',
         'data/tarombo_usulan_data.xml',
         'data/tarombo_klaim_akun_data.xml',
+        'data/tarombo_bidang_data.xml',
     ],
     'assets': {
         'web.assets_backend': [

@@ -1,7 +1,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
-from .tarombo_riwayat import JENJANG_SELECTION, BIDANG_SELECTION
+from .tarombo_riwayat import JENJANG_SELECTION
 
 STATUS_SELECTION = [
     ('sahih', 'Terverifikasi'),
@@ -143,8 +143,8 @@ class TaromboOrang(models.Model):
         compute='_compute_pendidikan_tertinggi', store=True)
     pekerjaan_kini = fields.Char(
         'Pekerjaan Saat Ini', compute='_compute_pekerjaan_kini', store=True)
-    bidang_kini = fields.Selection(
-        BIDANG_SELECTION, string='Bidang Saat Ini',
+    bidang_kini_id = fields.Many2one(
+        'tarombo.bidang', string='Bidang Saat Ini',
         compute='_compute_pekerjaan_kini', store=True, index=True)
 
     arsip_ids = fields.One2many('tarombo.arsip', 'orang_id', string='Arsip')
@@ -253,7 +253,7 @@ class TaromboOrang(models.Model):
 
     @api.depends(
         'pekerjaan_ids.sekarang', 'pekerjaan_ids.tahun_mulai',
-        'pekerjaan_ids.jabatan', 'pekerjaan_ids.instansi', 'pekerjaan_ids.bidang')
+        'pekerjaan_ids.jabatan', 'pekerjaan_ids.instansi', 'pekerjaan_ids.bidang_id')
     def _compute_pekerjaan_kini(self):
         for r in self:
             kini = r.pekerjaan_ids.filtered('sekarang').sorted('tahun_mulai', reverse=True)[:1]
@@ -262,10 +262,10 @@ class TaromboOrang(models.Model):
             if kini:
                 r.pekerjaan_kini = (
                     '%s di %s' % (kini.jabatan, kini.instansi) if kini.instansi else kini.jabatan)
-                r.bidang_kini = kini.bidang
+                r.bidang_kini_id = kini.bidang_id
             else:
                 r.pekerjaan_kini = False
-                r.bidang_kini = False
+                r.bidang_kini_id = False
 
     @api.depends('name', 'sundut')
     def _compute_display_name(self):

@@ -1,5 +1,6 @@
 from . import tarombo_orang
 from . import tarombo_marga
+from . import tarombo_bidang
 from . import tarombo_padan
 from . import tarombo_wilayah
 from . import tarombo_punguan

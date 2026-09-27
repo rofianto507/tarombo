@@ -142,7 +142,7 @@
                                 <group>
                                     <field name="pendidikan_tertinggi" readonly="1"/>
                                     <field name="pekerjaan_kini" readonly="1"/>
-                                    <field name="bidang_kini" readonly="1"/>
+                                    <field name="bidang_kini_id" readonly="1"/>
                                 </group>
                                 <group string="Pendidikan">
                                     <field name="pendidikan_ids" nolabel="1" colspan="2">
@@ -162,7 +162,7 @@
                                         <list editable="bottom">
                                             <field name="jabatan"/>
                                             <field name="instansi"/>
-                                            <field name="bidang"/>
+                                            <field name="bidang_id"/>
                                             <field name="wilayah_id"/>
                                             <field name="tahun_mulai" options="{'enable_formatting': false}"/>
                                             <field name="tahun_selesai" options="{'enable_formatting': false}"/>
@@ -207,7 +207,7 @@
                     <field name="sundut"/>
                     <field name="marga_id"/>
                     <field name="ayah_id"/>
-                    <field name="bidang_kini"/>
+                    <field name="bidang_kini_id"/>
                     <field name="pendidikan_tertinggi"/>
                     <filter string="Laki-laki" name="filter_laki" domain="[('jenis_kelamin', '=', 'L')]"/>
                     <filter string="Perempuan" name="filter_perempuan" domain="[('jenis_kelamin', '=', 'P')]"/>
@@ -215,7 +215,7 @@
                         <filter string="Sundut" name="groupby_sundut" context="{'group_by': 'sundut'}"/>
                         <filter string="Marga" name="groupby_marga" context="{'group_by': 'marga_id'}"/>
                         <filter string="Jenis Kelamin" name="groupby_jenis_kelamin" context="{'group_by': 'jenis_kelamin'}"/>
-                        <filter string="Bidang Saat Ini" name="groupby_bidang_kini" context="{'group_by': 'bidang_kini'}"/>
+                        <filter string="Bidang Saat Ini" name="groupby_bidang_kini" context="{'group_by': 'bidang_kini_id'}"/>
                         <filter string="Pendidikan Tertinggi" name="groupby_pendidikan_tertinggi" context="{'group_by': 'pendidikan_tertinggi'}"/>
                     </group>
                 </search>

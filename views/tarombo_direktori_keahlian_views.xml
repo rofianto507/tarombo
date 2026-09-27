@@ -9,7 +9,7 @@
             <field name="arch" type="xml">
                 <list string="Direktori Keahlian" create="0" edit="0">
                     <field name="name"/>
-                    <field name="bidang_kini"/>
+                    <field name="bidang_kini_id"/>
                     <field name="pekerjaan_kini"/>
                     <field name="pendidikan_tertinggi"/>
                     <field name="wilayah_id"/>
@@ -24,11 +24,11 @@
             <field name="arch" type="xml">
                 <search string="Cari Direktori Keahlian">
                     <field name="name"/>
-                    <field name="bidang_kini"/>
+                    <field name="bidang_kini_id"/>
                     <field name="pekerjaan_kini"/>
                     <field name="wilayah_id"/>
                     <group>
-                        <filter string="Bidang" name="groupby_bidang_kini" context="{'group_by': 'bidang_kini'}"/>
+                        <filter string="Bidang" name="groupby_bidang_kini" context="{'group_by': 'bidang_kini_id'}"/>
                         <filter string="Wilayah" name="groupby_wilayah" context="{'group_by': 'wilayah_id'}"/>
                     </group>
                 </search>

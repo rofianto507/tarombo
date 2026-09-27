@@ -13,18 +13,6 @@ JENJANG_SELECTION = [
     ('lain', 'Lain-lain'),
 ]
 
-BIDANG_SELECTION = [
-    ('tani', 'Pertanian'),
-    ('dagang', 'Perdagangan'),
-    ('asn', 'ASN'),
-    ('swasta', 'Swasta'),
-    ('wiraswasta', 'Wiraswasta'),
-    ('pendidik', 'Pendidik'),
-    ('kesehatan', 'Kesehatan'),
-    ('rohani', 'Rohaniwan'),
-    ('lain', 'Lain-lain'),
-]
-
 
 class TaromboPendidikan(models.Model):
     _name = 'tarombo.pendidikan'
@@ -52,7 +40,10 @@ class TaromboPekerjaan(models.Model):
         'tarombo.orang', string='Orang', required=True, index=True, ondelete='cascade')
     jabatan = fields.Char('Jabatan', required=True)
     instansi = fields.Char('Instansi')
-    bidang = fields.Selection(BIDANG_SELECTION, string='Bidang')
+    # Many2one ke tarombo.bidang (dulu Selection statis) — bidang sekarang
+    # bisa ditambah/dikelola pengurus/admin lewat menu Konfigurasi, bukan
+    # daftar tetap yang dipatok di kode.
+    bidang_id = fields.Many2one('tarombo.bidang', string='Bidang')
     wilayah_id = fields.Many2one('tarombo.wilayah', string='Wilayah')
     tahun_mulai = fields.Integer('Tahun Mulai')
     tahun_selesai = fields.Integer('Tahun Selesai')
