@@ -9,7 +9,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
     'category': 'Tarombo',
     'author': 'Cv Sel Studio',
     'website': 'https://selstudio.id',
-    'depends': ['base', 'mail', 'web'],
+    'depends': ['base', 'mail', 'web', 'auth_oauth'],
     'data': [
         'security/tarombo_security.xml',
         'security/ir.model.access.csv',
@@ -36,6 +36,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'data/tarombo_usulan_data.xml',
         'data/tarombo_klaim_akun_data.xml',
         'data/tarombo_bidang_data.xml',
+        'data/tarombo_google_oauth_data.xml',
     ],
     'assets': {
         'web.assets_backend': [

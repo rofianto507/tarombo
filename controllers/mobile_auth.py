@@ -2,6 +2,7 @@ import re
 import logging
 
 from odoo import http
+from odoo.exceptions import AccessDenied
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
@@ -54,4 +55,87 @@ class TaromboMobileAuthController(http.Controller):
             return {'success': True, 'login': email}
         except Exception:
             _logger.exception('Registrasi tarombo mobile gagal untuk %s', email)
+            return {'success': False, 'error': 'Terjadi kesalahan server. Silakan coba lagi.'}
+
+    @http.route('/tarombo/mobile/google_login', type='jsonrpc', auth='public', csrf=False, cors='*')
+    def google_login(self, access_token=None, **kwargs):
+        """Login/registrasi otomatis via Google Sign-In native dari app mobile.
+
+        Sengaja TIDAK memakai jalur signup otomatis bawaan auth_oauth
+        (ResUsers._auth_oauth_signin() -> self.signup()), karena jalur itu
+        mewajibkan auth_signup.invitation_scope='b2c' di-set GLOBAL — yang
+        berarti ikut membuka form signup Odoo standar (/web/signup) untuk
+        siapa saja, bukan cuma jalur mobile terkontrol ini. Sebagai gantinya,
+        akun baru dibuat langsung di sini (sudo(), pola sama seperti
+        register() di atas), tetap lewat validasi token yang sama persis
+        dengan yang dipakai alur OAuth bawaan Odoo (provider-agnostic, HANYA
+        memvalidasi access_token ke endpoint userinfo Google — reuse, bukan
+        menulis ulang logika verifikasi OAuth dari nol).
+        """
+        if not access_token:
+            return {'success': False, 'error': 'Token Google tidak ada'}
+
+        # sudo() wajib SEBELUM baca field apa pun: auth.oauth.provider hanya
+        # boleh dibaca role Administrator, sedangkan endpoint ini auth='public'
+        # (dipanggil sebelum login ada). Tanpa sudo() di sini, .enabled di
+        # bawah langsung AccessError untuk user publik.
+        provider = request.env.ref('auth_oauth.provider_google', raise_if_not_found=False)
+        if not provider:
+            return {'success': False, 'error': 'Login Google belum dikonfigurasi di server.'}
+        provider = provider.sudo()
+        if not provider.enabled:
+            return {'success': False, 'error': 'Login Google belum dikonfigurasi di server.'}
+
+        res_users = request.env['res.users'].sudo()
+        try:
+            validation = res_users._auth_oauth_validate(provider.id, access_token)
+        except Exception:
+            _logger.info('Google login: validasi token gagal')
+            return {'success': False, 'error': 'Token Google tidak valid atau kedaluwarsa.'}
+
+        oauth_uid = validation.get('user_id')
+        email = (validation.get('email') or '').strip().lower()
+        name = validation.get('name') or email
+        if not oauth_uid or not email:
+            return {'success': False, 'error': 'Data akun Google tidak lengkap (email tidak ditemukan).'}
+
+        # Cari akun yang sudah pernah login Google (oauth_uid sama) DULUAN;
+        # kalau belum pernah, coba tautkan ke akun email/password yang sudah
+        # ada (email sama) — supaya anggota yang sudah daftar manual tetap
+        # bisa pakai Google tanpa jadi akun duplikat.
+        user = res_users.search([('oauth_uid', '=', oauth_uid), ('oauth_provider_id', '=', provider.id)], limit=1)
+        if not user:
+            user = res_users.search([('login', '=', email)], limit=1)
+
+        try:
+            if user:
+                user.write({
+                    'oauth_provider_id': provider.id,
+                    'oauth_uid': oauth_uid,
+                    'oauth_access_token': access_token,
+                })
+            else:
+                group_anggota = request.env.ref('tarombo.group_tarombo_anggota')
+                user = res_users.create({
+                    'name': name,
+                    'login': email,
+                    'email': email,
+                    'oauth_provider_id': provider.id,
+                    'oauth_uid': oauth_uid,
+                    'oauth_access_token': access_token,
+                    'group_ids': [(4, group_anggota.id)],
+                })
+                _logger.info('TAROMBO GOOGLE LOGIN: user baru dibuat id=%s login=%s', user.id, user.login)
+            # commit supaya user baru/tertaut ini terlihat oleh authenticate()
+            # di transaksi berikutnya — pola sama seperti controller
+            # auth_oauth/signin bawaan Odoo (lihat addons/auth_oauth/controllers/main.py).
+            request.env.cr.commit()
+
+            credential = {'login': user.login, 'token': access_token, 'type': 'oauth_token'}
+            auth_info = request.session.authenticate(request.env, credential)
+            return {'success': True, 'uid': auth_info['uid']}
+        except AccessDenied:
+            return {'success': False, 'error': 'Login Google gagal, coba lagi.'}
+        except Exception:
+            _logger.exception('Google login gagal untuk %s', email)
             return {'success': False, 'error': 'Terjadi kesalahan server. Silakan coba lagi.'}
