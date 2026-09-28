@@ -41,6 +41,12 @@ class TaromboOrang(models.Model):
             'selected': False,
             'collapsed': False,
             'has_more': False,
+            # Default False di sini; HANYA node akar (ayah) di _pohon_cabang
+            # yang mungkin men-set ini True. Tanpa flag ini, node paling atas
+            # tidak pernah menandakan bahwa ia sendiri masih punya ayah yang
+            # tidak ikut ditampilkan — tampilannya jadi seolah pohon berhenti
+            # total di situ, padahal datanya masih ada, cuma belum dimuat.
+            'has_more_atas': False,
             'children': [],
         }
 
@@ -67,6 +73,7 @@ class TaromboOrang(models.Model):
 
         ayah = orang.ayah_id
         akar = self._pohon_node_dasar(ayah)
+        akar['has_more_atas'] = bool(ayah.ayah_id)
         anak_nodes = []
         for saudara in ayah.anak_ids.sorted('urutan'):
             if saudara.id == orang.id:

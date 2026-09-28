@@ -4,11 +4,13 @@
 > setiap kali memulai sesi kerja baru pada project ini, agar tidak perlu membaca ulang
 > seluruh source code dari nol.
 
-Terakhir diperbarui: 2026-08-19 untuk bagian 1-8 (11 model + wizard + OWL pohon
-silsilah + laporan). Bagian 9 (progres impor data real) ditambahkan 2026-09-07 —
-bagian 1-8 **belum** disinkronkan dengan perubahan sesudah 08-19 (mis. Dashboard,
-field wilayah di Usulan, penghapusan view hierarchy, dll — lihat riwayat percakapan
-kalau perlu detailnya, belum dirangkum di sini).
+Terakhir diperbarui: **2026-09-29** — bagian 1-8 disinkronkan ulang (Dashboard,
+tarombo.bidang, tarombo.klaim_akun, tarombo.hapus_akun_request, controllers/
+publik+mobile, ir.rule Arsip, penghapusan view `<hierarchy>`, dll). Bagian 9
+(progres impor data real) masih apa adanya sejak 2026-09-07. Bagian 10 (baru)
+merangkum **aplikasi mobile Flutter (TaromboMobile)** yang mengonsumsi modul ini
+lewat controllers/ + `call_kw` biasa — project terpisah di luar repo modul ini,
+tapi backend-nya (controllers, beberapa model) hidup di sini.
 
 ## 1. Apa itu modul ini
 
@@ -36,26 +38,35 @@ rutin oleh anggota biasa (bukan cuma pengurus/admin).
 ## 2. Dependency
 
 ```python
-'depends': ['base', 'mail', 'web', 'web_hierarchy']
+'depends': ['base', 'mail', 'web', 'auth_oauth']
 ```
 
 - `base`, `mail` — standar.
 - `web` — kebutuhan UI umum + asset bundle `web.assets_backend` (dipakai komponen OWL).
-- `web_hierarchy` — **wajib** untuk view `<hierarchy>` pada `tarombo.orang`. Terpisah
-  dari `web` inti; tanpa ini arch `<hierarchy>` gagal load (JS view type tak terdaftar).
+- `auth_oauth` — **ditambahkan** untuk Login Google di app mobile. Dipakai HANYA
+  method provider-agnostic bawaan-nya (`res.users._auth_oauth_validate()`,
+  `request.session.authenticate()`) lewat controller custom sendiri
+  (`controllers/mobile_auth.py`) — **BUKAN** lewat alur signup otomatis bawaan
+  `auth_oauth` (`_auth_oauth_signin()`/`self.signup()`), karena itu mewajibkan
+  `auth_signup.invitation_scope='b2c'` GLOBAL yang berarti ikut membuka form
+  signup Odoo standar (`/web/signup`) untuk siapa saja. Lihat bagian 10.
+- `web_hierarchy` **sudah dilepas** — view `<hierarchy>` pada `tarombo.orang`
+  dihapus (diganti tombol "Pohon Silsilah" ke komponen OWL sendiri, lihat
+  bagian 5), jadi dependency ini tidak diperlukan lagi.
 
 ## 3. Struktur File
 
 ```
 tarombo/
 ├── __manifest__.py           # data list + assets (web.assets_backend)
-├── __init__.py                # import models, wizard, hooks.post_init_hook
+├── __init__.py                # import models, controllers, wizard, hooks.post_init_hook
 ├── hooks.py                   # post_init_hook: isi ir.config_parameter leluhur_acuan_id
 │                               #   dari orang bernama persis "Tuan Sihubil" bila ada
 ├── models/
 │   ├── __init__.py
 │   ├── tarombo_orang.py       # model inti: individu + pohon + domisili + riwayat + arsip
 │   ├── tarombo_marga.py       # hierarki marga (_parent_store) + satu_keturunan/terikat_padan
+│   ├── tarombo_bidang.py      # tarombo.bidang — daftar bidang pekerjaan (dulu Selection statis)
 │   ├── tarombo_padan.py       # sumpah persaudaraan leluhur antar-marga tak sekerabat
 │   ├── tarombo_wilayah.py     # hierarki wilayah admin provinsi..desa (_parent_store)
 │   ├── tarombo_punguan.py     # paguyuban/komunitas lokal
@@ -64,7 +75,16 @@ tarombo/
 │   ├── tarombo_riwayat.py     # tarombo.pendidikan + tarombo.pekerjaan
 │   ├── tarombo_usulan.py      # alur usulan perubahan data (workflow + sequence)
 │   ├── tarombo_arsip.py       # media/dokumen per orang (foto/dokumen/audio/video/naskah)
-│   └── tarombo_pohon.py       # _inherit tarombo.orang — get_pohon_data() utk OWL
+│   ├── tarombo_pohon.py       # _inherit tarombo.orang — get_pohon_data() utk OWL + app mobile
+│   ├── tarombo_dashboard.py   # _inherit tarombo.orang — get_dashboard_data() (pengurus)
+│   ├── tarombo_klaim_akun.py  # tarombo.klaim_akun — tautkan akun app mobile ke orang di pohon
+│   ├── tarombo_lokasi_mobile.py    # _inherit tarombo.orang — get_lokasi_kerabat/get_my_orang/
+│   │                                #   set_berbagi_lokasi() khusus app mobile
+│   └── tarombo_hapus_akun_request.py  # tarombo.hapus_akun_request — antrian permintaan hapus akun
+├── controllers/                # BARU — sebelumnya modul ini tidak punya controller sama sekali
+│   ├── __init__.py
+│   ├── mobile_auth.py         # /tarombo/mobile/register, /google_login, /hapus_akun (jsonrpc)
+│   └── public_pages.py        # /kebijakan-privasi, /dukungan, /hapus-akun (form web publik)
 ├── wizard/
 │   ├── __init__.py
 │   ├── tarombo_partuturan_wizard.py       # TransientModel: hitung partuturan 2 orang
@@ -72,30 +92,40 @@ tarombo/
 ├── static/
 │   ├── description/icon.png
 │   ├── lib/echarts/echarts.min.js         # ECharts di-vendor lokal, BUKAN CDN
-│   └── src/components/pohon/              # komponen OWL pohon silsilah
-│       ├── pohon.js    # ir.actions.client "tarombo_pohon_silsilah", pakai `echarts` global
-│       ├── pohon.xml   # template tarombo.PohonSilsilah (pakai <Layout>)
-│       └── pohon.scss
+│   ├── lib/leaflet/                       # Leaflet di-vendor lokal — peta geo_picker & dashboard
+│   └── src/components/
+│       ├── pohon/         # komponen OWL pohon silsilah (ir.actions.client)
+│       ├── geo_picker/    # widget pilih titik lokasi (Leaflet) dipakai di form Domisili
+│       └── dashboard/     # komponen OWL dashboard pengurus (KPI/chart/tabel/peta/arsip)
 ├── security/
-│   ├── tarombo_security.xml         # category + privilege + 3 group berjenjang
-│   ├── ir.model.access.csv          # access per model x per group
-│   └── tarombo_usulan_security.xml  # ir.rule usulan (anggota: punya sendiri; pengurus: semua)
+│   ├── tarombo_security.xml           # category + privilege + 3 group berjenjang
+│   ├── ir.model.access.csv            # access per model x per group
+│   ├── tarombo_usulan_security.xml    # ir.rule usulan (anggota: punya sendiri; pengurus: semua)
+│   ├── tarombo_klaim_akun_security.xml  # ir.rule klaim_akun (anggota: punya sendiri, no write)
+│   └── tarombo_arsip_security.xml     # ir.rule arsip (anggota: publik=True saja)
 ├── views/
-│   ├── tarombo_orang_views.xml       # list, form (6 tab), hierarchy, search, action
+│   ├── tarombo_orang_views.xml       # list, form (6 tab), search, action — TANPA <hierarchy> lagi
+│   ├── tarombo_dashboard_views.xml   # ir.actions.client dashboard pengurus
 │   ├── tarombo_marga_views.xml
 │   ├── tarombo_padan_views.xml
 │   ├── tarombo_wilayah_views.xml
 │   ├── tarombo_punguan_views.xml
+│   ├── tarombo_bidang_views.xml
 │   ├── tarombo_direktori_keahlian_views.xml  # laporan read-only untuk anggota
 │   ├── tarombo_usulan_views.xml      # list (decoration), form (statusbar), kanban (per state)
-│   ├── tarombo_arsip_views.xml       # kanban (pratinjau gambar), form, search
+│   ├── tarombo_klaim_akun_views.xml
+│   ├── tarombo_arsip_views.xml       # kanban (pratinjau gambar) + list + form (chatter)
+│   ├── tarombo_hapus_akun_views.xml
 │   ├── tarombo_pohon_views.xml       # ir.actions.client action_tarombo_pohon_silsilah
 │   └── menu.xml                       # seluruh menuitem modul
 ├── data/
-│   ├── tarombo_marga_data.xml    # Tampubolon > Baringbing, Silaen (noupdate=1)
-│   ├── tarombo_wilayah_data.xml  # Sumut > Kab. Toba/Asahan > Silaen/Kisaran Barat
-│   ├── tarombo_punguan_data.xml  # "Punguan Pusat (Kurator Leluhur)" — utk leluhur historis
-│   └── tarombo_usulan_data.xml   # ir.sequence USUL/%(year)s/0001
+│   ├── tarombo_marga_data.xml       # Tampubolon > Baringbing, Silaen (noupdate=1)
+│   ├── tarombo_wilayah_data.xml     # Sumut > Kab. Toba/Asahan > Silaen/Kisaran Barat
+│   ├── tarombo_punguan_data.xml     # "Punguan Pusat (Kurator Leluhur)" — utk leluhur historis
+│   ├── tarombo_usulan_data.xml      # ir.sequence USUL/%(year)s/0001
+│   ├── tarombo_klaim_akun_data.xml  # ir.sequence KLAIM/%(year)s/0001
+│   ├── tarombo_bidang_data.xml      # 9 seed bidang (Pertanian, ASN, Swasta, dst.)
+│   └── tarombo_google_oauth_data.xml  # <function write> ke auth_oauth.provider_google (lihat bag. 10)
 ├── tests/
 │   ├── __init__.py
 │   └── test_partuturan.py    # 13 test: pohon uji + 10 kategori hubungan + simetri
@@ -112,8 +142,15 @@ tidak match pasangan padan yang diketahui — perlu diisi manual sesuai marga ny
 Satu orang/individu dalam tarombo. `_inherit = ['mail.thread', 'mail.activity.mixin']`,
 `_parent_name = 'ayah_id'`, `_parent_store = True`, `_order = 'sundut, urutan, name'`.
 
-**Identitas**: `name`, `teknonim`, `jenis_kelamin` (L/P), `foto`, `marga_id`,
-`punguan_id` (required), `partner_id`, `catatan`.
+**Identitas**: `name`, `jenis_kelamin` (L/P), `foto`, `marga_id`, `punguan_id`
+(required), `partner_id`, `catatan`.
+- `user_id` (Many2one `res.users`, readonly, TIDAK `groups=`) — akun app mobile
+  yang mengklaim record ini sebagai dirinya, ditautkan lewat `tarombo.klaim_akun`
+  setelah disetujui pengurus (lihat bagian 4 & 10). Sengaja tanpa `groups=`
+  karena dipakai di domain picker `tarombo.klaim_akun.orang_id` (`user_id =
+  False`) yang harus bisa dievaluasi anggota biasa — field yang dipakai di
+  domain untuk grup lebih rendah tidak boleh dibatasi `groups=` (pelajaran yang
+  sama seperti `masih_hidup` di bawah).
 - `marga_id` **TIDAK** `required=True` di level field — leluhur puncak tanpa `ayah_id`
   (mis. Tuan Sihubil) sah tidak bermarga (mendahului percabangan marga). Wajib hanya
   kalau `ayah_id` terisi, lewat `@api.constrains` `_cek_marga_wajib`. View: field diberi
@@ -149,12 +186,20 @@ Satu orang/individu dalam tarombo. `_inherit = ['mail.thread', 'mail.activity.mi
 
 **Domisili**: `provinsi_id` → `desa_id` (domain `=?`), `wilayah_id` (compute+store),
 `negara_id` (default `base.id`), `alamat_catatan`. Sensitif (**groups=pengurus**):
-`alamat_jalan`, `kode_pos`, `latitude`, `longitude`. `izin_lokasi` (TIDAK dibatasi
-groups) — koordinat perorangan tampak di form hanya kalau `izin_lokasi=True` **dan**
-pembacanya pengurus (gerbang di lapisan tampilan, bukan akses data/RPC).
+`alamat_jalan`, `kode_pos`, `latitude`, `longitude` (diisi lewat widget peta
+`geo_picker`, bukan diketik manual). `berbagi_lokasi` (Boolean, default False,
+**TIDAK** dibatasi groups) — opt-in eksplisit pemilik akun (lewat `user_id`)
+supaya titik lokasinya tampil di peta "Kerabat Terdekat" app mobile ke SELURUH
+anggota. Satu-satunya jalan baca `latitude`/`longitude` anggota biasa adalah
+`get_lokasi_kerabat()` (`tarombo_lokasi_mobile.py`, `sudo()` sempit, hanya
+untuk `berbagi_lokasi=True`) — bukan pelonggaran `groups=` pada field itu
+sendiri. *(Catatan: field lama bernama `izin_lokasi` yang pernah disebut di
+versi context.md sebelumnya **sudah tidak ada** — sudah diganti `berbagi_lokasi`.)*
 
 **Riwayat**: `pendidikan_ids`/`pekerjaan_ids`, `pendidikan_tertinggi` (compute+store),
-`pekerjaan_kini` + `bidang_kini` (satu compute method).
+`pekerjaan_kini` (Char) + `bidang_kini_id` (Many2one `tarombo.bidang`, dulu
+Selection statis `BIDANG_SELECTION` — sudah dihapus, lihat model `tarombo.bidang`
+di bawah) lewat satu compute method yang sama.
 
 **Arsip**: `arsip_ids` (One2many ke `tarombo.arsip` via `orang_id`) — tab "Arsip" di form.
 
@@ -259,30 +304,86 @@ usulan diverifikasi dulu sebelum masuk. `_inherit = ['mail.thread', 'mail.activi
 
 ### `tarombo.arsip` ([models/tarombo_arsip.py](models/tarombo_arsip.py))
 
-Media/dokumen per orang. `name`, `jenis` (foto/dokumen/audio/video/naskah), `orang_id`
-(opsional), `punguan_id` (required), `tahun_perkiraan` (Char, bukan Integer — banyak
-berkas lama cuma diketahui kisarannya), `sumber`, `keterangan`, `attachment_id`
-(required), `pratinjau` (Image, compute dari `attachment_id.datas` **hanya** kalau
-mimetype `image/*`, TIDAK `store` supaya tidak menduplikasi data biner attachment),
-`publik` (default True — **baru sekadar disimpan, belum ada `ir.rule` yang benar-benar
-menyaring arsip non-publik dari anggota**, access masih model-wide read-only).
-Kanban dengan `pratinjau` sebagai tampilan utama (pola modern: `<field widget="image"
-invisible="...">` langsung di `<t t-name="card">`, bukan helper `kanban_image()` lama).
-Menu: Anggota > Arsip.
+Media/dokumen per orang. `_inherit = ['mail.thread', 'mail.activity.mixin']` (chatter
++ tracking sudah ditambahkan). `name`, `jenis` (foto/dokumen/audio/video/naskah),
+`orang_id` (opsional), `punguan_id` (required), `tahun_perkiraan` (Char, bukan
+Integer — banyak berkas lama cuma diketahui kisarannya), `sumber`, `keterangan`,
+`attachment_id` (required), `pratinjau` (Image, compute dari `attachment_id.datas`
+**hanya** kalau mimetype `image/*`, TIDAK `store` supaya tidak menduplikasi data
+biner attachment), `publik` (default True).
+- **`publik` SEKARANG benar-benar ditegakkan** lewat `ir.rule` di
+  `tarombo_arsip_security.xml` (`domain_force=[('publik','=',True)]` untuk
+  `group_tarombo_anggota`) — sebelumnya field ini cuma dekorasi di form tanpa
+  penyaringan row-level apa pun (sudah diperbaiki).
+- View: kanban dengan `pratinjau` sebagai tampilan utama (pola modern: `<field
+  widget="image" invisible="...">` langsung di `<t t-name="card">`), list, dan
+  form dengan chatter. Menu: Arsip (root, sejajar Anggota — lihat bagian 7).
+
+### `tarombo.bidang` ([models/tarombo_bidang.py](models/tarombo_bidang.py))
+
+Daftar bidang pekerjaan — **dulu Selection statis** (`BIDANG_SELECTION` di
+`tarombo_orang.py`), sekarang model sendiri supaya bisa dikelola tanpa ubah kode.
+`name` (required, unik), `keterangan`. Dipakai `tarombo.pekerjaan.bidang_id` dan
+`tarombo.orang.bidang_kini_id` (compute). Seed 9 record di
+`data/tarombo_bidang_data.xml` (Pertanian, Perdagangan, ASN, Swasta, Wiraswasta,
+Pendidik, Kesehatan, Rohaniwan, Lain-lain). Access: anggota/pengurus read-only,
+admin CRUD (pola sama model konfigurasi lain).
+
+### `tarombo.klaim_akun` ([models/tarombo_klaim_akun.py](models/tarombo_klaim_akun.py))
+
+Menautkan **akun login app mobile** ke record `tarombo.orang` yang sudah ada di
+pohon (atau ke usulan orang baru) — **bukan** perluasan `tarombo.usulan` (mesin
+`USUL_MUATAN_MAP`/`_muatan()` di sana khusus untuk isi data orang, tidak relevan
+untuk "tautkan akun"; invarian yang dibutuhkan juga beda: satu orang cuma boleh
+diklaim satu akun, satu akun cuma boleh tertaut satu orang).
+- `jenis`: `orang_ada` (pilih dari pohon yang `user_id=False`) / `orang_baru`
+  (bikin `tarombo.usulan` dulu, `usulan_id` mengikutinya).
+- `state`: `draft`→`menunggu`→`disetujui`/`ditolak`. **Default `draft`, BUKAN
+  `menunggu`** — kalau `create()` langsung dianggap "sudah disubmit", klaim yang
+  `action_ajukan()`-nya gagal (kena race guard) akan tetap kelihatan seperti
+  klaim menunggu yang sah padahal yatim (`tanggal_ajukan` kosong). `state`
+  cuma pindah ke `menunggu` lewat `action_ajukan()` yang benar-benar berhasil.
+- `action_ajukan()`/`action_setujui()` keduanya panggil `_cek_akun_belum_tertaut()`
+  (cek sisi AKUN) **dan** `_cek_orang_belum_diklaim()` (cek sisi ORANG, race-guard
+  dua user klaim orang yang sama) — dua constraint terpisah, dua arah.
+  `action_setujui()` untuk `orang_baru` mensyaratkan `usulan_id.state=='disetujui'`
+  dulu, baru menulis `orang_id.write({'user_id': ...})`.
+- **Security**: `ir.rule` anggota hanya `read`+`create` milik sendiri (**tanpa**
+  rule `write` — submit-once, kalau ditolak ajukan baru, bukan edit yang lama,
+  menghindari race saat pengurus sedang meninjau); pengurus `[(1,'=',1)]` penuh.
+  Menu: Usulan > Klaim Akun (khusus pengurus).
+
+### `tarombo.hapus_akun_request` ([models/tarombo_hapus_akun_request.py](models/tarombo_hapus_akun_request.py))
+
+Antrian permintaan hapus akun dari app mobile — **bukan** hapus `res.users`
+langsung (record itu kemungkinan besar terhubung ke `tarombo.orang.user_id`,
+`tarombo.usulan` sebagai pengusul, dll., jadi hapus langsung berisiko merusak
+riwayat data bersama). `nama`, `login`, `alasan`, `user_id`, `state` (pending/
+processed), `catatan_admin`. Diisi lewat dua jalur: form web publik
+`/hapus-akun` (siapa saja, tanpa login) dan endpoint mobile terautentikasi
+`/tarombo/mobile/hapus_akun` — lihat bagian 10. Admin memproses manual lewat
+menu Konfigurasi > Permintaan Hapus Akun, tombol `action_proses()`.
 
 ## 5. Visualisasi Pohon Silsilah (OWL + ECharts)
 
 - **Backend**: `tarombo_pohon.py` (`_inherit tarombo.orang`), method `@api.model
-  get_pohon_data(orang_id, mode)`. Return dict node `{id, name, teknonim, sundut,
-  jenis_kelamin, status, selected, collapsed, has_more, children}` — **hanya data
-  semantik mentah**, pemetaan ke bentuk/warna ECharts dilakukan di JS (bukan
-  hardcode di Python).
+  get_pohon_data(orang_id, mode)`. Return dict node `{id, name, sundut,
+  jenis_kelamin, status, punya_foto, selected, collapsed, has_more,
+  has_more_atas, children}` — **hanya data semantik mentah**; di web dipetakan
+  ke bentuk/warna ECharts di JS, di app mobile dipakai langsung sebagai data
+  node (lihat bagian 10). *(`teknonim` yang pernah disebut di versi context.md
+  sebelumnya **tidak pernah jadi field asli** — dikoreksi di sini.)*
   - Mode `cabang`: akar = ayah orang tsb (kalau ada); anak-anaknya = saudara dengan
     `collapsed=True` (kecuali cabang orang terpilih, di-expand penuh).
   - Mode `radial`: akar = leluhur acuan (fallback ke orang itu sendiri bila belum
     diatur); simpul fokus tetap ditandai `selected`.
   - Dibatasi `POHON_KEDALAMAN_MAKS=4` generasi / `POHON_SIMPUL_MAKS=200` simpul
     per panggilan (jaga performa).
+  - `has_more_atas` (**baru**, khusus node akar mode `cabang`) — `True` kalau
+    ayah yang ditampilkan sebagai akar itu sendiri masih punya `ayah_id` yang
+    tidak ikut ditampilkan. Tanpa flag ini, konsumen (app mobile) tidak tahu
+    beda antara "akar sungguhan" vs "akar cuma karena batas tampilan" — pohon
+    kelihatan seperti kehabisan data padahal leluhur sesungguhnya masih ada.
 - **Frontend**: `static/src/components/pohon/` — `ir.actions.client` bertag
   `tarombo_pohon_silsilah`, terdaftar via `registry.category("actions").add(...)`.
   Dipicu tombol "Pohon Silsilah" di header form `tarombo.orang` (`type="action"`,
@@ -319,19 +420,34 @@ Menu: Anggota > Arsip.
   compile (`_check_field_access` via `_field_to_sql`), bukan cuma tampilan. Pelajaran:
   field yang dipakai di **domain action/filter untuk grup lebih rendah** tidak boleh
   dibatasi `groups=`.
-- **Record rule (`ir.rule`)**: baru ada untuk `tarombo.usulan` (lihat bagian 4). Model
-  lain masih model-wide access saja (tidak ada pembatasan per marga/punguan/kepemilikan).
+- **Record rule (`ir.rule`)**: sekarang ada untuk `tarombo.usulan` (punya sendiri),
+  `tarombo.klaim_akun` (punya sendiri, read+create tanpa write), dan `tarombo.arsip`
+  (anggota hanya `publik=True`) — lihat bagian 4 tiap model. Model lain masih
+  model-wide access saja (tidak ada pembatasan per marga/punguan/kepemilikan).
+  Pola row-level rule di modul ini selalu sepasang: satu rule domain sempit untuk
+  `group_tarombo_anggota`, satu rule `[(1,'=',1)]` untuk `group_tarombo_pengurus`
+  yang meng-OR-kan diri (pengurus/admin otomatis juga anggota lewat `implied_ids`,
+  tanpa override ini mereka ikut kena domain sempit punya-anggota).
 - **Access rights** pola konsisten: model "data pribadi/silsilah" (`tarombo.orang`,
   `tarombo.pernikahan`, `tarombo.pendidikan`, `tarombo.pekerjaan`, `tarombo.arsip`,
-  `tarombo.usulan`) = anggota read-only (usulan: + create), pengurus & admin CRUD.
-  Model "struktural/konfigurasi" (`tarombo.marga`, `tarombo.padan`, `tarombo.wilayah`,
-  `tarombo.punguan`) = anggota/pengurus read-only, hanya admin CRUD.
+  `tarombo.usulan`, `tarombo.klaim_akun`) = anggota read-only (usulan/klaim_akun:
+  + create), pengurus & admin CRUD. Model "struktural/konfigurasi" (`tarombo.marga`,
+  `tarombo.padan`, `tarombo.wilayah`, `tarombo.punguan`, `tarombo.bidang`) =
+  anggota/pengurus read-only, hanya admin CRUD. `tarombo.hapus_akun_request` =
+  pengurus read+write (tanpa create/unlink), admin CRUD penuh (create selalu
+  lewat `sudo()` di controller, bukan ORM langsung oleh pengguna).
 
 ## 7. Views & Navigasi
 
-- **Menu**: `menu_tarombo_root` (groups=anggota) → **Anggota** (Daftar Anggota +
-  Arsip), **Usulan** (Daftar Usulan), **Laporan** (Hitung Partuturan + Direktori
-  Keahlian), **Konfigurasi** (groups=admin: Marga, Padan, Wilayah, Punguan).
+- **Menu** (`views/menu.xml`), urutan sequence: `menu_tarombo_root` (groups=anggota) →
+  **Dashboard** (5, groups=pengurus, action langsung ke dashboard OWL) → **Anggota**
+  (10, action langsung ke list `tarombo.orang` — BUKAN lagi submenu "Daftar Anggota")
+  → **Arsip** (15, action langsung, sejajar root — dipindah keluar dari submenu
+  Anggota) → **Usulan** (20, submenu: Daftar Usulan + Klaim Akun[pengurus]) →
+  **Laporan** (30: Hitung Partuturan, Direktori Keahlian) → **Konfigurasi** (40,
+  groups=admin: Marga, Padan, Wilayah, Punguan, Bidang, Permintaan Hapus Akun).
+  Perubahan dari versi lama: Anggota & Arsip sengaja jadi item aksi langsung (tanpa
+  submenu satu-anak) supaya sekali tap/klik langsung buka datanya.
 - **PENTING — bug nyata**: `action_tarombo_orang` awalnya tidak mengunci
   `view_id`/`view_ids`. Begitu model `tarombo.orang` punya >1 list view (setelah
   Direktori Keahlian dibuat), Odoo memilih view "default" secara ambigu dan sempat
@@ -348,8 +464,11 @@ Menu: Anggota > Arsip.
   dengan peringatan adat, anak — dikelompokkan per istri kalau `punya_istri_ganda`,
   tab "Anak" diberi judul group eksplisit), **Domisili**, **Riwayat**, **Arsip**,
   **Keabsahan**. Header form punya tombol "Pohon Silsilah".
-- Search `tarombo.orang`: filter/groupby sundut, marga, jenis kelamin, bidang_kini,
+- Search `tarombo.orang`: filter/groupby sundut, marga, jenis kelamin, `bidang_kini_id`,
   pendidikan_tertinggi.
+- View `tarombo.orang` **tidak lagi punya arch `<hierarchy>`** (dependency
+  `web_hierarchy` sudah dilepas, lihat bagian 2) — visualisasi pohon sepenuhnya
+  lewat tombol "Pohon Silsilah" (komponen OWL, bagian 5).
 
 ## 8. Cara memulai kerja di modul ini
 
@@ -373,6 +492,13 @@ Menu: Anggota > Arsip.
   `satu_keturunan`/`terikat_padan`/`peringatan_adat`). Defaultnya **peringatan, bukan
   blokir keras** — keputusan eksplisit karena sistem ini tugasnya merekam silsilah apa
   adanya, bukan jadi polisi adat.
+- **Ubah field yang dikonsumsi app mobile** (`get_pohon_data`, `get_lokasi_kerabat`,
+  `get_my_orang`, atau field apa pun yang dibaca `search_read` dari Flutter — lihat
+  bagian 10) → field kosong Odoo serialize jadi `false`, bukan `null`; kalau nama
+  field berubah, app mobile (project terpisah) juga perlu diperbarui, dan payload
+  method `@api.model` sengaja tetap ringan (jangan tambah data besar/foto penuh ke
+  dalamnya, ambil lewat URL `/web/image/` terpisah seperti pola yang sudah ada).
+
 ## 9. Progres Impor Data Real: Silsilah Marga Silaen (technocraft.org)
 
 > Bagian ini **bukan** dokumentasi kode modul, tapi catatan progres proyek data —
@@ -487,3 +613,114 @@ Breaking change Odoo 19 yang sudah dikonfirmasi di server ini (jangan diulang):
     `<templates><t t-name="hierarchy-box">...</t></templates>`.
   - Kanban modern pakai `<t t-name="card">` (bukan `t-name="kanban-box"` lama) dan
     `<field widget="image" invisible="...">` langsung (bukan helper `kanban_image()`).
+
+## 10. Aplikasi Mobile (TaromboMobile, Flutter)
+
+> Project terpisah di `d:\FLUT\TaromboMobile` (repo Git sendiri, bukan bagian dari
+> modul Odoo ini) — bagian ini merangkum **kontrak antara app itu dan backend
+> modul ini**, supaya sesi kerja di modul Odoo tahu dampaknya ke app mobile, dan
+> sebaliknya. Detail penuh implementasi Flutter (state management, widget, dsb.)
+> tidak dirangkum di sini — lihat langsung source project itu.
+
+**Arsitektur**: Flutter + Riverpod (manual provider, tanpa codegen) + go_router
+(`StatefulShellRoute.indexedStack` untuk 3 tab utama: Beranda, Tarombo, Akun) +
+Dio. Semua fitur (kecuali auth) manggil `ApiClient.callKw()` → `/web/dataset/
+call_kw` standar Odoo langsung — **tidak butuh controller custom per model**,
+cukup `search_read`/`create`/method `@api.model` biasa dengan ACL/`ir.rule` yang
+sudah benar. Controller custom di bawah ini HANYA untuk hal yang genuinely tidak
+bisa lewat `call_kw` (autentikasi awal, halaman publik non-Odoo-session).
+
+**Gotcha JSON-RPC paling penting**: field Char/Text/Selection/Many2one yang
+kosong di Odoo diserialisasi sebagai literal `false`, BUKAN `null`/`""`. Cast
+`json['x'] as String?` di Dart akan **throw** kena `false` (bukan yield null).
+Kalau menambah field baru yang dikonsumsi mobile, ingatkan sisi Flutter untuk
+pakai helper `asOdooString()` (`lib/shared/utils/odoo_json.dart`), bukan cast
+langsung.
+
+### Alur autentikasi & klaim identitas
+
+1. **Register manual** — `POST /tarombo/mobile/register` (`controllers/
+   mobile_auth.py`, `auth='public'`) — cuma bikin `res.users` +
+   `group_tarombo_anggota`, user pilih password sendiri (tidak ada gateway
+   pengiriman password apa pun).
+2. **Login Google** — `POST /tarombo/mobile/google_login`. Native Google
+   Sign-In di app dapat `access_token`, dikirim ke sini, divalidasi lewat
+   method **provider-agnostic bawaan** `res.users._auth_oauth_validate()`
+   (hit `auth.oauth.provider_google.validation_endpoint`,
+   `https://www.googleapis.com/oauth2/v3/userinfo` — cukup access_token, tidak
+   perlu verifikasi JWT/audience). User baru dibuat sudo() kalau belum ada
+   (sama pola seperti register manual); user lama ditautkan `oauth_uid`/
+   `oauth_provider_id`. Sesi dibuat lewat `request.session.authenticate(env,
+   {'login','token','type':'oauth_token'})` — **persis** jalur yang dipakai
+   controller `/auth_oauth/signin` bawaan Odoo sendiri, cuma dipanggil manual
+   di sini supaya TIDAK lewat `_auth_oauth_signin()`/`self.signup()` bawaan
+   (itu butuh `auth_signup.invitation_scope='b2c'` GLOBAL → ikut membuka
+   `/web/signup` standar untuk siapa saja).
+   - `auth.oauth.provider_google` diaktifkan lewat `<function name="write">`
+     di `data/tarombo_google_oauth_data.xml`, **bukan** `<record>` override —
+     record itu dibuat modul `auth_oauth` dengan `noupdate=1` (flag TERSIMPAN
+     di `ir.model.data`, bukan ditentukan file mana yang mengubahnya belakangan),
+     jadi `<record>` override diam-diam diabaikan; `<function write>` tidak
+     kena gate yang sama.
+   - **Jebakan ACL yang pernah kejadian**: `auth.oauth.provider` cuma bisa
+     dibaca role Administrator. Endpoint ini `auth='public'` (dipanggil
+     SEBELUM ada sesi) — baca field provider (mis. `.enabled`) WAJIB lewat
+     `.sudo()` dulu, kalau tidak langsung `AccessError` untuk user publik.
+     Test lewat `odoo-bin shell` **tidak akan menangkap bug ini** (shell = superuser,
+     bypass ACL) — untuk uji ACL user publik yang benar, pakai
+     `record.with_user(env.ref('base.public_user'))`.
+3. **Klaim identitas** — setelah login, app cek `get_my_orang()` (lihat
+   `tarombo_lokasi_mobile.py`). Kalau belum tertaut, tampilkan form Klaim
+   Identitas (cari nama sendiri di pohon → `tarombo.klaim_akun` jenis
+   `orang_ada`, atau "nama saya tidak ada" → jenis `orang_baru` + `tarombo.usulan`
+   dibuatkan sekalian). Form ini **boleh di-skip** per sesi aplikasi (state
+   in-memory, reset tiap app dibuka ulang dari nol) — akun yang belum tertaut
+   tetap boleh menjelajah sebagian besar fitur baca (Profil Keluarga, Hitung
+   Partuturan, Direktori Keahlian, Arsip, lihat peta Kerabat Terdekat), **kecuali
+   Usulan** (mengubah data bersama) yang tetap terkunci sampai identitas
+   benar-benar disetujui pengurus — keputusan produk sengaja supaya akun
+   anonim tidak bisa mengubah data keluarga meski ujungnya ditinjau pengurus.
+4. **Hapus akun** — `POST /tarombo/mobile/hapus_akun` (`auth='user'`), cuma
+   mencatat `tarombo.hapus_akun_request` (lihat bagian 4), tidak menghapus
+   `res.users` langsung.
+
+### Fitur mobile lain yang menyentuh backend ini
+
+- **Pohon silsilah** (tab "Tarombo") — pakai `get_pohon_data()` yang sama
+  dengan komponen OWL web (bagian 5), dirender dengan paket Flutter `graphview`
+  **hanya untuk hitung posisi** (`Graph`/`BuchheimWalkerAlgorithm`, dijalankan
+  manual bukan lewat widget `GraphView` bawaannya — widget itu ternyata kadang
+  gagal mem-paint di frame pertama tanpa exception apa pun); tampilannya
+  dirakit sendiri dengan `Stack`+`CustomPaint`+`Positioned` biasa. Mode Cabang
+  & Radial keduanya didukung backend, tapi toggle mode di UI **sedang
+  disembunyikan sementara** (dianggap membingungkan pengguna tanpa penjelasan).
+- **Kerabat Terdekat** (peta) — `get_lokasi_kerabat()`/`set_berbagi_lokasi()`
+  (`tarombo_lokasi_mobile.py`), opt-in `berbagi_lokasi` per orang (bagian 4).
+- **Profil anggota** — `search_read` langsung ke `tarombo.orang` (leluhur dari
+  `parent_path`, anak langsung dari domain `ayah_id=X`, **bukan** meratakan
+  seluruh sub-pohon keturunan bergenerasi-generasi — sengaja disederhanakan
+  supaya tidak menampilkan ratusan orang campur generasi dalam satu daftar).
+- **Direktori Keahlian** — `search_read` domain `masih_hidup=True`, fields
+  `pekerjaan_kini`, `bidang_kini_id` (Many2one, filter chip dibangun dinamis
+  dari `tarombo.bidang`, bukan lagi daftar statis di kode Dart).
+
+### Halaman publik non-Odoo-session (`controllers/public_pages.py`)
+
+Dibutuhkan untuk syarat publish Play Store & App Store (kontennya sengaja
+generik/universal untuk kedua platform, bukan istilah khas satu toko saja):
+`/kebijakan-privasi`, `/dukungan` (Support URL, wajib diisi App Store Connect),
+`/hapus-akun` (form web + `/hapus-akun/submit`, jalur alternatif di luar app
+untuk permintaan hapus akun). Semua `type='http', auth='public', website=False`
+— HTML mentah dikembalikan langsung via `Response(...)`, bukan lewat
+`ir.ui.view`/QWeb (halaman ini sengaja berdiri sendiri, tidak terikat theme
+Website Odoo). Pola disalin dari modul `digital_kamtibmas` di server yang sama
+(`privacy_policy.py`/`account_deletion.py`) yang sudah pernah lolos review
+Play Store untuk app lain.
+
+**Jebakan yang pernah kejadian**: HTML di dalam string Python yang memakai CSS
+(banyak `%` untuk unit persen, mis. `width:100%`) **tidak boleh** disisipi nama
+lewat operator `%` Python (`"""...""" % {...}`) — literal `%` di CSS ditafsirkan
+sebagai awal format specifier dan meledak (`ValueError: unsupported format
+character`). Pakai `.replace('%(placeholder)s', nilai)` untuk substitusi
+sederhana, atau `.format()` dengan **semua** `{`/`}` CSS di-escape ganda
+(`{{`/`}}`) kalau memang perlu `.format()`.
