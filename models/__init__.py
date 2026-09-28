@@ -13,3 +13,4 @@ from . import tarombo_pohon
 from . import tarombo_dashboard
 from . import tarombo_klaim_akun
 from . import tarombo_lokasi_mobile
+from . import tarombo_hapus_akun_request

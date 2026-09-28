@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_tarombo_hapus_akun_list" model="ir.ui.view">
+    <field name="name">tarombo.hapus_akun_request.list</field>
+    <field name="model">tarombo.hapus_akun_request</field>
+    <field name="arch" type="xml">
+      <list string="Permintaan Hapus Akun"
+            decoration-warning="state == 'pending'"
+            decoration-muted="state == 'processed'">
+        <field name="tanggal_request"/>
+        <field name="nama"/>
+        <field name="login"/>
+        <field name="alasan" optional="show"/>
+        <field name="state" widget="badge"
+               decoration-warning="state == 'pending'"
+               decoration-success="state == 'processed'"/>
+        <field name="tanggal_proses" optional="show"/>
+        <button name="action_proses" type="object" string="Tandai Selesai"
+                invisible="state == 'processed'"
+                icon="fa-check" class="btn-primary"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_tarombo_hapus_akun_form" model="ir.ui.view">
+    <field name="name">tarombo.hapus_akun_request.form</field>
+    <field name="model">tarombo.hapus_akun_request</field>
+    <field name="arch" type="xml">
+      <form string="Permintaan Hapus Akun">
+        <header>
+          <button name="action_proses" type="object" string="Tandai Sudah Diproses"
+                  class="btn-primary"
+                  invisible="state == 'processed'"/>
+          <field name="state" widget="statusbar" statusbar_visible="pending,processed"/>
+        </header>
+        <sheet>
+          <group>
+            <group string="Identitas Pengguna">
+              <field name="nama"/>
+              <field name="login"/>
+              <field name="user_id"/>
+            </group>
+            <group string="Detail Permintaan">
+              <field name="tanggal_request"/>
+              <field name="tanggal_proses" invisible="state == 'pending'"/>
+            </group>
+          </group>
+          <group string="Alasan">
+            <field name="alasan" nolabel="1"/>
+          </group>
+          <group string="Catatan Admin">
+            <field name="catatan_admin" nolabel="1"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_tarombo_hapus_akun_search" model="ir.ui.view">
+    <field name="name">tarombo.hapus_akun_request.search</field>
+    <field name="model">tarombo.hapus_akun_request</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="nama"/>
+        <field name="login"/>
+        <filter name="pending" string="Menunggu" domain="[('state','=','pending')]"/>
+        <filter name="processed" string="Sudah Diproses" domain="[('state','=','processed')]"/>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_tarombo_hapus_akun" model="ir.actions.act_window">
+    <field name="name">Permintaan Hapus Akun</field>
+    <field name="res_model">tarombo.hapus_akun_request</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_pending': 1}</field>
+  </record>
+
+  <menuitem id="menu_tarombo_hapus_akun"
+            name="Permintaan Hapus Akun"
+            parent="menu_tarombo_konfigurasi"
+            action="action_tarombo_hapus_akun"
+            groups="tarombo.group_tarombo_admin"
+            sequence="50"/>
+
+</odoo>

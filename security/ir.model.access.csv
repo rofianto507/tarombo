@@ -35,3 +35,5 @@ access_tarombo_klaim_akun_admin,tarombo.klaim_akun admin,model_tarombo_klaim_aku
 access_tarombo_bidang_anggota,tarombo.bidang anggota,model_tarombo_bidang,tarombo.group_tarombo_anggota,1,0,0,0
 access_tarombo_bidang_pengurus,tarombo.bidang pengurus,model_tarombo_bidang,tarombo.group_tarombo_pengurus,1,0,0,0
 access_tarombo_bidang_admin,tarombo.bidang admin,model_tarombo_bidang,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_hapus_akun_pengurus,tarombo.hapus_akun_request pengurus,model_tarombo_hapus_akun_request,tarombo.group_tarombo_pengurus,1,1,0,0
+access_tarombo_hapus_akun_admin,tarombo.hapus_akun_request admin,model_tarombo_hapus_akun_request,tarombo.group_tarombo_admin,1,1,1,1

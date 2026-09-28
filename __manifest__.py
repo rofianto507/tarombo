@@ -28,6 +28,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'views/tarombo_klaim_akun_views.xml',
         'views/tarombo_arsip_views.xml',
         'views/tarombo_bidang_views.xml',
+        'views/tarombo_hapus_akun_views.xml',
         'wizard/tarombo_partuturan_wizard_views.xml',
         'views/menu.xml',
         'data/tarombo_marga_data.xml',

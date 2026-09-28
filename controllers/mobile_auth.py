@@ -139,3 +139,29 @@ class TaromboMobileAuthController(http.Controller):
         except Exception:
             _logger.exception('Google login gagal untuk %s', email)
             return {'success': False, 'error': 'Terjadi kesalahan server. Silakan coba lagi.'}
+
+    @http.route('/tarombo/mobile/hapus_akun', type='jsonrpc', auth='user', csrf=False, cors='*')
+    def hapus_akun(self, alasan=None, **kwargs):
+        """Permintaan hapus akun dari app mobile — sengaja TIDAK menghapus
+        res.users secara langsung (record ini kemungkinan besar terhubung ke
+        tarombo.orang.user_id, tarombo.usulan sebagai pengusul, dst., jadi
+        hapus langsung berisiko merusak riwayat data bersama). Sama seperti
+        pola account_deletion di digital_kamtibmas: cukup catat sebagai
+        permintaan yang ditindaklanjuti admin secara manual (maks. 30 hari
+        kerja), konsisten dengan yang dijanjikan di halaman /hapus-akun.
+        """
+        user = request.env.user
+        existing = request.env['tarombo.hapus_akun_request'].sudo().search([
+            ('user_id', '=', user.id),
+            ('state', '=', 'pending'),
+        ], limit=1)
+        if existing:
+            return {'success': True, 'message': 'Permintaan sudah tercatat sebelumnya.'}
+
+        request.env['tarombo.hapus_akun_request'].sudo().create({
+            'nama': user.name,
+            'login': user.login,
+            'alasan': (alasan or '').strip() or False,
+            'user_id': user.id,
+        })
+        return {'success': True, 'message': 'Permintaan hapus akun berhasil dikirim.'}
