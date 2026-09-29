@@ -42,6 +42,37 @@ class TaromboOrang(models.Model):
         } for o in orang]
 
     @api.model
+    def get_domisili_orang(self, orang_id):
+        """Info domisili SATU orang tertentu, untuk tab 'Domisili' di halaman
+        profil mobile. Method terpisah dari get_lokasi_kerabat() supaya
+        halaman profil tidak perlu menarik seluruh daftar kerabat yang
+        berbagi lokasi cuma untuk mengecek satu id.
+
+        `alamat_jalan` dikembalikan TANPA syarat — keputusan eksplisit
+        pengelola data bahwa alamat lengkap boleh dilihat seluruh anggota
+        terverifikasi, beda dari lat/lng yang tetap mensyaratkan opt-in
+        `berbagi_lokasi` (titik peta dianggap lebih sensitif daripada teks
+        alamat karena bisa dipakai navigasi langsung ke lokasi).
+
+        sudo() sengaja dipakai: alamat_jalan/latitude/longitude dibatasi
+        groups=pengurus di ORM, tapi pengecualian ini SEMPIT (satu method,
+        proyeksi field tetap) — bukan pelonggaran groups= pada field itu
+        sendiri, dan TIDAK menambahkan anggota ke group_tarombo_pengurus.
+        """
+        if not self.env.user.has_group('tarombo.group_tarombo_anggota'):
+            raise AccessError(_('Fitur ini khusus anggota Tarombo yang sudah login.'))
+        orang = self.sudo().browse(orang_id)
+        if not orang.exists():
+            return {'alamat_jalan': False, 'berbagi_lokasi': False, 'lat': False, 'lng': False}
+        ada_lokasi = bool(orang.berbagi_lokasi and orang.latitude and orang.longitude)
+        return {
+            'alamat_jalan': orang.alamat_jalan or False,
+            'berbagi_lokasi': ada_lokasi,
+            'lat': orang.latitude if ada_lokasi else False,
+            'lng': orang.longitude if ada_lokasi else False,
+        }
+
+    @api.model
     def get_my_orang(self):
         """Resolusi "akun saya = orang mana di pohon" untuk app mobile, dipakai
         setelah login/klaim disetujui. sudo() aman: hanya mencocokkan user_id
