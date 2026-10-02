@@ -37,3 +37,9 @@ access_tarombo_bidang_pengurus,tarombo.bidang pengurus,model_tarombo_bidang,taro
 access_tarombo_bidang_admin,tarombo.bidang admin,model_tarombo_bidang,tarombo.group_tarombo_admin,1,1,1,1
 access_tarombo_hapus_akun_pengurus,tarombo.hapus_akun_request pengurus,model_tarombo_hapus_akun_request,tarombo.group_tarombo_pengurus,1,1,0,0
 access_tarombo_hapus_akun_admin,tarombo.hapus_akun_request admin,model_tarombo_hapus_akun_request,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_push_token_pengurus,tarombo.push_token pengurus,model_tarombo_push_token,tarombo.group_tarombo_pengurus,1,0,0,0
+access_tarombo_push_token_admin,tarombo.push_token admin,model_tarombo_push_token,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_tolak_wizard_pengurus,tarombo.tolak.wizard pengurus,model_tarombo_tolak_wizard,tarombo.group_tarombo_pengurus,1,1,1,1
+access_tarombo_tolak_wizard_admin,tarombo.tolak.wizard admin,model_tarombo_tolak_wizard,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_notifikasi_anggota,tarombo.notifikasi anggota,model_tarombo_notifikasi,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_notifikasi_admin,tarombo.notifikasi admin,model_tarombo_notifikasi,tarombo.group_tarombo_admin,1,1,1,1

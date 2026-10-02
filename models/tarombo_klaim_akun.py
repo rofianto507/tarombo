@@ -132,6 +132,25 @@ class TaromboKlaimAkun(models.Model):
                 'peninjau_id': self.env.user.id,
                 'tanggal_tinjau': fields.Datetime.now(),
             })
+            self.env['tarombo.push_sender'].sudo().kirim(
+                [r.user_id.id], _('Klaim Identitas Disetujui'),
+                _('Identitas Anda sebagai "%s" sudah disetujui pengurus.') % r.orang_id.name,
+                data={'tipe': 'klaim_akun', 'klaim_id': r.id, 'hasil': 'disetujui'},
+            )
+
+    def action_buka_tolak_wizard(self):
+        """Tombol "Tolak" di form membuka wizard isi alasan dulu — action_tolak()
+        sendiri TETAP mewajibkan alasan_tolak terisi, supaya tidak ada jalan
+        menolak tanpa alasan sama sekali."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Alasan Penolakan'),
+            'res_model': 'tarombo.tolak.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_res_model': self._name, 'default_res_id': self.id},
+        }
 
     def action_tolak(self):
         for r in self:
@@ -143,3 +162,8 @@ class TaromboKlaimAkun(models.Model):
                 'peninjau_id': self.env.user.id,
                 'tanggal_tinjau': fields.Datetime.now(),
             })
+            self.env['tarombo.push_sender'].sudo().kirim(
+                [r.user_id.id], _('Klaim Identitas Ditolak'),
+                _('Klaim identitas Anda ditolak: %s') % r.alasan_tolak,
+                data={'tipe': 'klaim_akun', 'klaim_id': r.id, 'hasil': 'ditolak'},
+            )

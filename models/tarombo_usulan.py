@@ -277,6 +277,25 @@ class TaromboUsulan(models.Model):
             # Jejak asal-usul disimpan di chatter orang itu sendiri, bukan cuma di
             # tabel usulan yang bisa saja diarsipkan/dihapus di kemudian hari.
             orang.message_post(body=r._pesan_asal_usulan())
+            self.env['tarombo.push_sender'].sudo().kirim(
+                [r.pengusul_id.id], _('Usulan Disetujui'),
+                _('Usulan "%s" sudah disetujui pengurus.') % r.name,
+                data={'tipe': 'usulan', 'usulan_id': r.id, 'hasil': 'disetujui'},
+            )
+
+    def action_buka_tolak_wizard(self):
+        """Tombol "Tolak" di form membuka wizard isi alasan dulu — action_tolak()
+        sendiri TETAP mewajibkan alasan_tolak terisi (dipanggil juga dari
+        tempat lain), supaya tidak ada jalan menolak tanpa alasan sama sekali."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Alasan Penolakan'),
+            'res_model': 'tarombo.tolak.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_res_model': self._name, 'default_res_id': self.id},
+        }
 
     def action_tolak(self):
         for r in self:
@@ -288,6 +307,11 @@ class TaromboUsulan(models.Model):
                 'peninjau_id': self.env.user.id,
                 'tanggal_tinjau': fields.Datetime.now(),
             })
+            self.env['tarombo.push_sender'].sudo().kirim(
+                [r.pengusul_id.id], _('Usulan Ditolak'),
+                _('Usulan "%s" ditolak: %s') % (r.name, r.alasan_tolak),
+                data={'tipe': 'usulan', 'usulan_id': r.id, 'hasil': 'ditolak'},
+            )
 
     def _pesan_asal_usulan(self):
         self.ensure_one()

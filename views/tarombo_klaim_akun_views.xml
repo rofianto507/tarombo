@@ -34,7 +34,7 @@
                         <button name="action_setujui" type="object" string="Setujui"
                                 class="btn-primary" invisible="state != 'menunggu'"
                                 groups="tarombo.group_tarombo_pengurus"/>
-                        <button name="action_tolak" type="object" string="Tolak"
+                        <button name="action_buka_tolak_wizard" type="object" string="Tolak"
                                 invisible="state != 'menunggu'"
                                 groups="tarombo.group_tarombo_pengurus"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,menunggu,disetujui"/>

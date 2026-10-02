@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!--
+            Anggota hanya lihat notifikasi miliknya sendiri. Tanpa rule ini,
+            ACL model-level (perm_read=1 untuk anggota, dibutuhkan supaya
+            search_read dari app mobile bisa jalan) akan membocorkan SELURUH
+            notifikasi semua anggota ke siapa pun yang login. Tidak ada rule
+            write/create/unlink untuk anggota — satu-satunya jalan tulis
+            adalah lewat method sudo() (lihat tarombo_push_notifikasi.py:
+            tandai_dibaca()/tandai_semua_dibaca(), dipanggil kirim()).
+        -->
+        <record id="rule_notifikasi_anggota_sendiri" model="ir.rule">
+            <field name="name">Notifikasi: anggota hanya lihat milik sendiri</field>
+            <field name="model_id" ref="model_tarombo_notifikasi"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_tarombo_anggota'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

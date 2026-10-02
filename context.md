@@ -4,13 +4,18 @@
 > setiap kali memulai sesi kerja baru pada project ini, agar tidak perlu membaca ulang
 > seluruh source code dari nol.
 
-Terakhir diperbarui: **2026-09-29** — bagian 1-8 disinkronkan ulang (Dashboard,
-tarombo.bidang, tarombo.klaim_akun, tarombo.hapus_akun_request, controllers/
-publik+mobile, ir.rule Arsip, penghapusan view `<hierarchy>`, dll). Bagian 9
-(progres impor data real) masih apa adanya sejak 2026-09-07. Bagian 10 (baru)
-merangkum **aplikasi mobile Flutter (TaromboMobile)** yang mengonsumsi modul ini
-lewat controllers/ + `call_kw` biasa — project terpisah di luar repo modul ini,
-tapi backend-nya (controllers, beberapa model) hidup di sini.
+Terakhir diperbarui: **2026-10-01** — bagian 4 & 10 disinkronkan ulang: halaman
+profil mobile sekarang 4 tab (Domisili/Keluarga/Riwayat/Arsip), method baru
+`get_domisili_orang()` (`tarombo_lokasi_mobile.py`) yang mengekspos `alamat_jalan`
+tanpa syarat ke semua anggota (beda perlakuan dari `latitude`/`longitude` yang
+tetap butuh opt-in `berbagi_lokasi`). Bagian 1-8 lain masih dari sinkronisasi
+2026-09-29 (Dashboard, tarombo.bidang, tarombo.klaim_akun,
+tarombo.hapus_akun_request, controllers/ publik+mobile, ir.rule Arsip,
+penghapusan view `<hierarchy>`, dll). Bagian 9 (progres impor data real) masih
+apa adanya sejak 2026-09-07. Bagian 10 merangkum **aplikasi mobile Flutter
+(TaromboMobile)** yang mengonsumsi modul ini lewat controllers/ + `call_kw`
+biasa — project terpisah di luar repo modul ini, tapi backend-nya (controllers,
+beberapa model) hidup di sini.
 
 ## 1. Apa itu modul ini
 
@@ -185,16 +190,23 @@ Satu orang/individu dalam tarombo. `_inherit = ['mail.thread', 'mail.activity.mi
 (compute, toggle tampilan anak-per-istri di form).
 
 **Domisili**: `provinsi_id` → `desa_id` (domain `=?`), `wilayah_id` (compute+store),
+`domisili_lengkap` (compute+store, `"Desa - Kecamatan - Kabupaten - Provinsi"`),
 `negara_id` (default `base.id`), `alamat_catatan`. Sensitif (**groups=pengurus**):
 `alamat_jalan`, `kode_pos`, `latitude`, `longitude` (diisi lewat widget peta
 `geo_picker`, bukan diketik manual). `berbagi_lokasi` (Boolean, default False,
 **TIDAK** dibatasi groups) — opt-in eksplisit pemilik akun (lewat `user_id`)
 supaya titik lokasinya tampil di peta "Kerabat Terdekat" app mobile ke SELURUH
-anggota. Satu-satunya jalan baca `latitude`/`longitude` anggota biasa adalah
-`get_lokasi_kerabat()` (`tarombo_lokasi_mobile.py`, `sudo()` sempit, hanya
-untuk `berbagi_lokasi=True`) — bukan pelonggaran `groups=` pada field itu
-sendiri. *(Catatan: field lama bernama `izin_lokasi` yang pernah disebut di
-versi context.md sebelumnya **sudah tidak ada** — sudah diganti `berbagi_lokasi`.)*
+anggota. Anggota biasa tidak bisa baca `alamat_jalan`/`latitude`/`longitude`
+lewat ORM biasa — dua jalan baca sempit yang ADA (keduanya `sudo()` di
+`tarombo_lokasi_mobile.py`, bukan pelonggaran `groups=` field itu sendiri):
+`get_lokasi_kerabat()` (semua orang `berbagi_lokasi=True` sekaligus, untuk peta)
+dan `get_domisili_orang(orang_id)` (satu orang, untuk tab "Domisili" di profil
+mobile — lihat bagian 10). **Beda perlakuan sengaja** antara kedua field sensitif
+itu di method kedua: `alamat_jalan` dikembalikan **TANPA syarat** ke seluruh
+anggota (keputusan produk: teks alamat dianggap tidak sesensitif titik peta),
+sedangkan `latitude`/`longitude` tetap mensyaratkan `berbagi_lokasi=True`. *(Catatan:
+field lama bernama `izin_lokasi` yang pernah disebut di versi context.md
+sebelumnya **sudah tidak ada** — sudah diganti `berbagi_lokasi`.)*
 
 **Riwayat**: `pendidikan_ids`/`pekerjaan_ids`, `pendidikan_tertinggi` (compute+store),
 `pekerjaan_kini` (Char) + `bidang_kini_id` (Many2one `tarombo.bidang`, dulu
@@ -696,10 +708,22 @@ langsung.
   disembunyikan sementara** (dianggap membingungkan pengguna tanpa penjelasan).
 - **Kerabat Terdekat** (peta) — `get_lokasi_kerabat()`/`set_berbagi_lokasi()`
   (`tarombo_lokasi_mobile.py`), opt-in `berbagi_lokasi` per orang (bagian 4).
-- **Profil anggota** — `search_read` langsung ke `tarombo.orang` (leluhur dari
-  `parent_path`, anak langsung dari domain `ayah_id=X`, **bukan** meratakan
-  seluruh sub-pohon keturunan bergenerasi-generasi — sengaja disederhanakan
-  supaya tidak menampilkan ratusan orang campur generasi dalam satu daftar).
+- **Profil anggota** — layar profil dibagi 4 tab di bawah info ayah:
+  - **Domisili** (default aktif) — `domisili_lengkap`+`alamat_catatan`+`negara_id`
+    (`search_read` biasa, tidak sensitif) digabung dengan `alamat_jalan`+lat/lng
+    dari `get_domisili_orang(orang_id)` (lihat bagian 4 untuk beda perlakuan
+    keduanya). Peta kecil (`flutter_map`, non-interaktif) cuma dirender kalau
+    `berbagi_lokasi=True`; kalau tidak, tampil pesan "tidak dibagikan" tanpa peta.
+  - **Keluarga** — Leluhur (dari `parent_path`) + **Pernikahan** (`tarombo.pernikahan`
+    domain `suami_id=X`, atau `suami_nama`/`suami_marga_id` langsung kalau orang ini
+    perempuan yang menikah keluar) + Anak (`search_read` domain `ayah_id=X`,
+    **bukan** meratakan seluruh sub-pohon keturunan bergenerasi-generasi — sengaja
+    disederhanakan supaya tidak menampilkan ratusan orang campur generasi dalam
+    satu daftar; untuk keturunan lebih jauh, buka profil salah satu anaknya).
+  - **Riwayat** — `tarombo.pendidikan`/`tarombo.pekerjaan` domain `orang_id=X`,
+    ACL anggota sudah `read`-only lewat `ir.model.access.csv` (tidak perlu `sudo()`).
+  - **Arsip** — `tarombo.arsip` domain `orang_id=X`; `ir.rule` `publik=True` untuk
+    anggota (bagian 6) otomatis menyaring, tidak perlu filter tambahan di query.
 - **Direktori Keahlian** — `search_read` domain `masih_hidup=True`, fields
   `pekerjaan_kini`, `bidang_kini_id` (Many2one, filter chip dibangun dinamis
   dari `tarombo.bidang`, bukan lagi daftar statis di kode Dart).
