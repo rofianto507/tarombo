@@ -32,7 +32,8 @@ USUL_MUATAN_MAP = {
     'usul_foto': 'foto',
     'usul_jenis_kelamin': 'jenis_kelamin',
     'usul_urutan': 'urutan',
-    'usul_tahun_lahir': 'tahun_lahir',
+    'usul_tanggal_lahir': 'tanggal_lahir',
+    'usul_tanggal_wafat': 'tanggal_wafat',
     'usul_provinsi_id': 'provinsi_id',
     'usul_kabupaten_id': 'kabupaten_id',
     'usul_kecamatan_id': 'kecamatan_id',
@@ -74,7 +75,8 @@ class TaromboUsulan(models.Model):
     usul_jenis_kelamin = fields.Selection(JENIS_KELAMIN_SELECTION, string='Jenis Kelamin')
     usul_masih_hidup = fields.Selection(MASIH_HIDUP_SELECTION, string='Masih Hidup')
     usul_urutan = fields.Integer('Anak ke-')
-    usul_tahun_lahir = fields.Integer('Tahun Lahir')
+    usul_tanggal_lahir = fields.Date('Tanggal Lahir')
+    usul_tanggal_wafat = fields.Date('Tanggal Wafat')
     usul_provinsi_id = fields.Many2one(
         'tarombo.wilayah', string='Provinsi', domain=[('tingkat', '=', '1')])
     usul_kabupaten_id = fields.Many2one(
@@ -124,12 +126,13 @@ class TaromboUsulan(models.Model):
         self.usul_desa_id = o.desa_id
         self.usul_suami_nama = o.suami_nama
         self.usul_suami_marga_id = o.suami_marga_id
-        # tahun_lahir, alamat_jalan, latitude & longitude dibatasi groups=pengurus
+        # tanggal_lahir, alamat_jalan, latitude & longitude dibatasi groups=pengurus
         # di tarombo.orang; cuma diisi otomatis kalau pengusulnya memang pengurus
         # ke atas, supaya anggota biasa yang bikin usulan tidak jadi bisa
         # mengintip data tersembunyi itu lewat prefill ini.
         if self.env.user.has_group('tarombo.group_tarombo_pengurus'):
-            self.usul_tahun_lahir = o.tahun_lahir
+            self.usul_tanggal_lahir = o.tanggal_lahir
+            self.usul_tanggal_wafat = o.tanggal_wafat
             self.usul_alamat_jalan = o.alamat_jalan
             self.usul_latitude = o.latitude
             self.usul_longitude = o.longitude

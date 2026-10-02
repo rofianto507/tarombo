@@ -70,13 +70,26 @@ class TaromboOrang(models.Model):
     suami_marga_id = fields.Many2one('tarombo.marga', string='Marga Suami')
 
     # Data pribadi — tanggal persis hanya untuk pengurus ke atas. masih_hidup
-    # sengaja TIDAK dibatasi groups (beda dari tahun_lahir/tahun_wafat):
+    # sengaja TIDAK dibatasi groups (beda dari tanggal_lahir/tanggal_wafat):
     # status hidup/wafat dipakai sebagai filter Direktori Keahlian yang harus
     # bisa dibuka anggota biasa; membatasinya per-groups akan membuat filter
     # itu gagal dengan AccessError bagi anggota.
-    tahun_lahir = fields.Integer('Tahun Lahir', groups='tarombo.group_tarombo_pengurus')
-    tahun_wafat = fields.Integer('Tahun Wafat', groups='tarombo.group_tarombo_pengurus')
+    #
+    # tanggal_lahir/tanggal_wafat (dulu tahun_lahir/tahun_wafat Integer) —
+    # banyak data historis cuma tahu TAHUN-nya saja, bukan tanggal persis;
+    # konvensinya isi 1 Januari tahun itu (mis. 1923 -> 01-01-1923), BUKAN
+    # berarti tanggal itu benar-benar diketahui akurat. Data lama di-backfill
+    # lewat migrations/19.0.1.1.0/post-migrate.py, bukan ditulis ulang manual.
+    tanggal_lahir = fields.Date('Tanggal Lahir', groups='tarombo.group_tarombo_pengurus')
+    tanggal_wafat = fields.Date('Tanggal Wafat', groups='tarombo.group_tarombo_pengurus')
     masih_hidup = fields.Boolean('Masih Hidup')
+    # Umur — SENGAJA TIDAK dibatasi groups= seperti tanggal_lahir/tanggal_wafat
+    # sendiri: angka umur jadi badge publik di profil mobile (semua anggota),
+    # beda sensitivitas dari tanggal persisnya. Compute pakai sudo() baca
+    # kedua field itu — pola sama seperti get_domisili_orang()
+    # (tarombo_lokasi_mobile.py): pengecualian sempit, bukan pelonggaran
+    # groups= pada field aslinya.
+    umur = fields.Integer('Umur', compute='_compute_umur')
 
     # Pernikahan — seorang leluhur bisa beristri lebih dari satu, dan tiap
     # anak perlu tahu ia lahir dari pernikahan yang mana karena jalur
@@ -209,7 +222,22 @@ class TaromboOrang(models.Model):
     @api.onchange('masih_hidup')
     def _onchange_masih_hidup(self):
         if self.masih_hidup:
-            self.tahun_wafat = False
+            self.tanggal_wafat = False
+
+    @api.depends('tanggal_lahir', 'tanggal_wafat', 'masih_hidup')
+    def _compute_umur(self):
+        hari_ini = fields.Date.context_today(self)
+        for r in self:
+            lahir = r.sudo().tanggal_lahir
+            if not lahir:
+                r.umur = False
+                continue
+            akhir = hari_ini if r.masih_hidup else r.sudo().tanggal_wafat
+            if not akhir:
+                r.umur = False
+                continue
+            umur = akhir.year - lahir.year - ((akhir.month, akhir.day) < (lahir.month, lahir.day))
+            r.umur = umur if umur >= 0 else False
 
     @api.onchange('desa_id')
     def _onchange_desa_id(self):

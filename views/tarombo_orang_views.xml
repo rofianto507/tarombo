@@ -68,9 +68,9 @@
                                         <field name="masih_hidup"/>
                                     </group>
                                     <group groups="tarombo.group_tarombo_pengurus">
-                                        <field name="tahun_lahir" options="{'enable_formatting': false}"/>
-                                        <field name="tahun_wafat" options="{'enable_formatting': false}"
-                                               invisible="masih_hidup"/>
+                                        <field name="tanggal_lahir"/>
+                                        <field name="tanggal_wafat" invisible="masih_hidup"/>
+                                        <field name="umur" readonly="1"/>
                                     </group>
                                 </group>
                                 <group string="Catatan">

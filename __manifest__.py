@@ -1,6 +1,6 @@
 {
     'name': 'Tarombo',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'summary': 'Pendataan dan pelestarian silsilah marga',
     'description': """
 Platform pendataan, penelusuran, dan pelestarian silsilah marga (tarombo),

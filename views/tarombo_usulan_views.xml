@@ -74,7 +74,8 @@
                                 <field name="usul_jenis_kelamin" widget="radio" options="{'horizontal': true}"/>
                                 <field name="usul_masih_hidup" widget="radio" options="{'horizontal': true}"/>
                                 <field name="usul_urutan"/>
-                                <field name="usul_tahun_lahir" options="{'enable_formatting': false}"/>
+                                <field name="usul_tanggal_lahir"/>
+                                <field name="usul_tanggal_wafat" invisible="usul_masih_hidup != 'tidak'"/>
                             </group>
                             <group>
                                 <field name="usul_suami_nama" invisible="usul_jenis_kelamin != 'P'"/>
