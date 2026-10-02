@@ -10,3 +10,6 @@ Thumbs.db
 # Editor
 .vscode/
 *.swp
+
+# Dokumen internal / catatan konteks (tidak untuk dipublish)
+context.md
