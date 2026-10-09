@@ -14,16 +14,16 @@ access_tarombo_pernikahan_anggota,tarombo.pernikahan anggota,model_tarombo_perni
 access_tarombo_pernikahan_pengurus,tarombo.pernikahan pengurus,model_tarombo_pernikahan,tarombo.group_tarombo_pengurus,1,1,1,1
 access_tarombo_pernikahan_admin,tarombo.pernikahan admin,model_tarombo_pernikahan,tarombo.group_tarombo_admin,1,1,1,1
 access_tarombo_partuturan_wizard,tarombo.partuturan.wizard,model_tarombo_partuturan_wizard,tarombo.group_tarombo_anggota,1,1,1,1
-access_tarombo_pendidikan_anggota,tarombo.pendidikan anggota,model_tarombo_pendidikan,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_pendidikan_anggota,tarombo.pendidikan anggota,model_tarombo_pendidikan,tarombo.group_tarombo_anggota,1,1,1,1
 access_tarombo_pendidikan_pengurus,tarombo.pendidikan pengurus,model_tarombo_pendidikan,tarombo.group_tarombo_pengurus,1,1,1,1
 access_tarombo_pendidikan_admin,tarombo.pendidikan admin,model_tarombo_pendidikan,tarombo.group_tarombo_admin,1,1,1,1
-access_tarombo_pekerjaan_anggota,tarombo.pekerjaan anggota,model_tarombo_pekerjaan,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_pekerjaan_anggota,tarombo.pekerjaan anggota,model_tarombo_pekerjaan,tarombo.group_tarombo_anggota,1,1,1,1
 access_tarombo_pekerjaan_pengurus,tarombo.pekerjaan pengurus,model_tarombo_pekerjaan,tarombo.group_tarombo_pengurus,1,1,1,1
 access_tarombo_pekerjaan_admin,tarombo.pekerjaan admin,model_tarombo_pekerjaan,tarombo.group_tarombo_admin,1,1,1,1
 access_tarombo_usulan_anggota,tarombo.usulan anggota,model_tarombo_usulan,tarombo.group_tarombo_anggota,1,1,1,0
 access_tarombo_usulan_pengurus,tarombo.usulan pengurus,model_tarombo_usulan,tarombo.group_tarombo_pengurus,1,1,1,0
 access_tarombo_usulan_admin,tarombo.usulan admin,model_tarombo_usulan,tarombo.group_tarombo_admin,1,1,1,1
-access_tarombo_arsip_anggota,tarombo.arsip anggota,model_tarombo_arsip,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_arsip_anggota,tarombo.arsip anggota,model_tarombo_arsip,tarombo.group_tarombo_anggota,1,0,1,1
 access_tarombo_arsip_pengurus,tarombo.arsip pengurus,model_tarombo_arsip,tarombo.group_tarombo_pengurus,1,1,1,1
 access_tarombo_arsip_admin,tarombo.arsip admin,model_tarombo_arsip,tarombo.group_tarombo_admin,1,1,1,1
 access_tarombo_padan_anggota,tarombo.padan anggota,model_tarombo_padan,tarombo.group_tarombo_anggota,1,0,0,0

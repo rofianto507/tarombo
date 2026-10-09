@@ -32,6 +32,15 @@ class TaromboArsip(models.Model):
         'Pratinjau', compute='_compute_pratinjau', max_width=512, max_height=512)
     publik = fields.Boolean('Boleh Dilihat Seluruh Anggota', default=True, tracking=True)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Dari app mobile anggota tidak mengirim punguan (cuma tahu id orang):
+        # turunkan dari punguan orang yang dituju supaya required tetap terpenuhi.
+        for vals in vals_list:
+            if not vals.get('punguan_id') and vals.get('orang_id'):
+                vals['punguan_id'] = self.env['tarombo.orang'].browse(vals['orang_id']).punguan_id.id
+        return super().create(vals_list)
+
     @api.depends('jenis', 'berkas')
     def _compute_pratinjau(self):
         for r in self:

@@ -13,12 +13,41 @@
         <record id="rule_arsip_anggota_publik" model="ir.rule">
             <field name="name">Arsip: anggota hanya lihat yang publik</field>
             <field name="model_id" ref="model_tarombo_arsip"/>
-            <field name="domain_force">[('publik', '=', True)]</field>
+            <field name="domain_force">['|', ('publik', '=', True), ('create_uid', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('group_tarombo_anggota'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!--
+            Anggota menambah arsip ke PROFILNYA SENDIRI (orang.user_id = akun login)
+            tanpa verifikasi pengurus, dan hanya boleh menghapus arsip yang ia unggah
+            sendiri (create_uid) — arsip unggahan pengurus tidak bisa dihapus anggota.
+            Read-nya mengikuti rule di atas: arsip miliknya tetap terlihat walau
+            publik=False.
+        -->
+        <record id="rule_arsip_anggota_tambah_sendiri" model="ir.rule">
+            <field name="name">Arsip: anggota tambah arsip ke profil sendiri</field>
+            <field name="model_id" ref="model_tarombo_arsip"/>
+            <field name="domain_force">[('orang_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_tarombo_anggota'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_arsip_anggota_hapus_sendiri" model="ir.rule">
+            <field name="name">Arsip: anggota hapus arsip unggahannya sendiri</field>
+            <field name="model_id" ref="model_tarombo_arsip"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_tarombo_anggota'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
         </record>
 
         <record id="rule_arsip_pengurus_semua" model="ir.rule">
