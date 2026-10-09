@@ -14,6 +14,8 @@
                     <field name="ayah_id"/>
                     <field name="urutan"/>
                     <field name="domisili_lengkap" string="Alamat Domisili"/>
+                    <field name="user_id" string="Akun" widget="many2one_avatar_user"
+                           optional="show"/>
                 </list>
             </field>
         </record>
@@ -44,6 +46,10 @@
                     <header>
                         <button name="%(action_tarombo_pohon_silsilah)d" type="action"
                                 string="Pohon Silsilah" class="btn-secondary"/>
+                        <button name="action_cabut_akun" type="object" string="Cabut Akun"
+                                icon="fa-chain-broken" class="btn-danger" invisible="not user_id"
+                                groups="tarombo.group_tarombo_pengurus"
+                                confirm="Putuskan tautan akun dari anggota ini? Pengguna harus mengajukan klaim lagi untuk terhubung."/>
                     </header>
                     <sheet>
                         <field name="foto" widget="image" class="oe_avatar"/>
@@ -64,7 +70,7 @@
                                     <group>
                                         <field name="marga_id" required="ayah_id"/>
                                         <field name="punguan_id"/>
-                                        <field name="partner_id"/>
+                                        <field name="user_id" string="Akun Terhubung"/>
                                         <field name="masih_hidup"/>
                                     </group>
                                     <group groups="tarombo.group_tarombo_pengurus">
@@ -211,7 +217,11 @@
                     <field name="pendidikan_tertinggi"/>
                     <filter string="Laki-laki" name="filter_laki" domain="[('jenis_kelamin', '=', 'L')]"/>
                     <filter string="Perempuan" name="filter_perempuan" domain="[('jenis_kelamin', '=', 'P')]"/>
+                    <separator/>
+                    <filter string="Sudah Terhubung Akun" name="filter_akun_terhubung" domain="[('user_id', '!=', False)]"/>
+                    <filter string="Belum Terhubung Akun" name="filter_akun_belum" domain="[('user_id', '=', False)]"/>
                     <group>
+                        <filter string="Status Akun" name="groupby_akun" context="{'group_by': 'user_id'}"/>
                         <filter string="Sundut" name="groupby_sundut" context="{'group_by': 'sundut'}"/>
                         <filter string="Marga" name="groupby_marga" context="{'group_by': 'marga_id'}"/>
                         <filter string="Jenis Kelamin" name="groupby_jenis_kelamin" context="{'group_by': 'jenis_kelamin'}"/>

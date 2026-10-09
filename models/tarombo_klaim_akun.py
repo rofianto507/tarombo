@@ -11,6 +11,7 @@ STATE_SELECTION = [
     ('menunggu', 'Menunggu Verifikasi'),
     ('disetujui', 'Disetujui'),
     ('ditolak', 'Ditolak'),
+    ('dicabut', 'Dicabut'),
 ]
 
 
@@ -28,8 +29,11 @@ class TaromboKlaimAkun(models.Model):
     name = fields.Char(default='Baru', readonly=True, copy=False)
     active = fields.Boolean(default=True)
     user_id = fields.Many2one(
-        'res.users', string='Akun Pengklaim', required=True, readonly=True,
-        default=lambda self: self.env.user)
+        'res.users', string='Akun Pengklaim', required=True,
+        default=lambda self: self.env.user,
+        help='Default akun yang sedang login (alur app mobile). Pengurus boleh '
+             'membuatkan klaim untuk akun lain di form backend selama masih draft; '
+             'anggota biasa tetap dibatasi ir.rule (hanya klaim miliknya sendiri).')
     jenis = fields.Selection(JENIS_KLAIM_SELECTION, string='Jenis', required=True)
     orang_id = fields.Many2one(
         'tarombo.orang', string='Orang yang Diklaim',

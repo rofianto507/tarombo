@@ -60,7 +60,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 <div class="container">
   <div class="intro">
-    <p><strong>Terakhir diperbarui: 28 September 2026</strong><br>
+    <p><strong>Terakhir diperbarui: 4 Oktober 2026</strong><br>
     Kebijakan Privasi ini menjelaskan bagaimana aplikasi <strong>Tarombo</strong>
     yang dikembangkan dan dikelola oleh <strong>%(pengembang)s</strong> mengumpulkan,
     menggunakan, dan melindungi data pribadi pengguna. Dengan menggunakan aplikasi
@@ -78,9 +78,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <p>Aplikasi ini mengumpulkan jenis data berikut:</p>
       <ul class="item-list">
         <li><strong>Data Akun</strong> &mdash; nama, alamat email/username, dan kata sandi (terenkripsi) saat mendaftar; atau nama, email, dan foto profil dari akun Google apabila Anda memilih masuk dengan Google.</li>
-        <li><strong>Data Silsilah</strong> &mdash; nama, sundut, marga, punguan, dan riwayat keluarga yang tercatat dalam pohon silsilah, termasuk data yang Anda usulkan melalui fitur Usulan.</li>
+        <li><strong>Data Silsilah</strong> &mdash; nama, jenis kelamin, sundut, marga, punguan, urutan kelahiran, dan hubungan keluarga (ayah, anak, pernikahan) yang tercatat dalam pohon silsilah, termasuk data yang Anda usulkan melalui fitur Usulan.</li>
+        <li><strong>Data Pribadi Anggota</strong> &mdash; tanggal lahir dan (bila berlaku) tanggal wafat, umur yang dihitung dari keduanya, status masih hidup atau telah wafat, serta alamat domisili (wilayah sampai tingkat desa dan alamat lengkap). Tanggal dapat berupa perkiraan: bila hanya tahun yang diketahui, dicatat sebagai 1 Januari tahun tersebut.</li>
+        <li><strong>Riwayat Pendidikan &amp; Pekerjaan</strong> &mdash; jenjang, institusi, jurusan, jabatan, instansi, dan bidang pekerjaan, yang ditampilkan di Direktori Keahlian dan profil anggota.</li>
         <li><strong>Lampiran &amp; Arsip</strong> &mdash; foto dan dokumen yang Anda unggah melalui fitur Usulan atau Arsip.</li>
-        <li><strong>Data Lokasi (opsional)</strong> &mdash; koordinat GPS perangkat, HANYA dikumpulkan apabila Anda secara eksplisit mengaktifkan "Bagikan Lokasi ke Kerabat" pada fitur Kerabat Terdekat. Fitur ini nonaktif secara default dan dapat dimatikan kapan saja.</li>
+        <li><strong>Data Lokasi (opsional)</strong> &mdash; (a) koordinat GPS perangkat, HANYA apabila Anda secara eksplisit mengaktifkan "Bagikan Lokasi ke Kerabat"; dan (b) titik lokasi domisili yang Anda pilih di peta saat mengajukan usulan. Keduanya bersifat opsional dan dapat dihapus kapan saja.</li>
+        <li><strong>Notifikasi Dalam Aplikasi</strong> &mdash; riwayat notifikasi status usulan dan klaim akun Anda, termasuk judul, isi, dan waktu notifikasi.</li>
+        <li><strong>Token Notifikasi Perangkat</strong> &mdash; pengenal perangkat (token Firebase Cloud Messaging) yang dikirim ke server kami agar aplikasi dapat mengirim notifikasi, misalnya status usulan atau klaim akun Anda. Layanan pengiriman notifikasi disediakan oleh Google Firebase.</li>
       </ul>
     </div>
   </div>
@@ -100,6 +104,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <li>Menghitung hubungan kekerabatan (partuturan) antar anggota.</li>
         <li>Menampilkan direktori keahlian/profesi sesama anggota.</li>
         <li>Menampilkan peta kerabat terdekat, khusus untuk anggota yang memilih berbagi lokasi.</li>
+        <li>Menampilkan umur dan informasi keluarga pada profil anggota.</li>
+        <li>Mengirim notifikasi status usulan dan klaim akun Anda.</li>
       </ul>
     </div>
   </div>
@@ -115,9 +121,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <p>Data yang dikumpulkan <strong>tidak dijual, disewakan, atau dibagikan</strong> kepada pihak komersial mana pun. Data hanya dapat diakses oleh:</p>
       <ul class="item-list">
         <li>Pengurus punguan/komunitas marga Silaen yang berwenang, untuk keperluan verifikasi keanggotaan dan pengelolaan data silsilah.</li>
+        <li><strong>Sesama anggota</strong> yang sudah terverifikasi dapat melihat di dalam aplikasi: nama, sundut, marga, dan punguan; umur; alamat domisili termasuk alamat lengkap; riwayat pendidikan dan pekerjaan (Direktori Keahlian); serta titik lokasi hanya apabila pemilik data mengaktifkan berbagi lokasi. Tanggal lahir dan tanggal wafat yang persis, serta koordinat yang tidak dibagikan, <strong>tidak</strong> ditampilkan kepada anggota lain.</li>
         <li>Tim pengelola dari %(pengembang)s selaku pengembang aplikasi, terbatas untuk keperluan pemeliharaan sistem.</li>
       </ul>
-      <p style="margin-top:12px">Apabila Anda masuk menggunakan akun Google, proses autentikasi ditangani langsung oleh Google sesuai kebijakan privasi Google; kami hanya menerima nama, email, dan foto profil dasar setelah Anda memberikan izin.</p>
+      <p style="margin-top:12px">Pengiriman notifikasi push menggunakan layanan Google Firebase Cloud Messaging, yang memproses token perangkat Anda. Apabila Anda masuk menggunakan akun Google, proses autentikasi ditangani langsung oleh Google sesuai kebijakan privasi Google; kami hanya menerima nama, email, dan foto profil dasar setelah Anda memberikan izin.</p>
       <p>Pengungkapan data kepada pihak eksternal lain hanya dilakukan apabila diwajibkan oleh peraturan perundang-undangan yang berlaku di Indonesia.</p>
     </div>
   </div>
@@ -455,7 +462,75 @@ document.getElementById('frm').addEventListener('submit', async function(e) {{
 </html>""".format(pengembang=_PENGEMBANG)
 
 
+_KESELAMATAN_ANAK_HTML = """<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Standar Keselamatan Anak – Tarombo</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F5F4F0;color:#16261B;line-height:1.7;font-size:15px}
+.header{background:#2E5339;padding:32px 24px;text-align:center}
+.header h1{color:#fff;font-size:clamp(21px,5vw,26px);font-weight:800;margin-bottom:6px}
+.header p{color:rgba(255,255,255,.6);font-size:13px}
+.container{max-width:760px;margin:0 auto;padding:28px 20px 50px}
+.card{background:#fff;border:1px solid #E4E0D4;border-radius:12px;padding:20px 22px;margin-bottom:16px}
+.card h2{font-size:16px;font-weight:700;margin-bottom:8px}
+.card p,.card li{color:#5B6B5F;font-size:14px;margin-bottom:8px}
+.card ul{padding-left:20px}
+a{color:#2E5339;font-weight:600}
+.footer{text-align:center;padding:12px 24px 24px;color:#8A8578;font-size:12px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Standar Keselamatan Anak</h1>
+  <p>Tarombo &mdash; Silsilah Marga Silaen</p>
+</div>
+<div class="container">
+  <div class="card">
+    <h2>Komitmen Kami</h2>
+    <p><strong>%(pengembang)s</strong> melarang keras segala bentuk pelecehan dan eksploitasi seksual terhadap
+    anak-anak (CSAE) serta materi pelecehan seksual terhadap anak (CSAM) di dalam aplikasi <strong>Tarombo</strong>.
+    Materi semacam itu tidak diizinkan dalam bentuk apa pun, termasuk teks, foto, dokumen, audio, maupun video.</p>
+  </div>
+  <div class="card">
+    <h2>Bagaimana Tarombo Dirancang</h2>
+    <ul>
+      <li>Aplikasi ditujukan bagi pengguna <strong>berusia 18 tahun ke atas</strong>.</li>
+      <li>Tarombo adalah aplikasi silsilah komunitas tertutup. <strong>Tidak ada</strong> fitur pesan pribadi, obrolan,
+      kolom komentar, atau unggahan publik antarpengguna, dan tidak ada fitur untuk berkenalan atau bertemu dengan orang asing.</li>
+      <li>Akses data silsilah hanya untuk anggota yang identitasnya <strong>diverifikasi pengurus</strong> (klaim akun).</li>
+      <li>Foto dan dokumen yang diusulkan anggota <strong>ditinjau pengurus</strong> sebelum data diperbarui; arsip keluarga
+      hanya diunggah oleh pengurus.</li>
+      <li>Lokasi bersifat opsional dan hanya dibagikan bila pengguna sendiri mengaktifkannya.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>Tindakan terhadap Pelanggaran</h2>
+    <p>Pengurus dapat menolak usulan, menghapus konten, dan menonaktifkan akun yang melanggar. Konten yang
+    terindikasi CSAM akan segera dihapus dan dilaporkan kepada pihak berwenang serta organisasi yang berwenang
+    menangani CSAM sesuai hukum yang berlaku.</p>
+  </div>
+  <div class="card">
+    <h2>Melaporkan Masalah</h2>
+    <p>Bila Anda menemukan konten atau perilaku yang mengkhawatirkan terkait keselamatan anak, segera hubungi kami di
+    <a href="mailto:%(email)s">%(email)s</a>. Kontak ini ditangani oleh pengelola aplikasi yang siap
+    menjelaskan praktik pencegahan CSAM serta kepatuhan terhadap kebijakan ini.</p>
+    <p>Lihat juga <a href="/kebijakan-privasi">Kebijakan Privasi</a> dan <a href="/dukungan">Dukungan</a>.</p>
+  </div>
+</div>
+<div class="footer">&copy; 2026 Tarombo &mdash; %(pengembang)s</div>
+</body>
+</html>""".replace('%(pengembang)s', _PENGEMBANG).replace('%(email)s', _KONTAK_EMAIL)
+
+
 class TaromboPublicPagesController(http.Controller):
+
+    @http.route('/standar-keselamatan-anak', type='http', auth='public', website=False, csrf=False)
+    def keselamatan_anak(self, **kwargs):
+        return Response(_KESELAMATAN_ANAK_HTML, content_type='text/html; charset=utf-8')
 
     @http.route('/kebijakan-privasi', type='http', auth='public', website=False, csrf=False)
     def privacy_policy(self, **kwargs):

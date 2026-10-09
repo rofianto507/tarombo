@@ -11,7 +11,7 @@
                       decoration-muted="state == 'draft'"
                       decoration-warning="state == 'menunggu'"
                       decoration-success="state == 'disetujui'"
-                      decoration-danger="state == 'ditolak'">
+                      decoration-danger="state in ('ditolak', 'dicabut')">
                     <field name="name"/>
                     <field name="user_id"/>
                     <field name="jenis"/>
@@ -37,7 +37,7 @@
                         <button name="action_buka_tolak_wizard" type="object" string="Tolak"
                                 invisible="state != 'menunggu'"
                                 groups="tarombo.group_tarombo_pengurus"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,menunggu,disetujui"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,menunggu,disetujui,dicabut"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -45,7 +45,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="user_id"/>
+                                <field name="user_id" readonly="state != 'draft'"/>
                                 <field name="jenis"/>
                                 <field name="orang_id" invisible="jenis != 'orang_ada'"/>
                                 <field name="usulan_id" invisible="jenis != 'orang_baru'"/>
@@ -81,6 +81,7 @@
                     <filter string="Draft (belum diajukan)" name="filter_draft" domain="[('state', '=', 'draft')]"/>
                     <filter string="Menunggu" name="filter_menunggu" domain="[('state', '=', 'menunggu')]"/>
                     <filter string="Disetujui" name="filter_disetujui" domain="[('state', '=', 'disetujui')]"/>
+                    <filter string="Dicabut" name="filter_dicabut" domain="[('state', '=', 'dicabut')]"/>
                     <filter string="Ditolak" name="filter_ditolak"
                             domain="[('state', '=', 'ditolak'), ('active', 'in', [True, False])]"/>
                     <group>

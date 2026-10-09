@@ -1,5 +1,5 @@
 from odoo import api, fields, models, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 from .tarombo_riwayat import JENJANG_SELECTION
 
@@ -44,6 +44,34 @@ class TaromboOrang(models.Model):
     user_id = fields.Many2one(
         'res.users', string='Akun Terhubung', readonly=True, copy=False)
     catatan = fields.Text('Catatan')
+
+    def action_cabut_akun(self):
+        """Putuskan tautan akun ↔ anggota (mis. salah klaim / akun disalahgunakan).
+        Klaim yang sebelumnya disetujui ditandai 'dicabut' supaya riwayatnya tetap
+        ada, dan orang ini bebas diklaim ulang. Hanya pengurus."""
+        if not self.env.user.has_group('tarombo.group_tarombo_pengurus'):
+            raise UserError(_('Hanya pengurus yang dapat mencabut akun terhubung.'))
+        for r in self:
+            if not r.user_id:
+                raise UserError(_('%s belum terhubung ke akun mana pun.') % r.name)
+            user = r.user_id
+            klaim = self.env['tarombo.klaim_akun'].sudo().with_context(active_test=False).search([
+                ('orang_id', '=', r.id),
+                ('user_id', '=', user.id),
+                ('state', '=', 'disetujui'),
+            ])
+            klaim.write({
+                'state': 'dicabut',
+                'peninjau_id': self.env.user.id,
+                'tanggal_tinjau': fields.Datetime.now(),
+            })
+            r.write({'user_id': False})
+            r.message_post(body=_('Akun terhubung (%s) dicabut oleh %s.') % (user.name, self.env.user.name))
+            self.env['tarombo.push_sender'].sudo().kirim(
+                [user.id], _('Tautan Akun Dicabut'),
+                _('Tautan akun Anda ke "%s" telah dicabut pengurus. Silakan ajukan klaim identitas kembali bila perlu.') % r.name,
+                data={'tipe': 'klaim_akun', 'hasil': 'dicabut'},
+            )
 
     # Struktur pohon — ayah_id sengaja Many2one biasa (bukan related lewat
     # pernikahan): banyak entri naskah tarombo tidak punya catatan pernikahan
