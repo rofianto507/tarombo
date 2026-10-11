@@ -130,7 +130,10 @@ class TaromboKlaimAkun(models.Model):
                 if not r.orang_id:
                     r.orang_id = r.usulan_id.orang_hasil_id
             r._cek_orang_belum_diklaim(r.orang_id)
-            r.orang_id.write({'user_id': r.user_id.id})
+            # Pemilik akun yang mengklaim dirinya jelas masih hidup — data impor
+            # menandai hampir semua orang "wafat" (masih_hidup kosong), dan itu
+            # membuat mereka tidak muncul di Direktori Keahlian.
+            r.orang_id.write({'user_id': r.user_id.id, 'masih_hidup': True})
             r.write({
                 'state': 'disetujui',
                 'peninjau_id': self.env.user.id,
