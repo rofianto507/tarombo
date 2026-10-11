@@ -1,0 +1,23 @@
+// Tema backend Tarombo: mengganti ungu bawaan Odoo Community dengan hijau & emas
+// yang sama dengan aplikasi mobile (lihat lib/core/theme di TaromboMobile).
+//
+// File ini dimuat SEBELUM web/static/src/scss/primary_variables.scss (lihat
+// __manifest__.py). Semua variabel inti di sana ber-`!default`, jadi nilai yang
+// ditetapkan di sini yang dipakai — tanpa menimpa CSS apa pun satu per satu.
+// Berlaku untuk seluruh backend database ini (semua aplikasi), bukan hanya
+// menu Tarombo.
+
+$tarombo-hijau: #2E5339;
+$tarombo-emas: #C8A24A;
+
+// Warna utama: navbar, tombol primer, tautan, status aktif, field wajib.
+$o-community-color: $tarombo-hijau;
+$o-brand-odoo: $tarombo-hijau;
+$o-brand-primary: $tarombo-hijau;
+
+// Aksen emas di navbar: nama aplikasi dan lencana notifikasi. Garis emas di
+// bawah butir menu (hover/aktif) diatur di static/src/navbar/tarombo_navbar.scss,
+// BUKAN lewat $o-navbar-border-bottom — itu menggaris seluruh batang, dan
+// butir menu menutupinya sehingga garisnya hanya terlihat di area kosong.
+$o-navbar-brand-color: #E3C876;
+$o-navbar-badge-bg: $tarombo-emas;

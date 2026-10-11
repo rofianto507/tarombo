@@ -80,40 +80,40 @@
                     <!-- Chart baris 2 -->
                     <div class="o_tarombo_chart_row">
                         <div class="o_tarombo_chart_card">
-                            <div class="o_tarombo_chart_title"><i class="fa fa-bar-chart"/> Anggota per Punguan (Top 8)</div>
-                            <t t-if="!state.data.per_punguan.length">
+                            <div class="o_tarombo_chart_title"><i class="fa fa-graduation-cap"/> Anggota per Pendidikan Tertinggi</div>
+                            <t t-if="!state.data.per_pendidikan.length">
                                 <div class="o_tarombo_chart_empty">Tidak ada data</div>
                             </t>
-                            <div t-else="" t-ref="punguan" class="o_tarombo_chart_canvas"/>
+                            <div t-else="" t-ref="pendidikan" class="o_tarombo_chart_canvas"/>
                         </div>
                         <div class="o_tarombo_chart_card">
-                            <div class="o_tarombo_chart_title"><i class="fa fa-bar-chart"/> Anggota per Marga (Top 8)</div>
-                            <t t-if="!state.data.per_marga.length">
+                            <div class="o_tarombo_chart_title"><i class="fa fa-briefcase"/> Anggota per Bidang Pekerjaan (Top 8)</div>
+                            <t t-if="!state.data.per_bidang.length">
                                 <div class="o_tarombo_chart_empty">Tidak ada data</div>
                             </t>
-                            <div t-else="" t-ref="marga" class="o_tarombo_chart_canvas"/>
+                            <div t-else="" t-ref="bidang" class="o_tarombo_chart_canvas"/>
                         </div>
                     </div>
 
                     <!-- Tabel -->
                     <div class="o_tarombo_table_row">
                         <div class="o_tarombo_table_card">
-                            <div class="o_tarombo_chart_title"><i class="fa fa-list-alt"/> Ringkasan per Punguan</div>
+                            <div class="o_tarombo_chart_title"><i class="fa fa-map-marker"/> Ringkasan per Domisili (Kota/Kabupaten)</div>
                             <div class="o_tarombo_table_scroll">
                                 <table class="table table-sm table-hover mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Punguan</th>
+                                            <th>Provinsi - Kabupaten/Kota</th>
                                             <th class="text-end">Terverifikasi</th>
                                             <th class="text-end">Belum Terverifikasi</th>
                                             <th class="text-end">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <t t-if="!state.data.tabel_punguan.length">
+                                        <t t-if="!state.data.tabel_domisili.length">
                                             <tr><td colspan="4" class="text-center text-muted">Tidak ada data</td></tr>
                                         </t>
-                                        <t t-foreach="state.data.tabel_punguan" t-as="row" t-key="row.id">
+                                        <t t-foreach="state.data.tabel_domisili" t-as="row" t-key="row.id">
                                             <tr>
                                                 <td><t t-esc="row.name"/></td>
                                                 <td class="text-end"><t t-esc="row.sahih"/></td>

@@ -43,7 +43,15 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'data/tarombo_google_oauth_data.xml',
     ],
     'assets': {
+        # Tema hijau-emas: harus dimuat SEBELUM primary_variables.scss inti supaya
+        # nilainya mengalahkan default ungu Odoo (variabel inti ber-!default).
+        'web._assets_primary_variables': [
+            ('before', 'web/static/src/scss/primary_variables.scss',
+             'tarombo/static/src/scss/tarombo_primary_variables.scss'),
+        ],
         'web.assets_backend': [
+            'tarombo/static/src/navbar/tarombo_navbar.js',
+            'tarombo/static/src/navbar/tarombo_navbar.scss',
             'tarombo/static/lib/echarts/echarts.min.js',
             'tarombo/static/src/components/pohon/pohon.js',
             'tarombo/static/src/components/pohon/pohon.xml',

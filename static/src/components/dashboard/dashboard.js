@@ -10,8 +10,8 @@ import { standardActionServiceProps } from "@web/webclient/actions/action_servic
 import { Layout } from "@web/search/layout";
 
 const WARNA_JK = { L: "#3B6FB4", P: "#D6336C" };
-const WARNA_PUNGUAN = "#40916C";
-const WARNA_MARGA = "#B5651D";
+const WARNA_PENDIDIKAN = "#40916C";
+const WARNA_BIDANG = "#B5651D";
 const WARNA_SUNDUT = "#3B6FB4";
 
 export class TaromboDashboard extends Component {
@@ -33,8 +33,8 @@ export class TaromboDashboard extends Component {
         this.rootRef = useRef("root");
         this.donutRef = useRef("donut");
         this.sundutRef = useRef("sundut");
-        this.punguanRef = useRef("punguan");
-        this.margaRef = useRef("marga");
+        this.pendidikanRef = useRef("pendidikan");
+        this.bidangRef = useRef("bidang");
         this.mapRef = useRef("map");
         this._charts = [];
         this._map = null;
@@ -108,8 +108,8 @@ export class TaromboDashboard extends Component {
         this._bersihkan();
         this._renderDonut();
         this._renderSundut();
-        this._renderBar(this.punguanRef, this.state.data.per_punguan, WARNA_PUNGUAN);
-        this._renderBar(this.margaRef, this.state.data.per_marga, WARNA_MARGA);
+        this._renderBar(this.pendidikanRef, this.state.data.per_pendidikan, WARNA_PENDIDIKAN);
+        this._renderBar(this.bidangRef, this.state.data.per_bidang, WARNA_BIDANG);
         this._renderPeta();
     }
 

@@ -38,9 +38,9 @@ class TaromboOrang(models.Model):
             },
             'jenis_kelamin': self._dashboard_jenis_kelamin(),
             'per_sundut': self._dashboard_per_sundut(),
-            'per_punguan': self._dashboard_per_punguan(),
-            'per_marga': self._dashboard_per_marga(),
-            'tabel_punguan': self._dashboard_tabel_punguan(),
+            'per_pendidikan': self._dashboard_per_pendidikan(),
+            'per_bidang': self._dashboard_per_bidang(),
+            'tabel_domisili': self._dashboard_tabel_domisili(),
             'usulan_menunggu_list': self._dashboard_usulan_menunggu(),
             'map_points': self._dashboard_map_points(),
             'arsip_terbaru': self._dashboard_arsip_terbaru(Arsip),
@@ -58,39 +58,63 @@ class TaromboOrang(models.Model):
         hasil = self._read_group([], ['sundut'], ['__count'], order='sundut asc')
         return [{'sundut': sundut, 'jumlah': jumlah} for sundut, jumlah in hasil]
 
-    def _dashboard_per_punguan(self):
+    def _dashboard_per_pendidikan(self):
+        """Jumlah anggota menurut pendidikan tertinggi, urut jenjang (SD -> S3),
+        bukan urut jumlah. Hanya yang riwayat pendidikannya sudah tercatat —
+        yang belum diisi (mayoritas data impor) tidak dimasukkan supaya tidak
+        menenggelamkan batang lain."""
+        label = dict(self._fields['pendidikan_tertinggi'].selection)
+        urutan = list(label)
         hasil = self._read_group(
-            [], ['punguan_id'], ['__count'], order='__count desc', limit=TOP_N)
-        return [
-            {'name': punguan.name if punguan else 'Tanpa Punguan', 'jumlah': jumlah}
-            for punguan, jumlah in hasil
-        ]
+            [('pendidikan_tertinggi', '!=', False)], ['pendidikan_tertinggi'], ['__count'])
+        baris = [(jenjang, jumlah) for jenjang, jumlah in hasil]
+        baris.sort(key=lambda r: urutan.index(r[0]) if r[0] in urutan else len(urutan))
+        return [{'name': label.get(j, j), 'jumlah': jumlah} for j, jumlah in baris]
 
-    def _dashboard_per_marga(self):
+    def _dashboard_per_bidang(self):
+        """Jumlah anggota menurut bidang pekerjaan saat ini (terbanyak dulu).
+        Sama seperti pendidikan: hanya yang bidangnya sudah tercatat."""
         hasil = self._read_group(
-            [('marga_id', '!=', False)], ['marga_id'], ['__count'],
+            [('bidang_kini_id', '!=', False)], ['bidang_kini_id'], ['__count'],
             order='__count desc', limit=TOP_N)
-        return [{'name': marga.name, 'jumlah': jumlah} for marga, jumlah in hasil]
+        return [{'name': bidang.name, 'jumlah': jumlah} for bidang, jumlah in hasil]
 
-    def _dashboard_tabel_punguan(self):
-        hasil = self._read_group([], ['punguan_id', 'status'], ['__count'])
-        per_punguan = {}
-        for punguan, status, jumlah in hasil:
-            key = punguan.id if punguan else 0
-            entri = per_punguan.setdefault(key, {
-                'id': key,
-                'name': punguan.name if punguan else 'Tanpa Punguan',
-                'sahih': 0,
-                'rumpang': 0,
+    def _dashboard_tabel_domisili(self):
+        """Ringkasan anggota per kota/kabupaten, berlabel "Provinsi - Kabupaten".
+        Provinsi diambil dari induk kabupaten (bukan hanya provinsi_id orang)
+        karena data hasil impor kadang hanya mengisi salah satunya. Anggota
+        yang belum punya domisili dikelompokkan di baris terakhir."""
+        hasil = self._read_group(
+            [], ['kabupaten_id', 'provinsi_id', 'status'], ['__count'])
+        per_wilayah = {}
+        for kabupaten, provinsi, status, jumlah in hasil:
+            if kabupaten:
+                prov = kabupaten.induk_id or provinsi
+                key = 'k%s' % kabupaten.id
+                nama = '%s - %s' % (prov.name, kabupaten.name) if prov else kabupaten.name
+                urut = 0
+            elif provinsi:
+                key = 'p%s' % provinsi.id
+                nama = '%s - (kabupaten belum diisi)' % provinsi.name
+                urut = 0
+            else:
+                key = 'kosong'
+                nama = 'Belum diisi domisili'
+                urut = 1
+            entri = per_wilayah.setdefault(key, {
+                'id': key, 'name': nama, 'sahih': 0, 'rumpang': 0, '_urut': urut,
             })
             if status == 'sahih':
                 entri['sahih'] += jumlah
             else:
                 entri['rumpang'] += jumlah
-        baris = list(per_punguan.values())
+        baris = list(per_wilayah.values())
         for b in baris:
             b['total'] = b['sahih'] + b['rumpang']
-        baris.sort(key=lambda b: b['total'], reverse=True)
+        # Yang punya domisili dulu (terbanyak di atas), "belum diisi" paling bawah.
+        baris.sort(key=lambda b: (b['_urut'], -b['total'], b['name']))
+        for b in baris:
+            del b['_urut']
         return baris
 
     def _dashboard_usulan_menunggu(self):

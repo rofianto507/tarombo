@@ -1,0 +1,14 @@
+// Garis emas di bawah butir menu atas: hanya saat hover, saat dropdown-nya
+// terbuka, dan pada menu yang sedang dibuka (kelas dari tarombo_navbar.js).
+// $tarombo-emas berasal dari tarombo_primary_variables.scss.
+.o_main_navbar .o_menu_sections {
+    .o_nav_entry, .dropdown-toggle {
+        border-bottom: 3px solid transparent;
+
+        &:hover,
+        &.show,
+        &.o_tarombo_menu_aktif {
+            border-bottom-color: $tarombo-emas;
+        }
+    }
+}
