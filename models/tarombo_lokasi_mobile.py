@@ -128,6 +128,9 @@ class TaromboOrang(models.Model):
         'foto', 'tanggal_lahir',
         'provinsi_id', 'kabupaten_id', 'kecamatan_id', 'desa_id',
         'alamat_jalan', 'alamat_catatan',
+        # Titik rumah di peta. Menulisnya TIDAK menyalakan berbagi lokasi —
+        # tampil ke anggota lain tetap hanya bila berbagi_lokasi diaktifkan.
+        'latitude', 'longitude',
     )
     _PROFIL_SAYA_WILAYAH = (
         ('provinsi_id', '1'), ('kabupaten_id', '2'), ('kecamatan_id', '3'), ('desa_id', '4'),
@@ -184,6 +187,9 @@ class TaromboOrang(models.Model):
             'desa_id': m2o(orang.desa_id),
             'alamat_jalan': orang.alamat_jalan or False,
             'alamat_catatan': orang.alamat_catatan or False,
+            'latitude': orang.latitude or False,
+            'longitude': orang.longitude or False,
+            'berbagi_lokasi': orang.berbagi_lokasi,
             'kelengkapan': orang._kelengkapan_profil(),
         }
 
@@ -234,6 +240,25 @@ class TaromboOrang(models.Model):
                     hasil[urut[i]] = Wilayah
             for nama in urut:
                 tulis[nama] = hasil[nama].id or False
+
+        # Titik rumah: latitude & longitude harus dikirim berpasangan. Keduanya
+        # kosong (False/0) = hapus titik, dan berbagi lokasi ikut dimatikan
+        # supaya tidak ada status "dibagikan" tanpa titik.
+        if 'latitude' in tulis or 'longitude' in tulis:
+            lat, lng = tulis.get('latitude'), tulis.get('longitude')
+            if not lat and not lng:
+                tulis['latitude'] = tulis['longitude'] = False
+                tulis['berbagi_lokasi'] = False
+            else:
+                if not lat or not lng:
+                    raise UserError(_('Lintang dan bujur harus diisi bersamaan.'))
+                try:
+                    lat, lng = float(lat), float(lng)
+                except (TypeError, ValueError):
+                    raise UserError(_('Koordinat tidak valid.'))
+                if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+                    raise UserError(_('Koordinat di luar rentang yang valid.'))
+                tulis['latitude'], tulis['longitude'] = lat, lng
 
         for teks in ('alamat_jalan', 'alamat_catatan'):
             if teks in tulis:
