@@ -68,6 +68,8 @@
                             <page string="Identitas">
                                 <group>
                                     <group>
+                                        <field name="no_telp" groups="tarombo.group_tarombo_pengurus" placeholder="mis. 0812 3456 7890"/>
+                                        <field name="email_kontak" widget="email" groups="tarombo.group_tarombo_pengurus" placeholder="nama@contoh.com"/>
                                         <field name="marga_id" required="ayah_id"/>
                                         <field name="punguan_id"/>
                                         <field name="user_id" string="Akun Terhubung"/>

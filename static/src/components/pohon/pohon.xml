@@ -3,7 +3,13 @@
 
     <t t-name="tarombo.PohonSilsilah">
         <Layout display="display">
-            <t t-set-slot="layout-buttons">
+            <div class="o_tarombo_pohon_body position-relative w-100" t-ref="body">
+                <div t-ref="chart" class="o_tarombo_pohon_chart h-100 w-100"/>
+                <!-- Mode & pencarian ada di atas kanvas, BUKAN di slot layout-buttons:
+                     slot itu cuma kebagian ~sepertiga lebar panel kontrol dan dibagi
+                     dengan breadcrumb, sehingga tombol terbungkus tinggi dan
+                     breadcrumb terpotong. -->
+                <div class="o_tarombo_pohon_toolbar">
                 <div class="btn-group me-2" role="group">
                     <button type="button"
                             t-att-class="'btn btn-sm ' + (state.mode === 'cabang' ? 'btn-primary' : 'btn-outline-primary')"
@@ -31,9 +37,7 @@
                         </t>
                     </div>
                 </div>
-            </t>
-            <div class="o_tarombo_pohon_body position-relative w-100" t-ref="body">
-                <div t-ref="chart" class="o_tarombo_pohon_chart h-100 w-100"/>
+                </div>
                 <div class="o_tarombo_pohon_kanvas_kontrol">
                     <div class="btn-group">
                         <button type="button" class="btn btn-sm btn-light border" title="Kembalikan tampilan"

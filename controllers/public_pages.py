@@ -60,7 +60,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 <div class="container">
   <div class="intro">
-    <p><strong>Terakhir diperbarui: 4 Oktober 2026</strong><br>
+    <p><strong>Terakhir diperbarui: 13 Oktober 2026</strong><br>
     Kebijakan Privasi ini menjelaskan bagaimana aplikasi <strong>Tarombo</strong>
     yang dikembangkan dan dikelola oleh <strong>%(pengembang)s</strong> mengumpulkan,
     menggunakan, dan melindungi data pribadi pengguna. Dengan menggunakan aplikasi
@@ -79,6 +79,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <ul class="item-list">
         <li><strong>Data Akun</strong> &mdash; nama, alamat email/username, dan kata sandi (terenkripsi) saat mendaftar; atau nama, email, dan foto profil dari akun Google apabila Anda memilih masuk dengan Google.</li>
         <li><strong>Data Silsilah</strong> &mdash; nama, jenis kelamin, sundut, marga, punguan, urutan kelahiran, dan hubungan keluarga (ayah, anak, pernikahan) yang tercatat dalam pohon silsilah, termasuk data yang Anda usulkan melalui fitur Usulan.</li>
+        <li><strong>Kontak (opsional)</strong> &mdash; nomor telepon dan alamat email kontak anggota, yang dapat diisi sendiri oleh pemiliknya atau diusulkan oleh anggota lain dan ditinjau pengurus. Kontak ini bertujuan agar sesama anggota dapat saling menghubungi.</li>
         <li><strong>Data Pribadi Anggota</strong> &mdash; tanggal lahir dan (bila berlaku) tanggal wafat, umur yang dihitung dari keduanya, status masih hidup atau telah wafat, serta alamat domisili (wilayah sampai tingkat desa dan alamat lengkap). Tanggal dapat berupa perkiraan: bila hanya tahun yang diketahui, dicatat sebagai 1 Januari tahun tersebut.</li>
         <li><strong>Riwayat Pendidikan &amp; Pekerjaan</strong> &mdash; jenjang, institusi, jurusan, jabatan, instansi, dan bidang pekerjaan, yang ditampilkan di Direktori Keahlian dan profil anggota.</li>
         <li><strong>Lampiran &amp; Arsip</strong> &mdash; foto dan dokumen yang Anda unggah melalui fitur Usulan atau Arsip.</li>
@@ -121,7 +122,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <p>Data yang dikumpulkan <strong>tidak dijual, disewakan, atau dibagikan</strong> kepada pihak komersial mana pun. Data hanya dapat diakses oleh:</p>
       <ul class="item-list">
         <li>Pengurus punguan/komunitas marga Silaen yang berwenang, untuk keperluan verifikasi keanggotaan dan pengelolaan data silsilah.</li>
-        <li><strong>Sesama anggota</strong> yang sudah terverifikasi dapat melihat di dalam aplikasi: nama, sundut, marga, dan punguan; umur; alamat domisili termasuk alamat lengkap; riwayat pendidikan dan pekerjaan (Direktori Keahlian); serta titik lokasi hanya apabila pemilik data mengaktifkan berbagi lokasi. Tanggal lahir dan tanggal wafat yang persis, serta koordinat yang tidak dibagikan, <strong>tidak</strong> ditampilkan kepada anggota lain.</li>
+        <li><strong>Sesama anggota</strong> yang sudah terverifikasi dapat melihat di dalam aplikasi: nama, sundut, marga, dan punguan; umur; alamat domisili termasuk alamat lengkap; nomor telepon dan email kontak; riwayat pendidikan dan pekerjaan (Direktori Keahlian); serta titik lokasi hanya apabila pemilik data mengaktifkan berbagi lokasi. Tanggal lahir dan tanggal wafat yang persis, serta koordinat yang tidak dibagikan, <strong>tidak</strong> ditampilkan kepada anggota lain. Nomor telepon dan email kontak hanya terlihat oleh akun yang sudah tertaut ke data anggota dan terverifikasi pengurus, tidak oleh akun yang belum terverifikasi maupun publik.</li>
         <li>Tim pengelola dari %(pengembang)s selaku pengembang aplikasi, terbatas untuk keperluan pemeliharaan sistem.</li>
       </ul>
       <p style="margin-top:12px">Pengiriman notifikasi push menggunakan layanan Google Firebase Cloud Messaging, yang memproses token perangkat Anda. Apabila Anda masuk menggunakan akun Google, proses autentikasi ditangani langsung oleh Google sesuai kebijakan privasi Google; kami hanya menerima nama, email, dan foto profil dasar setelah Anda memberikan izin.</p>

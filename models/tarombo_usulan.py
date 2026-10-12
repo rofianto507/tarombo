@@ -1,6 +1,10 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 
+from .tarombo_orang import (
+    normalisasi_email, normalisasi_telp, pesan_kontak_tidak_valid,
+)
+
 JENIS_SELECTION = [
     ('tambah', 'Tambah'),
     ('koreksi', 'Koreksi'),
@@ -34,6 +38,8 @@ USUL_MUATAN_MAP = {
     'usul_urutan': 'urutan',
     'usul_tanggal_lahir': 'tanggal_lahir',
     'usul_tanggal_wafat': 'tanggal_wafat',
+    'usul_no_telp': 'no_telp',
+    'usul_email_kontak': 'email_kontak',
     'usul_provinsi_id': 'provinsi_id',
     'usul_kabupaten_id': 'kabupaten_id',
     'usul_kecamatan_id': 'kecamatan_id',
@@ -89,6 +95,8 @@ class TaromboUsulan(models.Model):
         'tarombo.wilayah', string='Desa/Kelurahan',
         domain="[('tingkat', '=', '4'), ('induk_id', '=?', usul_kecamatan_id)]")
     usul_alamat_jalan = fields.Char('Alamat Lengkap')
+    usul_no_telp = fields.Char('No. Telepon')
+    usul_email_kontak = fields.Char('Email')
     usul_latitude = fields.Float('Latitude', digits=(10, 7))
     usul_longitude = fields.Float('Longitude', digits=(10, 7))
     usul_suami_nama = fields.Char('Nama Suami')
@@ -133,13 +141,28 @@ class TaromboUsulan(models.Model):
         if self.env.user.has_group('tarombo.group_tarombo_pengurus'):
             self.usul_tanggal_lahir = o.tanggal_lahir
             self.usul_tanggal_wafat = o.tanggal_wafat
+            self.usul_no_telp = o.no_telp
+            self.usul_email_kontak = o.email_kontak
             self.usul_alamat_jalan = o.alamat_jalan
             self.usul_latitude = o.latitude
             self.usul_longitude = o.longitude
 
+    @api.constrains('usul_no_telp', 'usul_email_kontak')
+    def _cek_usul_kontak(self):
+        # Tangkap format yang salah saat diajukan, bukan baru ketika pengurus
+        # menyetujui (constraint tarombo.orang akan menolaknya saat itu).
+        for r in self:
+            pesan = pesan_kontak_tidak_valid(r.usul_no_telp, r.usul_email_kontak)
+            if pesan:
+                raise ValidationError(pesan)
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            if vals.get('usul_no_telp') is not None:
+                vals['usul_no_telp'] = normalisasi_telp(vals['usul_no_telp'])
+            if vals.get('usul_email_kontak') is not None:
+                vals['usul_email_kontak'] = normalisasi_email(vals['usul_email_kontak'])
             if not vals.get('name') or vals['name'] == 'Baru':
                 vals['name'] = self.env['ir.sequence'].next_by_code('tarombo.usulan') or 'Baru'
         return super().create(vals_list)

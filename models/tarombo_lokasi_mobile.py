@@ -1,6 +1,10 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import AccessError, UserError
 
+from .tarombo_orang import (
+    normalisasi_email, normalisasi_telp, pesan_kontak_tidak_valid,
+)
+
 
 class TaromboOrang(models.Model):
     _inherit = 'tarombo.orang'
@@ -73,6 +77,40 @@ class TaromboOrang(models.Model):
         }
 
     @api.model
+    def get_kontak_orang(self, orang_id):
+        """Nomor telepon & email kontak SATU orang, untuk tab Kontak di profil
+        mobile — supaya kerabat bisa saling menghubungi.
+
+        Hanya untuk akun TERVERIFIKASI: akun yang sudah tertaut ke data anggota
+        (user_id terisi lewat klaim yang disetujui pengurus) atau pengurus ke
+        atas. Akun yang belum tertaut menerima nilai kosong, bukan error, supaya
+        layar profil tetap bisa dirender.
+
+        sudo() sengaja dipakai: no_telp/email_kontak dibatasi groups=pengurus di
+        ORM (tidak terlihat anggota biasa lewat search_read). Pengecualian ini
+        SEMPIT — satu method, satu record, proyeksi dua field tetap, dengan
+        pemeriksaan verifikasi di atasnya — bukan pelonggaran groups= pada field
+        itu sendiri.
+        """
+        kosong = {'no_telp': False, 'email_kontak': False, 'terverifikasi': False}
+        if not self.env.user.has_group('tarombo.group_tarombo_anggota'):
+            return kosong
+        terverifikasi = (
+            self.env.user.has_group('tarombo.group_tarombo_pengurus')
+            or bool(self.sudo().search_count([('user_id', '=', self.env.uid)])))
+        if not terverifikasi:
+            return kosong
+        orang = self.sudo().browse(orang_id)
+        if not orang.exists():
+            return kosong
+        return {
+            'no_telp': orang.no_telp or False,
+            'email_kontak': orang.email_kontak or False,
+            # Penanda untuk aplikasi: tab Kontak hanya ditampilkan bila True.
+            'terverifikasi': True,
+        }
+
+    @api.model
     def get_my_orang(self):
         """Resolusi "akun saya = orang mana di pohon" untuk app mobile, dipakai
         setelah login/klaim disetujui. sudo() aman: hanya mencocokkan user_id
@@ -131,6 +169,8 @@ class TaromboOrang(models.Model):
         # Titik rumah di peta. Menulisnya TIDAK menyalakan berbagi lokasi —
         # tampil ke anggota lain tetap hanya bila berbagi_lokasi diaktifkan.
         'latitude', 'longitude',
+        # Kontak pribadi: hanya pemilik & pengurus yang bisa melihatnya.
+        'no_telp', 'email_kontak',
     )
     _PROFIL_SAYA_WILAYAH = (
         ('provinsi_id', '1'), ('kabupaten_id', '2'), ('kecamatan_id', '3'), ('desa_id', '4'),
@@ -187,6 +227,8 @@ class TaromboOrang(models.Model):
             'desa_id': m2o(orang.desa_id),
             'alamat_jalan': orang.alamat_jalan or False,
             'alamat_catatan': orang.alamat_catatan or False,
+            'no_telp': orang.no_telp or False,
+            'email_kontak': orang.email_kontak or False,
             'latitude': orang.latitude or False,
             'longitude': orang.longitude or False,
             'berbagi_lokasi': orang.berbagi_lokasi,
@@ -259,6 +301,16 @@ class TaromboOrang(models.Model):
                 if not (-90 <= lat <= 90 and -180 <= lng <= 180):
                     raise UserError(_('Koordinat di luar rentang yang valid.'))
                 tulis['latitude'], tulis['longitude'] = lat, lng
+
+        if 'no_telp' in tulis:
+            tulis['no_telp'] = normalisasi_telp(tulis['no_telp'])
+        if 'email_kontak' in tulis:
+            tulis['email_kontak'] = normalisasi_email(tulis['email_kontak'])
+        if 'no_telp' in tulis or 'email_kontak' in tulis:
+            pesan = pesan_kontak_tidak_valid(
+                tulis.get('no_telp', orang.no_telp), tulis.get('email_kontak', orang.email_kontak))
+            if pesan:
+                raise UserError(pesan)
 
         for teks in ('alamat_jalan', 'alamat_catatan'):
             if teks in tulis:

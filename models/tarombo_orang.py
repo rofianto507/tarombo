@@ -1,7 +1,34 @@
+import re
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 
 from .tarombo_riwayat import JENJANG_SELECTION
+
+
+_RE_TELP = re.compile(r'^\+?[0-9(][0-9 ()\-]{5,19}$')
+_RE_EMAIL = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]{2,}$')
+
+
+def normalisasi_telp(nilai):
+    """Rapikan nomor telepon: buang spasi ganda di tepi. Kosong -> False."""
+    nilai = (nilai or '').strip()
+    return nilai or False
+
+
+def normalisasi_email(nilai):
+    """Rapikan email: huruf kecil & tanpa spasi tepi. Kosong -> False."""
+    nilai = (nilai or '').strip().lower()
+    return nilai or False
+
+
+def pesan_kontak_tidak_valid(no_telp, email):
+    """Pesan error bila format tidak valid, atau None bila keduanya baik/kosong."""
+    if no_telp and not _RE_TELP.match(no_telp):
+        return _('Nomor telepon tidak valid. Gunakan angka, boleh diawali "+" (6-20 karakter).')
+    if email and not _RE_EMAIL.match(email):
+        return _('Alamat email tidak valid.')
+    return None
 
 STATUS_SELECTION = [
     ('sahih', 'Terverifikasi'),
@@ -110,6 +137,11 @@ class TaromboOrang(models.Model):
     # lewat migrations/19.0.1.1.0/post-migrate.py, bukan ditulis ulang manual.
     tanggal_lahir = fields.Date('Tanggal Lahir', groups='tarombo.group_tarombo_pengurus')
     tanggal_wafat = fields.Date('Tanggal Wafat', groups='tarombo.group_tarombo_pengurus')
+    # Kontak pribadi — SENGAJA groups=pengurus (sama seperti tanggal lahir): tidak
+    # tampil ke anggota lain di app. Pemilik akun melihat & mengisinya lewat
+    # get_profil_saya()/update_profil_saya() (sudo sempit, tarombo_lokasi_mobile.py).
+    no_telp = fields.Char('No. Telepon', groups='tarombo.group_tarombo_pengurus')
+    email_kontak = fields.Char('Email', groups='tarombo.group_tarombo_pengurus')
     masih_hidup = fields.Boolean('Masih Hidup')
     # Umur — SENGAJA TIDAK dibatasi groups= seperti tanggal_lahir/tanggal_wafat
     # sendiri: angka umur jadi badge publik di profil mobile (semua anggota),
@@ -367,6 +399,13 @@ class TaromboOrang(models.Model):
                 raise ValidationError(_(
                     'Pernikahan yang dipilih bukan milik ayah yang tercatat.'
                 ))
+
+    @api.constrains('no_telp', 'email_kontak')
+    def _cek_kontak(self):
+        for r in self:
+            pesan = pesan_kontak_tidak_valid(r.no_telp, r.email_kontak)
+            if pesan:
+                raise ValidationError(pesan)
 
     @api.constrains('provinsi_id', 'kabupaten_id', 'kecamatan_id', 'desa_id')
     def _cek_wilayah_domisili(self):
