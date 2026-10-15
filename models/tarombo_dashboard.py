@@ -25,13 +25,14 @@ class TaromboOrang(models.Model):
         Arsip = self.env['tarombo.arsip']
 
         total_anggota = Orang.search_count([])
-        total_sahih = Orang.search_count([('status', '=', 'sahih')])
-        persen_lengkap = round(total_sahih / total_anggota * 100, 1) if total_anggota else 0.0
+        total_terverifikasi = Orang.search_count([('status', '=', 'sahih')])
+        # Terverifikasi: porsi anggota dengan status terverifikasi (bukan kelengkapan isi profil).
+        persen_terverifikasi = round(total_terverifikasi / total_anggota * 100, 1) if total_anggota else 0.0
 
         return {
             'kpi': {
                 'total_anggota': total_anggota,
-                'persen_lengkap': persen_lengkap,
+                'persen_terverifikasi': persen_terverifikasi,
                 'usulan_menunggu': Usulan.search_count([('state', '=', 'diajukan')]),
                 'total_punguan': Punguan.search_count([]),
                 'total_marga': Marga.search_count([]),
@@ -102,15 +103,15 @@ class TaromboOrang(models.Model):
                 nama = 'Belum diisi domisili'
                 urut = 1
             entri = per_wilayah.setdefault(key, {
-                'id': key, 'name': nama, 'sahih': 0, 'rumpang': 0, '_urut': urut,
+                'id': key, 'name': nama, 'terverifikasi': 0, 'rumpang': 0, '_urut': urut,
             })
             if status == 'sahih':
-                entri['sahih'] += jumlah
+                entri['terverifikasi'] += jumlah
             else:
                 entri['rumpang'] += jumlah
         baris = list(per_wilayah.values())
         for b in baris:
-            b['total'] = b['sahih'] + b['rumpang']
+            b['total'] = b['terverifikasi'] + b['rumpang']
         # Yang punya domisili dulu (terbanyak di atas), "belum diisi" paling bawah.
         baris.sort(key=lambda b: (b['_urut'], -b['total'], b['name']))
         for b in baris:

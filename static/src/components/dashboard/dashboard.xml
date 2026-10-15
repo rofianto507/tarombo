@@ -34,9 +34,9 @@
                         <div class="o_tarombo_kpi_card">
                             <div class="o_tarombo_kpi_icon"><i class="fa fa-check-circle"/></div>
                             <div class="o_tarombo_kpi_body">
-                                <div class="o_tarombo_kpi_value"><t t-esc="state.data.kpi.persen_lengkap"/>%</div>
-                                <div class="o_tarombo_kpi_label">Kelengkapan Data</div>
-                                <div class="o_tarombo_kpi_sub">terverifikasi &amp; lengkap</div>
+                                <div class="o_tarombo_kpi_value"><t t-esc="state.data.kpi.persen_terverifikasi"/>%</div>
+                                <div class="o_tarombo_kpi_label">Terverifikasi</div>
+                                <div class="o_tarombo_kpi_sub">anggota yang sudah terverifikasi</div>
                             </div>
                         </div>
                         <div class="o_tarombo_kpi_card">
@@ -116,7 +116,7 @@
                                         <t t-foreach="state.data.tabel_domisili" t-as="row" t-key="row.id">
                                             <tr>
                                                 <td><t t-esc="row.name"/></td>
-                                                <td class="text-end"><t t-esc="row.sahih"/></td>
+                                                <td class="text-end"><t t-esc="row.terverifikasi"/></td>
                                                 <td class="text-end"><t t-esc="row.rumpang"/></td>
                                                 <td class="text-end"><strong><t t-esc="row.total"/></strong></td>
                                             </tr>

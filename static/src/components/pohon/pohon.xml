@@ -53,7 +53,7 @@
                 <div class="o_tarombo_pohon_legenda_canvas">
                     <div><span class="o_tarombo_legenda_simbol o_tarombo_legenda_lingkaran"/> Laki-laki</div>
                     <div><span class="o_tarombo_legenda_simbol o_tarombo_legenda_wajik"/> Perempuan</div>
-                    <div><span class="o_tarombo_legenda_warna o_tarombo_legenda_sahih"/> Terverifikasi</div>
+                    <div><span class="o_tarombo_legenda_warna o_tarombo_legenda_terverifikasi"/> Terverifikasi</div>
                     <div><span class="o_tarombo_legenda_warna o_tarombo_legenda_rumpang"/> Belum Terverifikasi</div>
                 </div>
                 <div t-if="state.loading" class="o_tarombo_pohon_overlay">
