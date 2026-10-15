@@ -38,6 +38,8 @@ class TaromboOrang(models.Model):
             # ringan untuk pohon besar. Gambar diambil langsung dari browser
             # lewat URL /web/image/ standar Odoo, bukan lewat RPC ini.
             'punya_foto': bool(orang.foto),
+            # Lencana terverifikasi: orang ini sudah tersambung ke akun anggota.
+            'terhubung_akun': bool(orang.terhubung_akun),
             'selected': False,
             'collapsed': False,
             'has_more': False,

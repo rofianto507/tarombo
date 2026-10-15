@@ -70,7 +70,17 @@ class TaromboOrang(models.Model):
     # yang sama seperti masih_hidup — lihat context.md bagian keamanan).
     user_id = fields.Many2one(
         'res.users', string='Akun Terhubung', readonly=True, copy=False)
+    # Penanda sederhana "sudah tersambung ke akun anggota" untuk lencana
+    # terverifikasi di aplikasi. Sengaja boolean, bukan user_id, supaya yang
+    # terkirim ke aplikasi hanya status, bukan identitas akunnya.
+    terhubung_akun = fields.Boolean(
+        'Terhubung Akun', compute='_compute_terhubung_akun', store=True, index=True)
     catatan = fields.Text('Catatan')
+
+    @api.depends('user_id')
+    def _compute_terhubung_akun(self):
+        for r in self:
+            r.terhubung_akun = bool(r.user_id)
 
     def action_cabut_akun(self):
         """Putuskan tautan akun ↔ anggota (mis. salah klaim / akun disalahgunakan).
