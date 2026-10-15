@@ -11,7 +11,8 @@
                       decoration-muted="state == 'draft'"
                       decoration-warning="state == 'menunggu'"
                       decoration-success="state == 'disetujui'"
-                      decoration-danger="state in ('ditolak', 'dicabut')">
+                      decoration-danger="state in ('ditolak', 'dicabut')"
+                      decoration-info="state == 'dibatalkan'">
                     <field name="name"/>
                     <field name="user_id"/>
                     <field name="jenis"/>
@@ -40,6 +41,12 @@
                         <field name="state" widget="statusbar" statusbar_visible="draft,menunggu,disetujui,dicabut"/>
                     </header>
                     <sheet>
+                        <div class="alert alert-warning" role="alert"
+                             invisible="jenis != 'banding' or state != 'menunggu'">
+                            <strong>Banding.</strong> Orang ini sudah tertaut ke akun lain.
+                            Periksa alasan pengklaim dan bukti. Bila disetujui, tautan akun
+                            lama OTOMATIS dicabut dan orang ditautkan ke akun pengklaim.
+                        </div>
                         <div class="oe_title">
                             <h1><field name="name"/></h1>
                         </div>
@@ -47,7 +54,9 @@
                             <group>
                                 <field name="user_id" readonly="state != 'draft'"/>
                                 <field name="jenis"/>
-                                <field name="orang_id" invisible="jenis != 'orang_ada'"/>
+                                <field name="orang_id" invisible="jenis not in ('orang_ada', 'banding')"
+                                       domain="[('user_id', '=', False)] if jenis == 'orang_ada' else [('user_id', '!=', False)]"/>
+                                <field name="akun_lama_id" invisible="jenis != 'banding'"/>
                                 <field name="usulan_id" invisible="jenis != 'orang_baru'"/>
                             </group>
                             <group>
@@ -80,8 +89,11 @@
                     <field name="orang_id"/>
                     <filter string="Draft (belum diajukan)" name="filter_draft" domain="[('state', '=', 'draft')]"/>
                     <filter string="Menunggu" name="filter_menunggu" domain="[('state', '=', 'menunggu')]"/>
+                    <filter string="Banding" name="filter_banding" domain="[('jenis', '=', 'banding')]"/>
                     <filter string="Disetujui" name="filter_disetujui" domain="[('state', '=', 'disetujui')]"/>
                     <filter string="Dicabut" name="filter_dicabut" domain="[('state', '=', 'dicabut')]"/>
+                    <filter string="Dibatalkan Pengaju" name="filter_dibatalkan"
+                            domain="[('state', '=', 'dibatalkan'), ('active', 'in', [True, False])]"/>
                     <filter string="Ditolak" name="filter_ditolak"
                             domain="[('state', '=', 'ditolak'), ('active', 'in', [True, False])]"/>
                     <group>

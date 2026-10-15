@@ -4,6 +4,10 @@ from odoo.exceptions import UserError
 JENIS_KLAIM_SELECTION = [
     ('orang_ada', 'Orang Sudah Ada di Pohon'),
     ('orang_baru', 'Orang Belum Ada / Usul Baru'),
+    # Orang itu SUDAH tertaut ke akun lain, dan pengklaim menyatakan akun lama
+    # itu keliru/bukan miliknya. Operator menilai; bila disetujui, tautan akun
+    # lama dicabut dan orang ditautkan ke akun pengklaim.
+    ('banding', 'Banding (Sudah Diklaim Akun Lain)'),
 ]
 
 STATE_SELECTION = [
@@ -12,6 +16,8 @@ STATE_SELECTION = [
     ('disetujui', 'Disetujui'),
     ('ditolak', 'Ditolak'),
     ('dicabut', 'Dicabut'),
+    # Ditarik sendiri oleh pengaju selagi menunggu (mis. salah pilih orang).
+    ('dibatalkan', 'Dibatalkan'),
 ]
 
 
@@ -36,8 +42,11 @@ class TaromboKlaimAkun(models.Model):
              'anggota biasa tetap dibatasi ir.rule (hanya klaim miliknya sendiri).')
     jenis = fields.Selection(JENIS_KLAIM_SELECTION, string='Jenis', required=True)
     orang_id = fields.Many2one(
-        'tarombo.orang', string='Orang yang Diklaim',
-        domain="[('user_id', '=', False)]")
+        'tarombo.orang', string='Orang yang Diklaim')
+    akun_lama_id = fields.Many2one(
+        'res.users', string='Akun yang Sedang Tertaut', readonly=True,
+        help='Hanya untuk banding: akun yang menautkan orang ini saat banding diajukan. '
+             'Bila banding disetujui, tautan akun ini dicabut.')
     usulan_id = fields.Many2one(
         'tarombo.usulan', string='Usulan Penambahan Terkait', readonly=True,
         help='Terisi otomatis untuk jenis "Orang Belum Ada" — usulan tambah yang '
@@ -99,10 +108,109 @@ class TaromboKlaimAkun(models.Model):
                 nama=sudah.name,
             ))
 
+    def _cek_tidak_ada_pengajuan_lain(self):
+        """Satu akun hanya boleh punya SATU pengajuan menunggu (klaim, banding,
+        atau orang baru). Tanpa ini akun bisa menumpuk beberapa pengajuan ke
+        orang berbeda dan membingungkan pengurus."""
+        self.ensure_one()
+        lain = self.sudo().search([
+            ('user_id', '=', self.user_id.id),
+            ('state', '=', 'menunggu'),
+            ('id', '!=', self.id),
+        ], limit=1)
+        if lain:
+            raise UserError(_(
+                'Anda masih punya pengajuan yang sedang diperiksa pengurus. '
+                'Tunggu hasilnya atau batalkan pengajuan itu terlebih dahulu.'))
+
+    def action_batalkan(self):
+        """Pengaju menarik sendiri pengajuannya yang masih menunggu. sudo()
+        dipakai karena anggota tidak punya hak tulis di model ini; pemeriksaan
+        pemilik dilakukan di sini."""
+        for r in self:
+            pengurus = self.env.user.has_group('tarombo.group_tarombo_pengurus')
+            if r.user_id != self.env.user and not pengurus:
+                raise UserError(_('Anda hanya dapat membatalkan pengajuan milik sendiri.'))
+            if r.state != 'menunggu':
+                raise UserError(_('Hanya pengajuan yang masih menunggu yang dapat dibatalkan.'))
+            if r.jenis == 'orang_baru' and r.usulan_id and r.usulan_id.state == 'diajukan':
+                # Usulan orang baru ikut ditarik dari antrean pengurus.
+                r.usulan_id.sudo().write({'state': 'draft'})
+            r.sudo().write({'state': 'dibatalkan', 'active': False})
+            r.sudo().message_post(body=_('Pengajuan dibatalkan oleh %s.') % self.env.user.name)
+
+    def _siapkan_banding(self):
+        """Validasi pengajuan banding. Berbeda dari klaim biasa: orang yang
+        dituju memang SUDAH punya akun, jadi _cek_orang_belum_diklaim() tidak
+        dipakai; sebagai gantinya alasan wajib dan pengajuan ganda dicegah."""
+        self.ensure_one()
+        if not self.orang_id:
+            raise UserError(_('Pilih orang yang dibanding terlebih dahulu.'))
+        akun_lama = self.orang_id.sudo().user_id
+        if not akun_lama:
+            raise UserError(_(
+                'Orang ini belum diklaim akun mana pun. Ajukan klaim identitas biasa saja.'))
+        if akun_lama == self.user_id:
+            raise UserError(_('Orang ini sudah tertaut ke akun Anda.'))
+        if not (self.catatan_pengklaim or '').strip():
+            raise UserError(_(
+                'Alasan banding wajib diisi, mis. siapa Anda dan mengapa akun lain keliru.'))
+        ganda = self.sudo().search([
+            ('jenis', '=', 'banding'), ('state', '=', 'menunggu'),
+            ('orang_id', '=', self.orang_id.id), ('user_id', '=', self.user_id.id),
+            ('id', '!=', self.id)], limit=1)
+        if ganda:
+            raise UserError(_('Banding Anda untuk orang ini masih menunggu verifikasi.'))
+        self.sudo().akun_lama_id = akun_lama
+
+    def _setujui_banding(self):
+        """Banding disetujui: cabut tautan akun lama, tautkan akun pengklaim.
+        Dilakukan dalam satu transaksi agar tidak pernah ada dua akun tertaut ke
+        orang yang sama atau orang tanpa akun di tengah proses."""
+        self.ensure_one()
+        if not self.orang_id:
+            raise UserError(_('Orang yang dibanding belum dipilih.'))
+        orang = self.orang_id
+        akun_lama = orang.user_id
+        Klaim = self.env['tarombo.klaim_akun'].sudo().with_context(active_test=False)
+        if akun_lama and akun_lama != self.user_id:
+            Klaim.search([
+                ('orang_id', '=', orang.id),
+                ('user_id', '=', akun_lama.id),
+                ('state', '=', 'disetujui'),
+            ]).write({
+                'state': 'dicabut',
+                'peninjau_id': self.env.user.id,
+                'tanggal_tinjau': fields.Datetime.now(),
+            })
+            orang.write({'user_id': False})
+            orang.message_post(body=_(
+                'Akun terhubung (%(lama)s) dicabut karena banding %(baru)s disetujui oleh %(op)s.',
+                lama=akun_lama.name, baru=self.user_id.name, op=self.env.user.name))
+            self.env['tarombo.push_sender'].sudo().kirim(
+                [akun_lama.id], _('Tautan Akun Dicabut'),
+                _('Tautan akun Anda ke "%s" dicabut karena ada banding yang disetujui pengurus.') % orang.name,
+                data={'tipe': 'klaim_akun', 'hasil': 'dicabut'},
+            )
+        orang.write({'user_id': self.user_id.id, 'masih_hidup': True})
+        self.write({
+            'state': 'disetujui',
+            'peninjau_id': self.env.user.id,
+            'tanggal_tinjau': fields.Datetime.now(),
+        })
+        self.env['tarombo.push_sender'].sudo().kirim(
+            [self.user_id.id], _('Banding Disetujui'),
+            _('Banding Anda disetujui. Identitas Anda sebagai "%s" sudah terhubung.') % orang.name,
+            data={'tipe': 'klaim_akun', 'klaim_id': self.id, 'hasil': 'disetujui'},
+        )
+
     def action_ajukan(self):
         for r in self:
             r._cek_akun_belum_tertaut()
-            if r.jenis == 'orang_ada':
+            r._cek_tidak_ada_pengajuan_lain()
+            if r.jenis == 'banding':
+                r._siapkan_banding()
+            elif r.jenis == 'orang_ada':
                 if not r.orang_id:
                     raise UserError(_('Pilih orang yang diklaim terlebih dahulu.'))
                 r._cek_orang_belum_diklaim(r.orang_id)
@@ -121,6 +229,9 @@ class TaromboKlaimAkun(models.Model):
     def action_setujui(self):
         for r in self:
             r._cek_akun_belum_tertaut()
+            if r.jenis == 'banding':
+                r._setujui_banding()
+                continue
             if r.jenis == 'orang_baru':
                 if r.usulan_id.state != 'disetujui':
                     raise UserError(_(
