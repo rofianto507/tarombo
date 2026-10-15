@@ -163,7 +163,7 @@ class TaromboOrang(models.Model):
     # Daftar putih field yang boleh ditulis pemilik akun. Sengaja konstanta
     # tertutup (bukan parameter dari client) — pola sama set_berbagi_lokasi().
     _PROFIL_SAYA_FIELDS = (
-        'foto', 'tanggal_lahir',
+        'foto', 'tanggal_lahir', 'tahun_lahir',
         'provinsi_id', 'kabupaten_id', 'kecamatan_id', 'desa_id',
         'alamat_jalan', 'alamat_catatan',
         # Titik rumah di peta. Menulisnya TIDAK menyalakan berbagi lokasi —
@@ -188,7 +188,7 @@ class TaromboOrang(models.Model):
         self.ensure_one()
         butir = [
             ('foto', _('Foto profil'), bool(self.foto)),
-            ('tanggal_lahir', _('Tanggal lahir'), bool(self.tanggal_lahir)),
+            ('tanggal_lahir', _('Tahun lahir'), bool(self.tahun_lahir)),
             ('domisili', _('Domisili (kabupaten/kota)'), bool(self.kabupaten_id)),
             ('alamat', _('Alamat lengkap'), bool(self.alamat_jalan)),
             ('pendidikan', _('Riwayat pendidikan'), bool(self.pendidikan_ids)),
@@ -221,6 +221,7 @@ class TaromboOrang(models.Model):
             'jenis_kelamin': orang.jenis_kelamin,
             'punya_foto': bool(orang.foto),
             'tanggal_lahir': orang.tanggal_lahir and orang.tanggal_lahir.isoformat() or False,
+            'tahun_lahir': orang.tahun_lahir or False,
             'provinsi_id': m2o(orang.provinsi_id),
             'kabupaten_id': m2o(orang.kabupaten_id),
             'kecamatan_id': m2o(orang.kecamatan_id),
@@ -250,7 +251,15 @@ class TaromboOrang(models.Model):
         if not tulis:
             return self.get_profil_saya()
 
-        if tulis.get('tanggal_lahir'):
+        if tulis.get('tahun_lahir'):
+            tahun = int(tulis['tahun_lahir'])
+            if tahun > fields.Date.context_today(self).year:
+                raise UserError(_('Tahun lahir tidak boleh di masa depan.'))
+            if tahun < 1000:
+                raise UserError(_('Tahun lahir tidak valid.'))
+            tulis['tahun_lahir'] = tahun
+        elif tulis.get('tanggal_lahir'):
+            # Aplikasi versi lama masih mengirim tanggal; cukup tahunnya yang dipakai.
             tanggal = fields.Date.to_date(tulis['tanggal_lahir'])
             if tanggal > fields.Date.context_today(self):
                 raise UserError(_('Tanggal lahir tidak boleh di masa depan.'))

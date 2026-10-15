@@ -38,6 +38,8 @@ USUL_MUATAN_MAP = {
     'usul_urutan': 'urutan',
     'usul_tanggal_lahir': 'tanggal_lahir',
     'usul_tanggal_wafat': 'tanggal_wafat',
+    'usul_tahun_lahir': 'tahun_lahir',
+    'usul_tahun_wafat': 'tahun_wafat',
     'usul_no_telp': 'no_telp',
     'usul_email_kontak': 'email_kontak',
     'usul_provinsi_id': 'provinsi_id',
@@ -83,6 +85,17 @@ class TaromboUsulan(models.Model):
     usul_urutan = fields.Integer('Anak ke-')
     usul_tanggal_lahir = fields.Date('Tanggal Lahir')
     usul_tanggal_wafat = fields.Date('Tanggal Wafat')
+    usul_tahun_lahir = fields.Integer('Tahun Lahir')
+    usul_tahun_wafat = fields.Integer('Tahun Wafat')
+
+    @api.constrains('usul_tahun_lahir', 'usul_tahun_wafat')
+    def _cek_usul_tahun(self):
+        for r in self:
+            Orang = self.env['tarombo.orang']
+            Orang._cek_rentang_tahun(r.usul_tahun_lahir, 'tahun_lahir')
+            Orang._cek_rentang_tahun(r.usul_tahun_wafat, 'tahun_wafat')
+            if r.usul_tahun_lahir and r.usul_tahun_wafat and r.usul_tahun_wafat < r.usul_tahun_lahir:
+                raise ValidationError(_('Tahun wafat tidak boleh sebelum tahun lahir.'))
     usul_provinsi_id = fields.Many2one(
         'tarombo.wilayah', string='Provinsi', domain=[('tingkat', '=', '1')])
     usul_kabupaten_id = fields.Many2one(
@@ -141,6 +154,8 @@ class TaromboUsulan(models.Model):
         if self.env.user.has_group('tarombo.group_tarombo_pengurus'):
             self.usul_tanggal_lahir = o.tanggal_lahir
             self.usul_tanggal_wafat = o.tanggal_wafat
+            self.usul_tahun_lahir = o.tahun_lahir
+            self.usul_tahun_wafat = o.tahun_wafat
             self.usul_no_telp = o.no_telp
             self.usul_email_kontak = o.email_kontak
             self.usul_alamat_jalan = o.alamat_jalan

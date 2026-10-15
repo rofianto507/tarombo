@@ -147,6 +147,12 @@ class TaromboOrang(models.Model):
     # lewat migrations/19.0.1.1.0/post-migrate.py, bukan ditulis ulang manual.
     tanggal_lahir = fields.Date('Tanggal Lahir', groups='tarombo.group_tarombo_pengurus')
     tanggal_wafat = fields.Date('Tanggal Wafat', groups='tarombo.group_tarombo_pengurus')
+    # TAHUN lahir/wafat — yang sebenarnya diminta pengurus tarombo. Inilah
+    # sumber utama sekarang (form, app mobile, umur). tanggal_lahir/tanggal_wafat
+    # DIPERTAHANKAN dan dijaga sinkron (1 Januari tahun itu) agar aplikasi
+    # mobile versi lama yang masih membaca/menulis tanggal tidak error.
+    tahun_lahir = fields.Integer('Tahun Lahir', groups='tarombo.group_tarombo_pengurus')
+    tahun_wafat = fields.Integer('Tahun Wafat', groups='tarombo.group_tarombo_pengurus')
     # Kontak pribadi — SENGAJA groups=pengurus (sama seperti tanggal lahir): tidak
     # tampil ke anggota lain di app. Pemilik akun melihat & mengisinya lewat
     # get_profil_saya()/update_profil_saya() (sudo sempit, tarombo_lokasi_mobile.py).
@@ -294,21 +300,75 @@ class TaromboOrang(models.Model):
     def _onchange_masih_hidup(self):
         if self.masih_hidup:
             self.tanggal_wafat = False
+            self.tahun_wafat = False
 
-    @api.depends('tanggal_lahir', 'tanggal_wafat', 'masih_hidup')
+    @api.depends('tahun_lahir', 'tahun_wafat', 'masih_hidup')
     def _compute_umur(self):
-        hari_ini = fields.Date.context_today(self)
+        # Umur dihitung dari TAHUN saja (tanpa bulan/hari): tahun berjalan
+        # (atau tahun wafat) dikurangi tahun lahir.
+        tahun_ini = fields.Date.context_today(self).year
         for r in self:
-            lahir = r.sudo().tanggal_lahir
+            lahir = r.sudo().tahun_lahir
             if not lahir:
                 r.umur = False
                 continue
-            akhir = hari_ini if r.masih_hidup else r.sudo().tanggal_wafat
+            akhir = tahun_ini if r.masih_hidup else r.sudo().tahun_wafat
             if not akhir:
                 r.umur = False
                 continue
-            umur = akhir.year - lahir.year - ((akhir.month, akhir.day) < (lahir.month, lahir.day))
+            umur = akhir - lahir
             r.umur = umur if umur >= 0 else False
+
+    @api.model
+    def _sinkron_tahun_tanggal(self, vals):
+        """Jaga tahun_* dan tanggal_* tetap konsisten pada create/write.
+        Bila tahun diisi, tanggal = 1 Januari tahun itu; bila hanya tanggal
+        yang dikirim (aplikasi lama), tahun diambil dari tanggal. Tahun
+        menang bila keduanya ikut dikirim."""
+        vals = dict(vals)
+        for tahun_f, tanggal_f in (('tahun_lahir', 'tanggal_lahir'),
+                                   ('tahun_wafat', 'tanggal_wafat')):
+            if tahun_f in vals:
+                tahun = vals[tahun_f] or False
+                # Validasi DI SINI (sebelum membentuk tanggal): tahun di luar
+                # rentang, mis. 19560, membuat "%04d-01-01" gagal di-parse
+                # dan muncul sebagai error teknis, bukan pesan yang jelas.
+                self._cek_rentang_tahun(tahun, tahun_f)
+                vals[tahun_f] = tahun
+                vals[tanggal_f] = fields.Date.to_date('%04d-01-01' % tahun) if tahun else False
+            elif tanggal_f in vals:
+                tanggal = fields.Date.to_date(vals[tanggal_f]) if vals[tanggal_f] else False
+                vals[tanggal_f] = tanggal
+                vals[tahun_f] = tanggal.year if tanggal else False
+        return vals
+
+    @api.model
+    def _cek_rentang_tahun(self, tahun, nama_field):
+        if not tahun:
+            return
+        sekarang = fields.Date.context_today(self).year
+        label = _('Tahun lahir') if nama_field.endswith('lahir') else _('Tahun wafat')
+        if not (1000 <= int(tahun) <= sekarang):
+            raise ValidationError(_(
+                '%(label)s tidak valid: %(nilai)s. Isi tahun 4 digit antara 1000 dan %(max)s.',
+                label=label, nilai=tahun, max=sekarang))
+
+    @api.constrains('tahun_lahir', 'tahun_wafat')
+    def _cek_tahun(self):
+        sekarang = fields.Date.context_today(self).year
+        for r in self.sudo():
+            for nilai, label in ((r.tahun_lahir, _('Tahun lahir')), (r.tahun_wafat, _('Tahun wafat'))):
+                if nilai and not (1000 <= nilai <= sekarang):
+                    raise ValidationError(_('%(label)s harus antara 1000 dan %(max)s.', label=label, max=sekarang))
+            if r.tahun_lahir and r.tahun_wafat and r.tahun_wafat < r.tahun_lahir:
+                raise ValidationError(_('Tahun wafat tidak boleh sebelum tahun lahir.'))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        return super().create([self._sinkron_tahun_tanggal(v) for v in vals_list])
+
+    def write(self, vals):
+        return super().write(self._sinkron_tahun_tanggal(vals))
 
     @api.onchange('desa_id')
     def _onchange_desa_id(self):
