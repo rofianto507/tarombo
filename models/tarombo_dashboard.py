@@ -153,6 +153,6 @@ class TaromboOrang(models.Model):
             'id': a.id,
             'name': a.name,
             'jenis': jenis_label.get(a.jenis, a.jenis),
-            'orang': a.orang_id.name if a.orang_id else '-',
+            'orang': ', '.join(a.orang_ids.mapped('name')) if a.orang_ids else '-',
             'punya_foto': a.jenis == 'foto',
         } for a in arsip]

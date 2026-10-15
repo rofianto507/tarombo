@@ -220,7 +220,8 @@ class TaromboOrang(models.Model):
         'tarombo.bidang', string='Bidang Saat Ini',
         compute='_compute_pekerjaan_kini', store=True, index=True)
 
-    arsip_ids = fields.One2many('tarombo.arsip', 'orang_id', string='Arsip')
+    arsip_ids = fields.Many2many(
+        'tarombo.arsip', 'tarombo_arsip_orang_rel', 'orang_id', 'arsip_id', string='Arsip')
 
     _urutan_unik = models.Constraint(
         'UNIQUE(ayah_id, urutan)',

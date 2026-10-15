@@ -22,7 +22,8 @@
         </record>
 
         <!--
-            Anggota menambah arsip ke PROFILNYA SENDIRI (orang.user_id = akun login)
+            Anggota menambah arsip yang terikat ke PROFILNYA SENDIRI (salah satu orang
+            terkait punya user_id = akun login; boleh juga menautkan anggota lain)
             tanpa verifikasi pengurus, dan hanya boleh menghapus arsip yang ia unggah
             sendiri (create_uid) — arsip unggahan pengurus tidak bisa dihapus anggota.
             Read-nya mengikuti rule di atas: arsip miliknya tetap terlihat walau
@@ -31,7 +32,7 @@
         <record id="rule_arsip_anggota_tambah_sendiri" model="ir.rule">
             <field name="name">Arsip: anggota tambah arsip ke profil sendiri</field>
             <field name="model_id" ref="model_tarombo_arsip"/>
-            <field name="domain_force">[('orang_id.user_id', '=', user.id)]</field>
+            <field name="domain_force">[('orang_ids.user_id', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('group_tarombo_anggota'))]"/>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>

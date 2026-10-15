@@ -182,7 +182,7 @@
                             </page>
                             <page string="Arsip">
                                 <field name="arsip_ids" nolabel="1"
-                                       context="{'default_orang_id': id, 'default_punguan_id': punguan_id}">
+                                       context="{'default_orang_ids': [(4, id)]}">
                                     <list>
                                         <field name="name"/>
                                         <field name="jenis"/>

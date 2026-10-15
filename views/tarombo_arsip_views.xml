@@ -9,7 +9,7 @@
             <field name="arch" type="xml">
                 <kanban>
                     <field name="jenis"/>
-                    <field name="orang_id"/>
+                    <field name="orang_ids"/>
                     <field name="pratinjau"/>
                     <templates>
                         <t t-name="card">
@@ -28,7 +28,7 @@
                             <div class="p-2">
                                 <strong><field name="name"/></strong>
                                 <div><field name="jenis"/></div>
-                                <div t-if="record.orang_id.value"><field name="orang_id"/></div>
+                                <div t-if="record.orang_ids.raw_value.length"><field name="orang_ids" widget="many2many_tags"/></div>
                             </div>
                         </t>
                     </templates>
@@ -44,8 +44,7 @@
                 <list string="Arsip">
                     <field name="name"/>
                     <field name="jenis"/>
-                    <field name="orang_id"/>
-                    <field name="punguan_id"/>
+                    <field name="orang_ids" widget="many2many_tags"/>
                     <field name="tahun_perkiraan"/>
                     <field name="sumber"/>
                     <field name="publik" widget="boolean_toggle"/>
@@ -68,14 +67,22 @@
                                 <field name="jenis"/>
                                 <field name="berkas_nama" invisible="1"/>
                                 <field name="berkas" filename="berkas_nama"/>
-                                <field name="orang_id"/>
-                                <field name="punguan_id"/>
                             </group>
                             <group>
                                 <field name="tahun_perkiraan" options="{'enable_formatting': false}"/>
                                 <field name="sumber"/>
                                 <field name="publik"/>
                             </group>
+                        </group>
+                        <group string="Orang Terkait">
+                            <field name="orang_ids" nolabel="1" colspan="2">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="sundut"/>
+                                    <field name="marga_id"/>
+                                    <field name="jenis_kelamin"/>
+                                </list>
+                            </field>
                         </group>
                         <group string="Pratinjau" invisible="not pratinjau">
                             <field name="pratinjau" widget="image" nolabel="1" options="{'img_class': 'w-50'}"/>
@@ -96,14 +103,11 @@
             <field name="arch" type="xml">
                 <search string="Cari Arsip">
                     <field name="name"/>
-                    <field name="orang_id"/>
-                    <field name="punguan_id"/>
+                    <field name="orang_ids"/>
                     <field name="sumber"/>
                     <filter string="Publik" name="filter_publik" domain="[('publik', '=', True)]"/>
                     <group>
                         <filter string="Jenis" name="groupby_jenis" context="{'group_by': 'jenis'}"/>
-                        <filter string="Orang" name="groupby_orang" context="{'group_by': 'orang_id'}"/>
-                        <filter string="Punguan" name="groupby_punguan" context="{'group_by': 'punguan_id'}"/>
                     </group>
                 </search>
             </field>
