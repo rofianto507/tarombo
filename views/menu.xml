@@ -31,6 +31,14 @@
             sequence="15"/>
 
         <menuitem
+            id="menu_tarombo_berita"
+            name="Berita &amp; Agenda"
+            parent="menu_tarombo_root"
+            action="action_tarombo_berita"
+            groups="tarombo.group_tarombo_pengurus"
+            sequence="17"/>
+
+        <menuitem
             id="menu_tarombo_usulan"
             name="Usulan"
             parent="menu_tarombo_root"

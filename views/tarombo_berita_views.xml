@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- LIST -->
+        <record id="view_tarombo_berita_list" model="ir.ui.view">
+            <field name="name">tarombo.berita.list</field>
+            <field name="model">tarombo.berita</field>
+            <field name="arch" type="xml">
+                <list string="Berita &amp; Agenda" decoration-muted="state == 'draft'">
+                    <field name="name"/>
+                    <field name="jenis"/>
+                    <field name="tanggal_mulai" optional="show"/>
+                    <field name="lokasi" optional="hide"/>
+                    <field name="tanggal_terbit"/>
+                    <field name="jumlah_komentar" string="Komentar"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- FORM -->
+        <record id="view_tarombo_berita_form" model="ir.ui.view">
+            <field name="name">tarombo.berita.form</field>
+            <field name="model">tarombo.berita</field>
+            <field name="arch" type="xml">
+                <form string="Berita &amp; Agenda">
+                    <header>
+                        <button name="action_terbitkan" type="object" string="Terbitkan"
+                                class="btn-primary" invisible="state != 'draft'"
+                                confirm="Terbitkan sekarang? Anggota yang akunnya sudah tertaut akan menerima notifikasi."/>
+                        <button name="action_tarik" type="object" string="Tarik ke Draft"
+                                invisible="state != 'terbit'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,terbit"/>
+                    </header>
+                    <sheet>
+                        <field name="gambar" widget="image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="Judul"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="jenis" widget="radio" options="{'horizontal': true}"/>
+                                <field name="penulis_id"/>
+                                <field name="tanggal_terbit"/>
+                            </group>
+                            <group invisible="jenis != 'agenda'">
+                                <field name="tanggal_mulai" required="jenis == 'agenda'"/>
+                                <field name="tanggal_selesai"/>
+                                <field name="lokasi"/>
+                            </group>
+                        </group>
+                        <group string="Ringkasan (tampil di beranda)">
+                            <field name="ringkasan" nolabel="1" colspan="2"/>
+                        </group>
+                        <group string="Isi">
+                            <field name="isi" nolabel="1" colspan="2"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- SEARCH -->
+        <record id="view_tarombo_berita_search" model="ir.ui.view">
+            <field name="name">tarombo.berita.search</field>
+            <field name="model">tarombo.berita</field>
+            <field name="arch" type="xml">
+                <search string="Cari Berita &amp; Agenda">
+                    <field name="name"/>
+                    <filter string="Berita" name="filter_berita" domain="[('jenis', '=', 'berita')]"/>
+                    <filter string="Agenda" name="filter_agenda" domain="[('jenis', '=', 'agenda')]"/>
+                    <separator/>
+                    <filter string="Terbit" name="filter_terbit" domain="[('state', '=', 'terbit')]"/>
+                    <filter string="Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                    <group>
+                        <filter string="Jenis" name="groupby_jenis" context="{'group_by': 'jenis'}"/>
+                        <filter string="Status" name="groupby_state" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record id="action_tarombo_berita" model="ir.actions.act_window">
+            <field name="name">Berita &amp; Agenda</field>
+            <field name="res_model">tarombo.berita</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_tarombo_berita_search"/>
+        </record>
+
+    </data>
+</odoo>

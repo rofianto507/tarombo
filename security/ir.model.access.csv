@@ -43,3 +43,6 @@ access_tarombo_tolak_wizard_pengurus,tarombo.tolak.wizard pengurus,model_tarombo
 access_tarombo_tolak_wizard_admin,tarombo.tolak.wizard admin,model_tarombo_tolak_wizard,tarombo.group_tarombo_admin,1,1,1,1
 access_tarombo_notifikasi_anggota,tarombo.notifikasi anggota,model_tarombo_notifikasi,tarombo.group_tarombo_anggota,1,0,0,0
 access_tarombo_notifikasi_admin,tarombo.notifikasi admin,model_tarombo_notifikasi,tarombo.group_tarombo_admin,1,1,1,1
+access_tarombo_berita_anggota,tarombo.berita anggota,model_tarombo_berita,tarombo.group_tarombo_anggota,1,0,0,0
+access_tarombo_berita_pengurus,tarombo.berita pengurus,model_tarombo_berita,tarombo.group_tarombo_pengurus,1,1,1,1
+access_tarombo_berita_admin,tarombo.berita admin,model_tarombo_berita,tarombo.group_tarombo_admin,1,1,1,1
