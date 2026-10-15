@@ -34,7 +34,6 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'wizard/tarombo_partuturan_wizard_views.xml',
         'wizard/tarombo_tolak_wizard_views.xml',
         'views/menu.xml',
-        'data/tarombo_marga_data.xml',
         'data/tarombo_wilayah_data.xml',
         'data/tarombo_punguan_data.xml',
         'data/tarombo_usulan_data.xml',

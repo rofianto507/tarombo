@@ -63,7 +63,17 @@ class TaromboMarga(models.Model):
         lain.ensure_one()
         akar_a = (self.parent_path or '').strip('/').split('/')[:1]
         akar_b = (lain.parent_path or '').strip('/').split('/')[:1]
-        return bool(akar_a and akar_a == akar_b)
+        if akar_a and akar_a == akar_b:
+            return True
+        # Rekaman ganda: dua marga akar bernama sama (mis. dua "Tampubolon")
+        # adalah satu marga yang tercatat dua kali, bukan dua marga berbeda.
+        # Tanpa ini, pernikahan semarga lolos hanya karena marga istri dipilih
+        # dari rekaman kembaran di pohon lain.
+        if akar_a and akar_b:
+            ra = self.browse(int(akar_a[0]))
+            rb = self.browse(int(akar_b[0]))
+            return (ra.name or '').strip().lower() == (rb.name or '').strip().lower()
+        return False
 
     def terikat_padan(self, lain):
         """True bila dua marga (berbeda akar) terikat sumpah padan leluhur."""

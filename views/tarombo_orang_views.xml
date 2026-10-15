@@ -103,13 +103,14 @@
                                 </group>
                                 <group string="Pernikahan" invisible="jenis_kelamin != 'L'">
                                     <field name="pernikahan_ids" nolabel="1" colspan="2">
-                                        <list editable="bottom" delete="false" decoration-danger="peringatan_adat">
+                                        <list editable="bottom" decoration-danger="peringatan_adat">
                                             <field name="urutan"/>
                                             <field name="istri_nama"/>
                                             <field name="istri_marga_id"/>
                                             <field name="tahun" options="{'enable_formatting': false}"/>
                                             <field name="anak_ids" widget="many2many_tags" string="Anak" readonly="1"/>
-                                            <field name="peringatan_adat" string="Peringatan Adat"/>
+                                            <field name="status_adat" string="Pemeriksaan Adat" optional="show"/>
+                                            <field name="peringatan_adat" column_invisible="1"/>
                                         </list>
                                     </field>
                                 </group>
