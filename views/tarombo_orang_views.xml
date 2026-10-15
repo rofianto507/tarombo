@@ -135,16 +135,7 @@
                                         <field name="kabupaten_id" context="{'default_tingkat': '2'}"/>
                                         <field name="kecamatan_id" context="{'default_tingkat': '3'}"/>
                                         <field name="desa_id" context="{'default_tingkat': '4'}"/>
-                                        <field name="alamat_catatan" placeholder="mis. dimekarkan dari kabupaten X tahun ..."/>
                                     </group>
-                                    <group string="Alamat Rinci" groups="tarombo.group_tarombo_pengurus">
-                                        <field name="alamat_jalan"/>
-                                        <field name="kode_pos"/>
-                                    </group>
-                                </group>
-                                <group string="Titik Lokasi" groups="tarombo.group_tarombo_pengurus">
-                                    <field name="longitude" invisible="1"/>
-                                    <field name="latitude" widget="tarombo_geo_picker" nolabel="1" colspan="2"/>
                                 </group>
                             </page>
                             <page string="Riwayat">

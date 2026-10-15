@@ -28,6 +28,7 @@ export class TaromboDashboard extends Component {
             loading: true,
             error: false,
             data: null,
+            levelPeta: "kabupaten",
         });
 
         this.rootRef = useRef("root");
@@ -195,10 +196,12 @@ export class TaromboDashboard extends Component {
         });
     }
 
+    // Sebaran anggota per wilayah: marker berisi jumlah anggota, pilihan
+    // tingkat Provinsi / Kabupaten-Kota. Tidak ada titik atau nama individu.
     _renderPeta() {
         const el = this.mapRef.el;
-        const points = this.state.data.map_points;
-        if (!el || !window.L || !points.length) {
+        const sebaran = this.state.data.sebaran_wilayah;
+        if (!el || !window.L || !sebaran) {
             return;
         }
         const map = L.map(el).setView([2.5, 99.0], 6);
@@ -206,50 +209,47 @@ export class TaromboDashboard extends Component {
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "&copy; OpenStreetMap",
         }).addTo(map);
-        const icon = L.icon({
-            iconUrl: "/tarombo/static/lib/leaflet/images/marker-icon.png",
-            shadowUrl: "/tarombo/static/lib/leaflet/images/marker-shadow.png",
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-        });
-        const markerList = points.map((p) => {
-            const marker = L.marker([p.lat, p.lng], { icon }).addTo(map);
-            marker.bindPopup(this._popupPeta(p), { minWidth: 220 });
-            marker.on("popupopen", (ev) => {
-                const tombol = ev.popup.getElement()?.querySelector(".o_tarombo_map_popup_btn");
-                tombol?.addEventListener("click", () => this._bukaOrang(p.id));
+        this._lapisMarker = L.layerGroup().addTo(map);
+        this._gambarMarker(true);
+        setTimeout(() => map.invalidateSize(), 150);
+    }
+
+    _gambarMarker(sesuaikan) {
+        if (!this._map || !this._lapisMarker) {
+            return;
+        }
+        this._lapisMarker.clearLayers();
+        const items = this.state.data.sebaran_wilayah[this.state.levelPeta] || [];
+        const markers = items.map((w) => {
+            const d = Math.round(30 + Math.min(28, Math.log10(w.jumlah + 1) * 14));
+            const icon = L.divIcon({
+                className: "",
+                html: `<div class="o_tarombo_sebaran_marker" style="width:${d}px;height:${d}px;line-height:${d}px;">${w.jumlah}</div>`,
+                iconSize: [d, d],
             });
+            const marker = L.marker([w.lat, w.lng], { icon });
+            marker.bindPopup(
+                `<div style="font-weight:600;">${this._escapeHtml(w.nama)}</div>`
+                + `<div style="font-size:11px;color:#666;">${this._escapeHtml(w.nama_lengkap)}</div>`
+                + `<div style="margin-top:4px;">${w.jumlah} anggota</div>`
+            );
+            marker.addTo(this._lapisMarker);
             return marker;
         });
-        map.fitBounds(L.featureGroup(markerList).getBounds().pad(0.2));
-        setTimeout(() => map.invalidateSize(), 150);
+        if (sesuaikan && markers.length) {
+            this._map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2));
+        }
+    }
+
+    setLevelPeta(level) {
+        this.state.levelPeta = level;
+        this._gambarMarker(true);
     }
 
     _escapeHtml(text) {
         const div = document.createElement("div");
         div.textContent = text;
         return div.innerHTML;
-    }
-
-    _popupPeta(p) {
-        const fotoHtml = p.punya_foto
-            ? `<img src="/web/image/tarombo.orang/${p.id}/foto" style="width:52px;height:52px;object-fit:cover;` +
-              `border-radius:50%;float:left;margin-right:8px;" alt=""/>`
-            : "";
-        const genderLabel = p.jenis_kelamin === "P" ? "Perempuan" : "Laki-laki";
-        const statusLabel = p.status === "sahih" ? "Terverifikasi" : "Belum Terverifikasi";
-        return (
-            `<div style="min-width:200px;">`
-            + fotoHtml
-            + `<div style="font-weight:600;">${this._escapeHtml(p.name)}</div>`
-            + `<div style="font-size:11px;color:#666;">Sundut ${p.sundut} &middot; ${genderLabel}</div>`
-            + `<div style="font-size:11px;color:#666;">${statusLabel} &middot; ${this._escapeHtml(p.punguan || "-")}</div>`
-            + `<div style="clear:both;"></div>`
-            + `<button type="button" class="o_tarombo_map_popup_btn btn btn-sm btn-primary w-100 mt-2">`
-            + `Buka Data Lengkap</button>`
-            + `</div>`
-        );
     }
 
     _urlPratinjau(id) {

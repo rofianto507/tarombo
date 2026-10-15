@@ -91,14 +91,6 @@
                                 <field name="usul_kecamatan_id" context="{'default_tingkat': '3'}"/>
                                 <field name="usul_desa_id" context="{'default_tingkat': '4'}"/>
                             </group>
-                            <group>
-                                <field name="usul_alamat_jalan"/>
-                            </group>
-                        </group>
-                        <group string="Titik Lokasi Usulan">
-                            <field name="usul_longitude" invisible="1"/>
-                            <field name="usul_latitude" widget="tarombo_geo_picker" nolabel="1" colspan="2"
-                                   options="{'lat_field': 'usul_latitude', 'lng_field': 'usul_longitude'}"/>
                         </group>
                         <group string="Catatan">
                             <field name="catatan" nolabel="1" colspan="2"/>

@@ -29,21 +29,62 @@ class TaromboOrang(models.Model):
         """
         if not self.env.user.has_group('tarombo.group_tarombo_anggota'):
             raise AccessError(_('Fitur ini khusus anggota Tarombo yang sudah login.'))
-        orang = self.sudo().search([
-            ('berbagi_lokasi', '=', True),
-            ('latitude', '!=', 0),
-            ('longitude', '!=', 0),
-        ])
-        return [{
-            'id': o.id,
-            'name': o.name,
-            'lat': o.latitude,
-            'lng': o.longitude,
-            'sundut': o.sundut,
-            'jenis_kelamin': o.jenis_kelamin,
-            'punguan': o.punguan_id.name,
-            'punya_foto': bool(o.foto),
-        } for o in orang]
+        # DINONAKTIFKAN: titik lokasi rumah per orang tidak lagi dikumpulkan
+        # maupun ditampilkan. Metode dipertahankan (daftar kosong) agar aplikasi
+        # versi lama yang masih memanggilnya tidak error. Pengganti: sebaran
+        # jumlah anggota per wilayah, lihat get_sebaran_wilayah().
+        return []
+
+    # Level wilayah -> field domisili pada tarombo.orang.
+    _SEBARAN_FIELD = {
+        '1': 'provinsi_id',
+        '2': 'kabupaten_id',
+        '3': 'kecamatan_id',
+        '4': 'desa_id',
+    }
+
+    @api.model
+    def get_sebaran_wilayah(self, tingkat='2'):
+        """Jumlah anggota per wilayah pada satu tingkat (1 provinsi,
+        2 kabupaten/kota, 3 kecamatan, 4 desa/kelurahan), untuk peta "Sebaran
+        Anggota" di app mobile.
+
+        Hanya agregat (nama wilayah + jumlah) — tidak ada nama atau titik
+        individu. sudo() sengaja dipakai agar anggota biasa bisa menghitung
+        seluruh anggota; pengecualiannya sempit (satu method, hanya hitungan
+        per wilayah). Koordinat wilayah diambil dari tarombo.wilayah; bila
+        wilayah (mis. kecamatan/desa) belum punya koordinat, dipakai koordinat
+        induk terdekat dan ditandai `perkiraan`.
+        """
+        if not self.env.user.has_group('tarombo.group_tarombo_anggota'):
+            raise AccessError(_('Fitur ini khusus anggota Tarombo yang sudah login.'))
+        tingkat = str(tingkat)
+        fld = self._SEBARAN_FIELD.get(tingkat)
+        if not fld:
+            raise UserError(_('Tingkat wilayah tidak dikenal.'))
+        orang = self.sudo()
+        hasil = orang._read_group([(fld, '!=', False)], [fld], ['__count'])
+        items = []
+        for wilayah, jumlah in hasil:
+            titik = wilayah
+            while titik and not (titik.latitude and titik.longitude):
+                titik = titik.induk_id
+            items.append({
+                'id': wilayah.id,
+                'nama': wilayah.name,
+                'nama_lengkap': wilayah.complete_name,
+                'jumlah': jumlah,
+                'lat': titik.latitude if titik else False,
+                'lng': titik.longitude if titik else False,
+                'perkiraan': bool(titik) and titik.id != wilayah.id,
+            })
+        items.sort(key=lambda x: (-x['jumlah'], x['nama']))
+        return {
+            'tingkat': tingkat,
+            'total_anggota': orang.search_count([]),
+            'total_berwilayah': sum(i['jumlah'] for i in items),
+            'items': items,
+        }
 
     @api.model
     def get_domisili_orang(self, orang_id):
@@ -66,15 +107,9 @@ class TaromboOrang(models.Model):
         if not self.env.user.has_group('tarombo.group_tarombo_anggota'):
             raise AccessError(_('Fitur ini khusus anggota Tarombo yang sudah login.'))
         orang = self.sudo().browse(orang_id)
-        if not orang.exists():
-            return {'alamat_jalan': False, 'berbagi_lokasi': False, 'lat': False, 'lng': False}
-        ada_lokasi = bool(orang.berbagi_lokasi and orang.latitude and orang.longitude)
-        return {
-            'alamat_jalan': orang.alamat_jalan or False,
-            'berbagi_lokasi': ada_lokasi,
-            'lat': orang.latitude if ada_lokasi else False,
-            'lng': orang.longitude if ada_lokasi else False,
-        }
+        # Alamat jalan dan titik lokasi tidak lagi ditampilkan; kuncinya
+        # dipertahankan (bernilai kosong) untuk aplikasi versi lama.
+        return {'alamat_jalan': False, 'berbagi_lokasi': False, 'lat': False, 'lng': False}
 
     @api.model
     def get_kontak_orang(self, orang_id):
@@ -190,7 +225,6 @@ class TaromboOrang(models.Model):
             ('foto', _('Foto profil'), bool(self.foto)),
             ('tanggal_lahir', _('Tahun lahir'), bool(self.tahun_lahir)),
             ('domisili', _('Domisili (kabupaten/kota)'), bool(self.kabupaten_id)),
-            ('alamat', _('Alamat lengkap'), bool(self.alamat_jalan)),
             ('pendidikan', _('Riwayat pendidikan'), bool(self.pendidikan_ids)),
             ('pekerjaan', _('Riwayat pekerjaan'), bool(self.pekerjaan_ids)),
         ]

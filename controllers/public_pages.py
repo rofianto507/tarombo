@@ -80,10 +80,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <li><strong>Data Akun</strong> &mdash; nama, alamat email/username, dan kata sandi (terenkripsi) saat mendaftar; atau nama, email, dan foto profil dari akun Google apabila Anda memilih masuk dengan Google.</li>
         <li><strong>Data Silsilah</strong> &mdash; nama, jenis kelamin, sundut, marga, punguan, urutan kelahiran, dan hubungan keluarga (ayah, anak, pernikahan) yang tercatat dalam pohon silsilah, termasuk data yang Anda usulkan melalui fitur Usulan.</li>
         <li><strong>Kontak (opsional)</strong> &mdash; nomor telepon dan alamat email kontak anggota, yang dapat diisi sendiri oleh pemiliknya atau diusulkan oleh anggota lain dan ditinjau pengurus. Kontak ini bertujuan agar sesama anggota dapat saling menghubungi.</li>
-        <li><strong>Data Pribadi Anggota</strong> &mdash; tahun lahir dan (bila berlaku) tahun wafat, umur yang dihitung dari keduanya, status masih hidup atau telah wafat, serta alamat domisili (wilayah sampai tingkat desa dan alamat lengkap). Tanggal dapat berupa perkiraan: bila hanya tahun yang diketahui, dicatat sebagai 1 Januari tahun tersebut.</li>
+        <li><strong>Data Pribadi Anggota</strong> &mdash; tahun lahir dan (bila berlaku) tahun wafat, umur yang dihitung dari keduanya, status masih hidup atau telah wafat, serta domisili berupa wilayah sampai tingkat desa/kelurahan (opsional; alamat jalan tidak dikumpulkan). Untuk kelahiran dan wafat hanya tahun yang dicatat.</li>
         <li><strong>Riwayat Pendidikan &amp; Pekerjaan</strong> &mdash; jenjang, institusi, jurusan, jabatan, instansi, dan bidang pekerjaan, yang ditampilkan di Direktori Keahlian dan profil anggota.</li>
         <li><strong>Lampiran &amp; Arsip</strong> &mdash; foto dan dokumen yang Anda unggah melalui fitur Usulan atau Arsip.</li>
-        <li><strong>Data Lokasi (opsional)</strong> &mdash; (a) koordinat GPS perangkat, HANYA apabila Anda secara eksplisit mengaktifkan "Bagikan Lokasi ke Kerabat"; dan (b) titik lokasi domisili yang Anda pilih di peta saat mengajukan usulan. Keduanya bersifat opsional dan dapat dihapus kapan saja.</li>
+        <li><strong>Lokasi perangkat (opsional)</strong> &mdash; posisi GPS perangkat hanya dipakai di perangkat Anda untuk memusatkan peta Sebaran Anggota dan mengurutkan wilayah terdekat; posisi tersebut tidak dikirim ke server dan tidak disimpan. Titik lokasi rumah tidak dikumpulkan.</li>
         <li><strong>Notifikasi Dalam Aplikasi</strong> &mdash; riwayat notifikasi status usulan dan klaim akun Anda, termasuk judul, isi, dan waktu notifikasi.</li>
         <li><strong>Token Notifikasi Perangkat</strong> &mdash; pengenal perangkat (token Firebase Cloud Messaging) yang dikirim ke server kami agar aplikasi dapat mengirim notifikasi, misalnya status usulan atau klaim akun Anda. Layanan pengiriman notifikasi disediakan oleh Google Firebase.</li>
       </ul>
@@ -104,7 +104,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <li>Memproses usulan penambahan atau koreksi data silsilah yang diajukan anggota.</li>
         <li>Menghitung hubungan kekerabatan (partuturan) antar anggota.</li>
         <li>Menampilkan direktori keahlian/profesi sesama anggota.</li>
-        <li>Menampilkan peta kerabat terdekat, khusus untuk anggota yang memilih berbagi lokasi.</li>
+        <li>Menampilkan sebaran jumlah anggota menurut wilayah domisili (provinsi sampai desa/kelurahan), tanpa menampilkan nama maupun titik individu.</li>
         <li>Menampilkan umur dan informasi keluarga pada profil anggota.</li>
         <li>Mengirim notifikasi status usulan dan klaim akun Anda.</li>
       </ul>
@@ -122,7 +122,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <p>Data yang dikumpulkan <strong>tidak dijual, disewakan, atau dibagikan</strong> kepada pihak komersial mana pun. Data hanya dapat diakses oleh:</p>
       <ul class="item-list">
         <li>Pengurus punguan/komunitas marga Silaen yang berwenang, untuk keperluan verifikasi keanggotaan dan pengelolaan data silsilah.</li>
-        <li><strong>Sesama anggota</strong> yang sudah terverifikasi dapat melihat di dalam aplikasi: nama, sundut, marga, dan punguan; umur; alamat domisili termasuk alamat lengkap; nomor telepon dan email kontak; riwayat pendidikan dan pekerjaan (Direktori Keahlian); serta titik lokasi hanya apabila pemilik data mengaktifkan berbagi lokasi. Tanggal lahir dan tanggal wafat yang persis, serta koordinat yang tidak dibagikan, <strong>tidak</strong> ditampilkan kepada anggota lain. Nomor telepon dan email kontak hanya terlihat oleh akun yang sudah tertaut ke data anggota dan terverifikasi pengurus, tidak oleh akun yang belum terverifikasi maupun publik.</li>
+        <li><strong>Sesama anggota</strong> yang sudah terverifikasi dapat melihat di dalam aplikasi: nama, sundut, marga, dan punguan; umur; wilayah domisili (sampai desa/kelurahan); nomor telepon dan email kontak; riwayat pendidikan dan pekerjaan (Direktori Keahlian); serta jumlah anggota per wilayah pada peta Sebaran Anggota. Tahun lahir dan tahun wafat <strong>tidak</strong> ditampilkan kepada anggota lain (hanya umur). Nomor telepon dan email kontak hanya terlihat oleh akun yang sudah tertaut ke data anggota dan terverifikasi pengurus, tidak oleh akun yang belum terverifikasi maupun publik.</li>
         <li>Tim pengelola dari %(pengembang)s selaku pengembang aplikasi, terbatas untuk keperluan pemeliharaan sistem.</li>
       </ul>
       <p style="margin-top:12px">Pengiriman notifikasi push menggunakan layanan Google Firebase Cloud Messaging, yang memproses token perangkat Anda. Apabila Anda masuk menggunakan akun Google, proses autentikasi ditangani langsung oleh Google sesuai kebijakan privasi Google; kami hanya menerima nama, email, dan foto profil dasar setelah Anda memberikan izin.</p>
@@ -167,7 +167,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <ul class="item-list">
         <li>Mengetahui data pribadi apa saja yang tersimpan dalam sistem.</li>
         <li>Mengajukan koreksi data silsilah melalui fitur Usulan, atau menghubungi pengurus punguan.</li>
-        <li>Mencabut izin berbagi lokasi kapan saja melalui pengaturan aplikasi.</li>
+        <li>Mencabut izin lokasi perangkat kapan saja melalui pengaturan sistem perangkat.</li>
         <li>Mengajukan penghapusan akun melalui fitur Hapus Akun di aplikasi atau halaman web ini.</li>
       </ul>
     </div>
@@ -301,8 +301,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="faq-a">Gunakan menu "Usulan" di aplikasi (tersedia setelah identitas Anda terverifikasi) untuk mengajukan penambahan data baru atau koreksi data yang sudah ada, lengkap dengan lampiran foto/dokumen pendukung.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q">Lokasi saya di fitur "Kerabat Terdekat" siapa saja yang bisa lihat?</div>
-        <div class="faq-a">Titik lokasi Anda hanya tampil di peta apabila Anda sendiri mengaktifkan "Bagikan Lokasi ke Kerabat". Fitur ini nonaktif secara default dan dapat dimatikan kapan saja dari aplikasi.</div>
+        <div class="faq-q">Apakah lokasi rumah saya terlihat di fitur "Sebaran Anggota"?</div>
+        <div class="faq-a">Tidak. Fitur ini hanya menampilkan jumlah anggota per wilayah (provinsi sampai desa/kelurahan) berdasarkan domisili yang diisi anggota, tanpa nama atau titik individu. Pengisian domisili bersifat opsional.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Bagaimana cara menghapus akun saya?</div>
@@ -505,7 +505,7 @@ a{color:#2E5339;font-weight:600}
       <li>Akses data silsilah hanya untuk anggota yang identitasnya <strong>diverifikasi pengurus</strong> (klaim akun).</li>
       <li>Foto dan dokumen yang diusulkan anggota <strong>ditinjau pengurus</strong> sebelum data diperbarui; arsip keluarga
       hanya diunggah oleh pengurus.</li>
-      <li>Lokasi bersifat opsional dan hanya dibagikan bila pengguna sendiri mengaktifkannya.</li>
+      <li>Lokasi perangkat hanya dipakai di perangkat untuk memusatkan peta dan tidak dikirim ke server.</li>
     </ul>
   </div>
   <div class="card">

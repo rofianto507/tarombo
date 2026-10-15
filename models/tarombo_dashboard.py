@@ -44,6 +44,7 @@ class TaromboOrang(models.Model):
             'tabel_domisili': self._dashboard_tabel_domisili(),
             'usulan_menunggu_list': self._dashboard_usulan_menunggu(),
             'map_points': self._dashboard_map_points(),
+            'sebaran_wilayah': self._dashboard_sebaran_wilayah(),
             'arsip_terbaru': self._dashboard_arsip_terbaru(Arsip),
         }
 
@@ -131,9 +132,28 @@ class TaromboOrang(models.Model):
             'tanggal_ajukan': u.tanggal_ajukan and u.tanggal_ajukan.strftime('%d-%m-%Y') or '-',
         } for u in usulan]
 
+    def _dashboard_sebaran_wilayah(self):
+        """Jumlah anggota per wilayah untuk peta dashboard. Hanya tingkat
+        provinsi dan kabupaten/kota: koordinat kecamatan/desa belum tersedia,
+        jadi menampilkannya hanya akan menumpuk di titik kabupaten."""
+        hasil = {}
+        for kunci, tingkat in (('provinsi', '1'), ('kabupaten', '2')):
+            data = self.get_sebaran_wilayah(tingkat)
+            hasil[kunci] = [
+                {
+                    'id': i['id'], 'nama': i['nama'], 'nama_lengkap': i['nama_lengkap'],
+                    'jumlah': i['jumlah'], 'lat': i['lat'], 'lng': i['lng'],
+                }
+                for i in data['items'] if i['lat'] and i['lng']
+            ]
+        hasil['total_anggota'] = self.search_count([])
+        return hasil
+
     def _dashboard_map_points(self):
-        orang = self.env['tarombo.orang'].search(
-            [('latitude', '!=', 0), ('longitude', '!=', 0)])
+        # Titik lokasi rumah per orang sudah tidak dikumpulkan lagi; kunci
+        # dipertahankan (kosong) agar komponen dashboard tidak error.
+        return []
+        orang = self.env['tarombo.orang']
         return [{
             'id': o.id,
             'name': o.name,

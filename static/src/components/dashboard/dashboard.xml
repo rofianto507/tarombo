@@ -158,11 +158,18 @@
                     <!-- Peta -->
                     <div class="o_tarombo_map_card">
                         <div class="o_tarombo_chart_title">
-                            <i class="fa fa-map-marker"/> Sebaran Titik Lokasi Anggota
-                            <span class="badge text-bg-secondary ms-1"><t t-esc="state.data.map_points.length"/> titik</span>
+                            <i class="fa fa-map-marker"/> Sebaran Anggota per Wilayah
+                            <span class="ms-3 btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn"
+                                        t-att-class="state.levelPeta === 'provinsi' ? 'btn-primary' : 'btn-outline-secondary'"
+                                        t-on-click="() => this.setLevelPeta('provinsi')">Provinsi</button>
+                                <button type="button" class="btn"
+                                        t-att-class="state.levelPeta === 'kabupaten' ? 'btn-primary' : 'btn-outline-secondary'"
+                                        t-on-click="() => this.setLevelPeta('kabupaten')">Kabupaten/Kota</button>
+                            </span>
                         </div>
-                        <t t-if="!state.data.map_points.length">
-                            <div class="o_tarombo_chart_empty">Belum ada titik lokasi tercatat.</div>
+                        <t t-if="!state.data.sebaran_wilayah.provinsi.length and !state.data.sebaran_wilayah.kabupaten.length">
+                            <div class="o_tarombo_chart_empty">Belum ada anggota yang mengisi domisili.</div>
                         </t>
                         <div t-else="" t-ref="map" class="o_tarombo_map_canvas"/>
                     </div>
