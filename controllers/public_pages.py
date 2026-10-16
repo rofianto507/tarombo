@@ -78,6 +78,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <p>Aplikasi ini mengumpulkan jenis data berikut:</p>
       <ul class="item-list">
         <li><strong>Data Akun</strong> &mdash; nama, alamat email/username, dan kata sandi (terenkripsi) saat mendaftar; atau nama, email, dan foto profil dari akun Google apabila Anda memilih masuk dengan Google.</li>
+        <li><strong>Percakapan dengan Pengurus (opsional)</strong> &mdash; pesan yang Anda tulis dan balasan pengurus pada pengajuan klaim akun, banding, dan usulan, beserta waktu pengiriman. Pesan hanya dapat dilihat oleh Anda dan pengurus, tidak oleh anggota lain, dan percakapan ditutup setelah pengajuan selesai diproses.</li>
         <li><strong>Data Silsilah</strong> &mdash; nama, jenis kelamin, sundut, marga, punguan, urutan kelahiran, dan hubungan keluarga (ayah, anak, pernikahan) yang tercatat dalam pohon silsilah, termasuk data yang Anda usulkan melalui fitur Usulan.</li>
         <li><strong>Kontak (opsional)</strong> &mdash; nomor telepon dan alamat email kontak anggota, yang dapat diisi sendiri oleh pemiliknya atau diusulkan oleh anggota lain dan ditinjau pengurus. Kontak ini bertujuan agar sesama anggota dapat saling menghubungi.</li>
         <li><strong>Komentar (opsional)</strong> &mdash; komentar yang Anda tulis pada berita dan agenda beserta waktu dan nama penulisnya. Komentar terlihat oleh anggota terverifikasi lain, tunduk pada <a href="/aturan-komentar">Aturan Komentar</a>, dapat dilaporkan oleh pengguna lain, dan dapat dihapus oleh Anda maupun pengurus. Laporan atas komentar (alasan, catatan, dan identitas pelapor) disimpan untuk keperluan moderasi.</li>
@@ -501,11 +502,13 @@ a{color:#2E5339;font-weight:600}
     <h2>Bagaimana Tarombo Dirancang</h2>
     <ul>
       <li>Aplikasi ditujukan bagi pengguna <strong>berusia 18 tahun ke atas</strong>.</li>
-      <li>Tarombo adalah aplikasi silsilah komunitas tertutup. <strong>Tidak ada</strong> fitur pesan pribadi, obrolan,
-      atau unggahan publik antarpengguna, dan tidak ada fitur untuk berkenalan atau bertemu dengan orang asing. Satu-satunya
+      <li>Tarombo adalah aplikasi silsilah komunitas tertutup. <strong>Tidak ada</strong> fitur pesan pribadi atau obrolan
+      antarpengguna, tidak ada unggahan publik, dan tidak ada fitur untuk berkenalan atau bertemu dengan orang asing. Satu-satunya
       konten buatan pengguna adalah <strong>komentar pada berita dan agenda</strong>, yang hanya dapat ditulis akun
       terverifikasi, tunduk pada <a href="/aturan-komentar">Aturan Komentar</a>, dapat <strong>dilaporkan</strong> oleh
-      pengguna lain, dan ditinjau pengurus.</li>
+      pengguna lain, dan ditinjau pengurus. Selain itu, pengaju klaim akun dan usulan dapat bertukar
+      pesan <strong>hanya dengan pengurus</strong> mengenai pengajuannya; pesan ini tidak terlihat oleh pengguna lain,
+      dibatasi panjang dan jumlahnya, tanpa lampiran atau tautan, dan ditutup setelah pengajuan selesai.</li>
       <li>Akses data silsilah hanya untuk anggota yang identitasnya <strong>diverifikasi pengurus</strong> (klaim akun).</li>
       <li>Foto dan dokumen yang diusulkan anggota <strong>ditinjau pengurus</strong> sebelum data diperbarui; arsip keluarga
       hanya diunggah oleh pengurus.</li>
