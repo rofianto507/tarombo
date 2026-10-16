@@ -510,8 +510,9 @@ a{color:#2E5339;font-weight:600}
       pesan <strong>hanya dengan pengurus</strong> mengenai pengajuannya; pesan ini tidak terlihat oleh pengguna lain,
       dibatasi panjang dan jumlahnya, tanpa lampiran atau tautan, dan ditutup setelah pengajuan selesai.</li>
       <li>Akses data silsilah hanya untuk anggota yang identitasnya <strong>diverifikasi pengurus</strong> (klaim akun).</li>
-      <li>Foto dan dokumen yang diusulkan anggota <strong>ditinjau pengurus</strong> sebelum data diperbarui; arsip keluarga
-      hanya diunggah oleh pengurus.</li>
+      <li>Foto dan dokumen yang diusulkan anggota <strong>ditinjau pengurus</strong> sebelum data diperbarui. Arsip keluarga
+      dapat ditambahkan anggota ke profilnya sendiri, hanya terlihat oleh sesama anggota (atau hanya oleh pemilik dan
+      pengurus bila dibatasi), dan dapat dikelola serta dihapus oleh pengurus.</li>
       <li>Lokasi perangkat hanya dipakai di perangkat untuk memusatkan peta dan tidak dikirim ke server.</li>
     </ul>
   </div>
