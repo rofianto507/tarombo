@@ -47,6 +47,11 @@
                             Periksa alasan pengklaim dan bukti. Bila disetujui, tautan akun
                             lama OTOMATIS dicabut dan orang ditautkan ke akun pengklaim.
                         </div>
+                        <div class="alert alert-info" role="alert" invisible="state in ('draft', 'dibatalkan')">
+                            <strong>Percakapan dengan pengaju:</strong> gunakan <em>Kirim pesan</em> di chatter
+                            di bawah untuk membalas, pesannya terlihat oleh pengaju di aplikasi.
+                            <em>Log note</em> hanya catatan internal dan tidak terlihat oleh pengaju.
+                        </div>
                         <div class="oe_title">
                             <h1><field name="name"/></h1>
                         </div>

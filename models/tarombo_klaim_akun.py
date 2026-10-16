@@ -1,5 +1,15 @@
+from html import escape
+
+from markupsafe import Markup
+
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
+from odoo.tools import html2plaintext
+
+MAKS_PESAN_KLAIM = 1000
+MAKS_PESAN_PER_JAM = 20
+# Percakapan ditutup bila klaim sudah selesai diproses.
+STATE_PERCAKAPAN_TUTUP = ('disetujui', 'dicabut', 'dibatalkan')
 
 JENIS_KLAIM_SELECTION = [
     ('orang_ada', 'Orang Sudah Ada di Pohon'),
@@ -285,3 +295,99 @@ class TaromboKlaimAkun(models.Model):
                 _('Klaim identitas Anda ditolak: %s') % r.alasan_tolak,
                 data={'tipe': 'klaim_akun', 'klaim_id': r.id, 'hasil': 'ditolak'},
             )
+
+    # ── Percakapan pengaju <-> pengurus (chatter) ────────────────────────
+    # Dipakai aplikasi mobile. Pesan disimpan sebagai pesan chatter biasa
+    # ("Kirim pesan"), sehingga pengurus membalas langsung dari chatter form
+    # klaim di panel web. Catatan internal (Log note) tidak pernah tampil di
+    # aplikasi.
+
+    def message_post(self, **kwargs):
+        msg = super().message_post(**kwargs)
+        # Balasan pengurus lewat chatter -> kabari pengaju.
+        try:
+            for r in self:
+                if (msg.message_type == 'comment'
+                        and msg.subtype_id == self.env.ref('mail.mt_comment')
+                        and r.user_id
+                        and msg.author_id != r.user_id.partner_id):
+                    self.env['tarombo.push_sender'].sudo().kirim(
+                        [r.user_id.id], _('Pesan dari Pengurus'),
+                        html2plaintext(msg.body or '').strip()[:120],
+                        data={'tipe': 'klaim_akun', 'klaim_id': r.id, 'hasil': 'pesan'})
+        except Exception:  # notifikasi tidak boleh menggagalkan pengiriman pesan
+            pass
+        return msg
+
+    def _domain_pesan(self):
+        self.ensure_one()
+        return [
+            ('model', '=', self._name),
+            ('res_id', '=', self.id),
+            ('message_type', '=', 'comment'),
+            ('subtype_id', '=', self.env.ref('mail.mt_comment').id),
+        ]
+
+    @api.model
+    def _klaim_milik_sendiri(self, klaim_id):
+        rec = self.sudo().with_context(active_test=False).browse(int(klaim_id)).exists()
+        if not rec or rec.user_id.id != self.env.uid:
+            raise AccessError(_('Pengajuan tidak ditemukan.'))
+        return rec
+
+    def _percakapan(self):
+        self.ensure_one()
+        pesan = self.env['mail.message'].sudo().search(
+            self._domain_pesan(), order='date asc, id asc')
+        saya = self.user_id.partner_id
+        return [{
+            'id': m.id,
+            'dari_pengurus': m.author_id != saya,
+            'penulis': (m.author_id.name or _('Pengurus')) if m.author_id != saya else _('Anda'),
+            'tanggal': fields.Datetime.to_string(m.date),
+            'isi': html2plaintext(m.body or '').strip(),
+        } for m in pesan]
+
+    @api.model
+    def get_percakapan(self, klaim_id):
+        """Percakapan milik pengajuan sendiri."""
+        rec = self._klaim_milik_sendiri(klaim_id)
+        return {
+            'klaim_id': rec.id,
+            'jenis': rec.jenis,
+            'state': rec.state,
+            'tutup': rec.state in STATE_PERCAKAPAN_TUTUP,
+            'pesan': rec._percakapan(),
+        }
+
+    @api.model
+    def kirim_pesan(self, klaim_id, isi):
+        """Pengaju mengirim pesan ke pengurus pada pengajuannya sendiri."""
+        rec = self._klaim_milik_sendiri(klaim_id)
+        if rec.state in STATE_PERCAKAPAN_TUTUP:
+            raise UserError(_('Percakapan untuk pengajuan ini sudah ditutup.'))
+        teks = (isi or '').strip()
+        if not teks:
+            raise UserError(_('Pesan tidak boleh kosong.'))
+        if len(teks) > MAKS_PESAN_KLAIM:
+            raise UserError(_('Pesan maksimal %d karakter.') % MAKS_PESAN_KLAIM)
+        from datetime import timedelta
+        sejam = fields.Datetime.now() - timedelta(hours=1)
+        terkirim = self.env['mail.message'].sudo().search_count(
+            rec._domain_pesan() + [
+                ('author_id', '=', rec.user_id.partner_id.id), ('date', '>=', sejam)])
+        if terkirim >= MAKS_PESAN_PER_JAM:
+            raise UserError(_('Terlalu banyak pesan dalam satu jam. Silakan coba lagi nanti.'))
+        rec.sudo().with_context(mail_post_autofollow=False).message_post(
+            body=Markup(escape(teks).replace('\n', '<br/>')),
+            message_type='comment',
+            subtype_xmlid='mail.mt_comment',
+            author_id=rec.user_id.partner_id.id,
+        )
+        pengurus = self.env.ref('tarombo.group_tarombo_pengurus').sudo().all_user_ids.ids
+        self.env['tarombo.push_sender'].sudo().kirim(
+            pengurus, _('Pesan dari Pengaju Klaim'),
+            _('%(nama)s: %(isi)s') % {'nama': rec.user_id.name, 'isi': teks[:100]},
+            data={'tipe': 'klaim_akun_pesan', 'klaim_id': rec.id},
+        )
+        return rec._percakapan()
