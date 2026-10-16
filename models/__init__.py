@@ -1,3 +1,4 @@
+from . import tarombo_percakapan_mixin
 from . import tarombo_orang
 from . import tarombo_marga
 from . import tarombo_bidang

@@ -58,7 +58,7 @@ USUL_MUATAN_MAP = {
 class TaromboUsulan(models.Model):
     _name = 'tarombo.usulan'
     _description = 'Usulan Perubahan Tarombo'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'tarombo.percakapan.mixin']
     _order = 'id desc'
 
     name = fields.Char(default='Baru', readonly=True, copy=False)
@@ -363,3 +363,18 @@ class TaromboUsulan(models.Model):
             name=self.name, jenis=jenis_label, pengusul=self.pengusul_id.name,
             sumber=self.sumber_ket,
         )
+
+    # ── Percakapan pengusul <-> pengurus (chatter) ───────────────────────
+    # Logika bersama ada di tarombo.percakapan.mixin.
+    _percakapan_tutup = ('disetujui', 'ditolak')
+    _percakapan_tipe = 'usulan'
+    _percakapan_tipe_pengurus = 'usulan_pesan'
+    _percakapan_kunci_id = 'usulan_id'
+
+    def _percakapan_pemilik(self):
+        return self.pengusul_id
+
+    def message_post(self, **kwargs):
+        msg = super().message_post(**kwargs)
+        self._percakapan_beritahu_pemilik(msg)
+        return msg

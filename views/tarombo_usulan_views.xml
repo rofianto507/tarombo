@@ -44,6 +44,11 @@
                     </header>
                     <sheet>
                         <field name="usul_foto" widget="image" class="oe_avatar"/>
+                        <div class="alert alert-info" role="alert" invisible="state in ('draft', 'disetujui', 'ditolak')">
+                            <strong>Percakapan dengan pengusul:</strong> gunakan <em>Kirim pesan</em> di chatter
+                            di bawah untuk membalas, pesannya terlihat oleh pengusul di aplikasi.
+                            <em>Log note</em> hanya catatan internal dan tidak terlihat oleh pengusul.
+                        </div>
                         <div class="oe_title">
                             <h1><field name="name"/></h1>
                         </div>
