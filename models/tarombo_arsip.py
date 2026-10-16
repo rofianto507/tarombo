@@ -54,7 +54,9 @@ class TaromboArsip(models.Model):
         records = super().create(vals_list)
         for rec, vals in zip(records, vals_list):
             if not vals.get('orang_id') and rec.orang_ids:
-                rec.orang_id = rec.orang_ids[0]
+                # Penyelarasan internal: anggota tidak punya hak tulis pada arsip,
+                # tetapi boleh membuatnya. Tanpa sudo(), create oleh anggota gagal.
+                rec.sudo().orang_id = rec.orang_ids[0]
         return records
 
     def write(self, vals):
@@ -62,11 +64,11 @@ class TaromboArsip(models.Model):
         if 'orang_ids' in vals and 'orang_id' not in vals:
             for rec in self:
                 if rec.orang_id not in rec.orang_ids:
-                    rec.orang_id = rec.orang_ids[:1]
+                    rec.sudo().orang_id = rec.orang_ids[:1]
         elif vals.get('orang_id') and 'orang_ids' not in vals:
             for rec in self:
                 if vals['orang_id'] not in rec.orang_ids.ids:
-                    rec.orang_ids = [(4, vals['orang_id'])]
+                    rec.sudo().orang_ids = [(4, vals['orang_id'])]
         return res
 
     @api.depends('jenis', 'berkas')
