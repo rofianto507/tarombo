@@ -77,11 +77,4 @@
     <field name="context">{'search_default_pending': 1}</field>
   </record>
 
-  <menuitem id="menu_tarombo_hapus_akun"
-            name="Permintaan Hapus Akun"
-            parent="menu_tarombo_konfigurasi"
-            action="action_tarombo_hapus_akun"
-            groups="tarombo.group_tarombo_admin"
-            sequence="50"/>
-
 </odoo>

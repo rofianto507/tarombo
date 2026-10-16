@@ -30,36 +30,14 @@
             action="action_tarombo_arsip"
             sequence="15"/>
 
+        <!-- Berita & Agenda: langsung ke daftarnya, tanpa submenu. -->
         <menuitem
             id="menu_tarombo_berita"
             name="Berita &amp; Agenda"
             parent="menu_tarombo_root"
-            groups="tarombo.group_tarombo_pengurus"
-            sequence="17"/>
-
-        <menuitem
-            id="menu_tarombo_berita_daftar"
-            name="Berita &amp; Agenda"
-            parent="menu_tarombo_berita"
             action="action_tarombo_berita"
             groups="tarombo.group_tarombo_pengurus"
-            sequence="10"/>
-
-        <menuitem
-            id="menu_tarombo_laporan_konten"
-            name="Laporan Konten"
-            parent="menu_tarombo_berita"
-            action="action_tarombo_laporan_konten"
-            groups="tarombo.group_tarombo_pengurus"
-            sequence="20"/>
-
-        <menuitem
-            id="menu_tarombo_masukan"
-            name="Masukan Pengguna"
-            parent="menu_tarombo_root"
-            action="action_tarombo_masukan"
-            groups="tarombo.group_tarombo_pengurus"
-            sequence="18"/>
+            sequence="17"/>
 
         <menuitem
             id="menu_tarombo_usulan"
@@ -106,7 +84,7 @@
             id="menu_tarombo_konfigurasi"
             name="Konfigurasi"
             parent="menu_tarombo_root"
-            groups="tarombo.group_tarombo_admin"
+            groups="tarombo.group_tarombo_pengurus"
             sequence="40"/>
 
         <menuitem
@@ -139,6 +117,42 @@
             parent="menu_tarombo_konfigurasi"
             action="action_tarombo_punguan"
             groups="tarombo.group_tarombo_admin"
+            sequence="30"/>
+
+        <!--
+            Seksi kedua di bawah Konfigurasi. Odoo tidak punya pemisah menu
+            bawaan; menu induk di dalam dropdown tampil sebagai judul seksi
+            bertingkat, sehingga berfungsi sebagai pemisah antara data
+            referensi (Marga ... Bidang) dan antrean kerja di bawahnya.
+        -->
+        <menuitem
+            id="menu_tarombo_permintaan"
+            name="Permintaan &amp; Moderasi"
+            parent="menu_tarombo_konfigurasi"
+            sequence="100"/>
+
+        <menuitem
+            id="menu_tarombo_hapus_akun"
+            name="Permintaan Hapus Akun"
+            parent="menu_tarombo_permintaan"
+            action="action_tarombo_hapus_akun"
+            groups="tarombo.group_tarombo_admin"
+            sequence="10"/>
+
+        <menuitem
+            id="menu_tarombo_laporan_konten"
+            name="Laporan Konten"
+            parent="menu_tarombo_permintaan"
+            action="action_tarombo_laporan_konten"
+            groups="tarombo.group_tarombo_pengurus"
+            sequence="20"/>
+
+        <menuitem
+            id="menu_tarombo_masukan"
+            name="Masukan Pengguna"
+            parent="menu_tarombo_permintaan"
+            action="action_tarombo_masukan"
+            groups="tarombo.group_tarombo_pengurus"
             sequence="30"/>
 
         <menuitem
