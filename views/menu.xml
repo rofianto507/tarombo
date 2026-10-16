@@ -34,9 +34,24 @@
             id="menu_tarombo_berita"
             name="Berita &amp; Agenda"
             parent="menu_tarombo_root"
-            action="action_tarombo_berita"
             groups="tarombo.group_tarombo_pengurus"
             sequence="17"/>
+
+        <menuitem
+            id="menu_tarombo_berita_daftar"
+            name="Berita &amp; Agenda"
+            parent="menu_tarombo_berita"
+            action="action_tarombo_berita"
+            groups="tarombo.group_tarombo_pengurus"
+            sequence="10"/>
+
+        <menuitem
+            id="menu_tarombo_laporan_konten"
+            name="Laporan Konten"
+            parent="menu_tarombo_berita"
+            action="action_tarombo_laporan_konten"
+            groups="tarombo.group_tarombo_pengurus"
+            sequence="20"/>
 
         <menuitem
             id="menu_tarombo_usulan"

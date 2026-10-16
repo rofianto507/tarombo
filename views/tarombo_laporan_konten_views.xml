@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_tarombo_laporan_konten_list" model="ir.ui.view">
+            <field name="name">tarombo.laporan_konten.list</field>
+            <field name="model">tarombo.laporan_konten</field>
+            <field name="arch" type="xml">
+                <list string="Laporan Konten" decoration-warning="state == 'baru'"
+                      decoration-muted="state != 'baru'">
+                    <field name="create_date" string="Dilaporkan"/>
+                    <field name="berita_id"/>
+                    <field name="alasan"/>
+                    <field name="isi_komentar"/>
+                    <field name="penulis_id"/>
+                    <field name="pelapor_id"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_tarombo_laporan_konten_form" model="ir.ui.view">
+            <field name="name">tarombo.laporan_konten.form</field>
+            <field name="model">tarombo.laporan_konten</field>
+            <field name="arch" type="xml">
+                <form string="Laporan Konten" create="false">
+                    <header>
+                        <button name="action_hapus_komentar" type="object" string="Hapus Komentar"
+                                class="btn-danger" invisible="state != 'baru'"
+                                confirm="Hapus komentar ini dari berita? Tindakan tidak dapat dibatalkan."/>
+                        <button name="action_abaikan" type="object" string="Abaikan Laporan"
+                                invisible="state != 'baru'"/>
+                        <button name="action_buka_berita" type="object" string="Buka Berita"
+                                invisible="not berita_id"/>
+                        <field name="state" widget="statusbar" statusbar_visible="baru,ditindak,diabaikan"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="berita_id"/>
+                                <field name="penulis_id"/>
+                                <field name="pelapor_id"/>
+                            </group>
+                            <group>
+                                <field name="alasan"/>
+                                <field name="peninjau_id"/>
+                                <field name="tanggal_tinjau"/>
+                            </group>
+                        </group>
+                        <group string="Komentar yang Dilaporkan">
+                            <field name="isi_komentar" nolabel="1" colspan="2"/>
+                        </group>
+                        <group string="Catatan Pelapor">
+                            <field name="catatan" nolabel="1" colspan="2"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_tarombo_laporan_konten_search" model="ir.ui.view">
+            <field name="name">tarombo.laporan_konten.search</field>
+            <field name="model">tarombo.laporan_konten</field>
+            <field name="arch" type="xml">
+                <search string="Cari Laporan">
+                    <field name="berita_id"/>
+                    <field name="penulis_id"/>
+                    <filter string="Baru" name="filter_baru" domain="[('state', '=', 'baru')]"/>
+                    <filter string="Ditindak" name="filter_ditindak" domain="[('state', '=', 'ditindak')]"/>
+                    <group>
+                        <filter string="Alasan" name="groupby_alasan" context="{'group_by': 'alasan'}"/>
+                        <filter string="Penulis" name="groupby_penulis" context="{'group_by': 'penulis_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_tarombo_laporan_konten" model="ir.actions.act_window">
+            <field name="name">Laporan Konten</field>
+            <field name="res_model">tarombo.laporan_konten</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_tarombo_laporan_konten_search"/>
+            <field name="context">{'search_default_filter_baru': 1}</field>
+        </record>
+
+    </data>
+</odoo>

@@ -80,6 +80,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <li><strong>Data Akun</strong> &mdash; nama, alamat email/username, dan kata sandi (terenkripsi) saat mendaftar; atau nama, email, dan foto profil dari akun Google apabila Anda memilih masuk dengan Google.</li>
         <li><strong>Data Silsilah</strong> &mdash; nama, jenis kelamin, sundut, marga, punguan, urutan kelahiran, dan hubungan keluarga (ayah, anak, pernikahan) yang tercatat dalam pohon silsilah, termasuk data yang Anda usulkan melalui fitur Usulan.</li>
         <li><strong>Kontak (opsional)</strong> &mdash; nomor telepon dan alamat email kontak anggota, yang dapat diisi sendiri oleh pemiliknya atau diusulkan oleh anggota lain dan ditinjau pengurus. Kontak ini bertujuan agar sesama anggota dapat saling menghubungi.</li>
+        <li><strong>Komentar (opsional)</strong> &mdash; komentar yang Anda tulis pada berita dan agenda beserta waktu dan nama penulisnya. Komentar terlihat oleh anggota terverifikasi lain, tunduk pada <a href="/aturan-komentar">Aturan Komentar</a>, dapat dilaporkan oleh pengguna lain, dan dapat dihapus oleh Anda maupun pengurus. Laporan atas komentar (alasan, catatan, dan identitas pelapor) disimpan untuk keperluan moderasi.</li>
         <li><strong>Data Pribadi Anggota</strong> &mdash; tahun lahir dan (bila berlaku) tahun wafat, umur yang dihitung dari keduanya, status masih hidup atau telah wafat, serta domisili berupa wilayah sampai tingkat desa/kelurahan (opsional; alamat jalan tidak dikumpulkan). Untuk kelahiran dan wafat hanya tahun yang dicatat.</li>
         <li><strong>Riwayat Pendidikan &amp; Pekerjaan</strong> &mdash; jenjang, institusi, jurusan, jabatan, instansi, dan bidang pekerjaan, yang ditampilkan di Direktori Keahlian dan profil anggota.</li>
         <li><strong>Lampiran &amp; Arsip</strong> &mdash; foto dan dokumen yang Anda unggah melalui fitur Usulan atau Arsip.</li>
@@ -501,7 +502,10 @@ a{color:#2E5339;font-weight:600}
     <ul>
       <li>Aplikasi ditujukan bagi pengguna <strong>berusia 18 tahun ke atas</strong>.</li>
       <li>Tarombo adalah aplikasi silsilah komunitas tertutup. <strong>Tidak ada</strong> fitur pesan pribadi, obrolan,
-      kolom komentar, atau unggahan publik antarpengguna, dan tidak ada fitur untuk berkenalan atau bertemu dengan orang asing.</li>
+      atau unggahan publik antarpengguna, dan tidak ada fitur untuk berkenalan atau bertemu dengan orang asing. Satu-satunya
+      konten buatan pengguna adalah <strong>komentar pada berita dan agenda</strong>, yang hanya dapat ditulis akun
+      terverifikasi, tunduk pada <a href="/aturan-komentar">Aturan Komentar</a>, dapat <strong>dilaporkan</strong> oleh
+      pengguna lain, dan ditinjau pengurus.</li>
       <li>Akses data silsilah hanya untuk anggota yang identitasnya <strong>diverifikasi pengurus</strong> (klaim akun).</li>
       <li>Foto dan dokumen yang diusulkan anggota <strong>ditinjau pengurus</strong> sebelum data diperbarui; arsip keluarga
       hanya diunggah oleh pengurus.</li>
@@ -527,6 +531,57 @@ a{color:#2E5339;font-weight:600}
 </html>""".replace('%(pengembang)s', _PENGEMBANG).replace('%(email)s', _KONTAK_EMAIL)
 
 
+_ATURAN_KOMENTAR_HTML = (
+    _KESELAMATAN_ANAK_HTML.split('</head>')[0]
+    .replace('Standar Keselamatan Anak – Tarombo', 'Aturan Komentar – Tarombo')
+    + """</head>
+<body>
+<div class="header">
+  <h1>Aturan Komentar</h1>
+  <p>Tarombo &mdash; Silsilah Marga Silaen</p>
+</div>
+<div class="container">
+  <div class="card">
+    <h2>Siapa yang Dapat Berkomentar</h2>
+    <p>Komentar pada berita dan agenda hanya dapat ditulis oleh akun yang sudah <strong>terverifikasi</strong>
+    (tertaut ke data anggota dan disetujui pengurus). Dengan berkomentar, Anda menyetujui aturan di halaman ini.</p>
+  </div>
+  <div class="card">
+    <h2>Yang Dilarang</h2>
+    <ul>
+      <li>Kata-kata kasar, hinaan, ancaman, atau pelecehan terhadap siapa pun.</li>
+      <li>Ujaran kebencian atau yang menyinggung suku, agama, ras, dan antargolongan (SARA).</li>
+      <li>Spam, iklan, penipuan, atau tautan berbahaya.</li>
+      <li>Membuka data pribadi orang lain tanpa izin (nomor telepon, alamat, dokumen).</li>
+      <li>Konten seksual, kekerasan, atau yang membahayakan anak.</li>
+      <li>Berpura-pura sebagai orang lain atau menyebarkan informasi yang sengaja menyesatkan.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>Melaporkan dan Memblokir</h2>
+    <p>Setiap komentar milik orang lain memiliki menu <strong>Laporkan</strong> di aplikasi. Pilih alasannya; laporan masuk
+    ke pengurus untuk ditinjau. Anda juga dapat memilih <strong>Blokir pengguna</strong> agar komentar orang tersebut
+    tidak ditampilkan di perangkat Anda.</p>
+  </div>
+  <div class="card">
+    <h2>Tindakan Pengurus</h2>
+    <p>Pengurus meninjau laporan dan dapat menghapus komentar yang melanggar, menegur, atau menonaktifkan akun yang
+    berulang kali melanggar. Konten yang berkaitan dengan eksploitasi anak segera dihapus dan dilaporkan kepada pihak
+    berwenang.</p>
+  </div>
+  <div class="card">
+    <h2>Menghubungi Kami</h2>
+    <p>Pertanyaan atau keberatan atas tindakan moderasi dapat dikirim ke
+    <a href="mailto:%(email)s">%(email)s</a>.</p>
+    <p>Lihat juga <a href="/kebijakan-privasi">Kebijakan Privasi</a> dan <a href="/standar-keselamatan-anak">Standar Keselamatan Anak</a>.</p>
+  </div>
+</div>
+<div class="footer">&copy; 2026 Tarombo &mdash; %(pengembang)s</div>
+</body>
+</html>""".replace('%(pengembang)s', _PENGEMBANG).replace('%(email)s', _KONTAK_EMAIL)
+)
+
+
 class TaromboPublicPagesController(http.Controller):
 
     @http.route('/standar-keselamatan-anak', type='http', auth='public', website=False, csrf=False)
@@ -536,6 +591,10 @@ class TaromboPublicPagesController(http.Controller):
     @http.route('/kebijakan-privasi', type='http', auth='public', website=False, csrf=False)
     def privacy_policy(self, **kwargs):
         return Response(_PRIVACY_HTML, content_type='text/html; charset=utf-8')
+
+    @http.route('/aturan-komentar', type='http', auth='public', website=False, csrf=False)
+    def aturan_komentar(self, **kwargs):
+        return Response(_ATURAN_KOMENTAR_HTML, content_type='text/html; charset=utf-8')
 
     @http.route('/dukungan', type='http', auth='public', website=False, csrf=False)
     def support(self, **kwargs):
