@@ -54,6 +54,14 @@
             sequence="20"/>
 
         <menuitem
+            id="menu_tarombo_masukan"
+            name="Masukan Pengguna"
+            parent="menu_tarombo_root"
+            action="action_tarombo_masukan"
+            groups="tarombo.group_tarombo_pengurus"
+            sequence="18"/>
+
+        <menuitem
             id="menu_tarombo_usulan"
             name="Usulan"
             parent="menu_tarombo_root"

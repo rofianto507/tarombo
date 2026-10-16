@@ -520,6 +520,9 @@ a{color:#2E5339;font-weight:600}
   </div>
   <div class="card">
     <h2>Melaporkan Masalah</h2>
+    <p><strong>Di dalam aplikasi:</strong> buka menu <strong>Akun &rarr; Kirim Masukan</strong> lalu pilih kategori
+    <em>Keselamatan anak</em> atau <em>Laporkan konten atau pengguna</em>; Anda juga dapat memakai menu
+    <strong>Laporkan komentar</strong> pada setiap komentar. Laporan diterima pengurus tanpa Anda keluar dari aplikasi.</p>
     <p>Bila Anda menemukan konten atau perilaku yang mengkhawatirkan terkait keselamatan anak, segera hubungi kami di
     <a href="mailto:%(email)s">%(email)s</a>. Kontak ini ditangani oleh pengelola aplikasi yang siap
     menjelaskan praktik pencegahan CSAM serta kepatuhan terhadap kebijakan ini.</p>

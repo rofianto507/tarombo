@@ -1,6 +1,6 @@
 {
     'name': 'Tarombo',
-    'version': '19.0.1.5.0',
+    'version': '19.0.1.6.0',
     'summary': 'Pendataan dan pelestarian silsilah marga',
     'description': """
 Platform pendataan, penelusuran, dan pelestarian silsilah marga (tarombo),
@@ -32,6 +32,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
         'views/tarombo_arsip_views.xml',
         'views/tarombo_berita_views.xml',
         'views/tarombo_laporan_konten_views.xml',
+        'views/tarombo_masukan_views.xml',
         'views/tarombo_bidang_views.xml',
         'views/tarombo_hapus_akun_views.xml',
         'wizard/tarombo_partuturan_wizard_views.xml',
