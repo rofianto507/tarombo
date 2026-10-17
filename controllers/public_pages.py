@@ -60,11 +60,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 <div class="container">
   <div class="intro">
-    <p><strong>Terakhir diperbarui: 13 Oktober 2026</strong><br>
+    <p><strong>Terakhir diperbarui: 18 Oktober 2026</strong><br>
     Kebijakan Privasi ini menjelaskan bagaimana aplikasi <strong>Tarombo</strong>
     yang dikembangkan dan dikelola oleh <strong>%(pengembang)s</strong> mengumpulkan,
     menggunakan, dan melindungi data pribadi pengguna. Dengan menggunakan aplikasi
     ini, Anda menyetujui ketentuan dalam kebijakan ini.</p>
+  </div>
+  <div class="intro">
+    <p><strong>Summary in English.</strong> Tarombo is a members-only family-tree app for the Silaen clan.
+    We collect account details (name, email or username), the genealogy data that members and clan officers
+    record (names, birth and death year, family relations, optional contact details and region of residence),
+    content you submit (comments, proposals, photos and documents you choose to upload), and a push-notification
+    token. We do not sell data, do not track you across other apps or websites, and do not use advertising.
+    Genealogy, contact and residence data are visible only to verified members, not to the public. Device
+    location is optional and is used only on your device. You can delete your account in the app
+    (Account &rarr; Delete Account) or at <a href="/hapus-akun">/hapus-akun</a>. Questions: %(email)s.</p>
   </div>
 
   <div class="section">
@@ -77,17 +87,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="section-body">
       <p>Aplikasi ini mengumpulkan jenis data berikut:</p>
       <ul class="item-list">
-        <li><strong>Data Akun</strong> &mdash; nama, alamat email/username, dan kata sandi (terenkripsi) saat mendaftar; atau nama, email, dan foto profil dari akun Google apabila Anda memilih masuk dengan Google.</li>
+        <li><strong>Data Akun</strong> &mdash; nama, alamat email/username, dan kata sandi (terenkripsi) saat mendaftar; atau, pada perangkat Android yang menyediakan opsi tersebut, nama, email, dan foto profil dari akun Google apabila Anda memilih masuk dengan Google.</li>
         <li><strong>Percakapan dengan Pengurus (opsional)</strong> &mdash; pesan yang Anda tulis dan balasan pengurus pada pengajuan klaim akun, banding, dan usulan, beserta waktu pengiriman. Pesan hanya dapat dilihat oleh Anda dan pengurus, tidak oleh anggota lain, dan percakapan ditutup setelah pengajuan selesai diproses.</li>
         <li><strong>Data Silsilah</strong> &mdash; nama, jenis kelamin, sundut, marga, punguan, urutan kelahiran, dan hubungan keluarga (ayah, anak, pernikahan) yang tercatat dalam pohon silsilah, termasuk data yang Anda usulkan melalui fitur Usulan.</li>
         <li><strong>Kontak (opsional)</strong> &mdash; nomor telepon dan alamat email kontak anggota, yang dapat diisi sendiri oleh pemiliknya atau diusulkan oleh anggota lain dan ditinjau pengurus. Kontak ini bertujuan agar sesama anggota dapat saling menghubungi.</li>
         <li><strong>Komentar (opsional)</strong> &mdash; komentar yang Anda tulis pada berita dan agenda beserta waktu dan nama penulisnya. Komentar terlihat oleh anggota terverifikasi lain, tunduk pada <a href="/aturan-komentar">Aturan Komentar</a>, dapat dilaporkan oleh pengguna lain, dan dapat dihapus oleh Anda maupun pengurus. Laporan atas komentar (alasan, catatan, dan identitas pelapor) disimpan untuk keperluan moderasi.</li>
         <li><strong>Data Pribadi Anggota</strong> &mdash; tahun lahir dan (bila berlaku) tahun wafat, umur yang dihitung dari keduanya, status masih hidup atau telah wafat, serta domisili berupa wilayah sampai tingkat desa/kelurahan (opsional; alamat jalan tidak dikumpulkan). Untuk kelahiran dan wafat hanya tahun yang dicatat.</li>
         <li><strong>Riwayat Pendidikan &amp; Pekerjaan</strong> &mdash; jenjang, institusi, jurusan, jabatan, instansi, dan bidang pekerjaan, yang ditampilkan di Direktori Keahlian dan profil anggota.</li>
-        <li><strong>Lampiran &amp; Arsip</strong> &mdash; foto dan dokumen yang Anda unggah melalui fitur Usulan atau Arsip.</li>
+        <li><strong>Lampiran &amp; Arsip</strong> &mdash; foto dan dokumen yang Anda unggah melalui fitur Usulan atau Arsip. Aplikasi hanya mengakses kamera atau galeri foto perangkat saat Anda sendiri memilih untuk mengambil atau melampirkan berkas, dan hanya berkas yang Anda pilih yang dikirim.</li>
         <li><strong>Lokasi perangkat (opsional)</strong> &mdash; posisi GPS perangkat hanya dipakai di perangkat Anda untuk memusatkan peta Sebaran Anggota dan mengurutkan wilayah terdekat; posisi tersebut tidak dikirim ke server kami dan tidak disimpan. Karena peta dimuat dari layanan OpenStreetMap, permintaan peta (area yang sedang dilihat dan alamat IP) diterima OpenStreetMap sehingga perkiraan lokasi Anda dapat terlihat oleh layanan tersebut; kami tidak membagikannya kepada pihak lain. Titik lokasi rumah tidak dikumpulkan.</li>
         <li><strong>Notifikasi Dalam Aplikasi</strong> &mdash; riwayat notifikasi status usulan dan klaim akun Anda, termasuk judul, isi, dan waktu notifikasi.</li>
-        <li><strong>Token Notifikasi Perangkat</strong> &mdash; pengenal perangkat (token Firebase Cloud Messaging) yang dikirim ke server kami agar aplikasi dapat mengirim notifikasi, misalnya status usulan atau klaim akun Anda. Layanan pengiriman notifikasi disediakan oleh Google Firebase.</li>
+        <li><strong>Token Notifikasi Perangkat</strong> &mdash; pengenal perangkat (token Firebase Cloud Messaging) yang dikirim ke server kami agar aplikasi dapat mengirim notifikasi, misalnya status usulan atau klaim akun Anda. Notifikasi dikirim melalui Google Firebase Cloud Messaging dan, pada iPhone dan iPad, melalui layanan notifikasi Apple (Apple Push Notification service).</li>
       </ul>
     </div>
   </div>
@@ -127,7 +137,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <li><strong>Sesama anggota</strong> yang sudah terverifikasi dapat melihat di dalam aplikasi: nama, sundut, marga, dan punguan; umur; wilayah domisili (sampai desa/kelurahan); nomor telepon dan email kontak; riwayat pendidikan dan pekerjaan (Direktori Keahlian); serta jumlah anggota per wilayah pada peta Sebaran Anggota. Tahun lahir dan tahun wafat <strong>tidak</strong> ditampilkan kepada anggota lain (hanya umur). Nomor telepon dan email kontak hanya terlihat oleh akun yang sudah tertaut ke data anggota dan terverifikasi pengurus, tidak oleh akun yang belum terverifikasi maupun publik.</li>
         <li>Tim pengelola dari %(pengembang)s selaku pengembang aplikasi, terbatas untuk keperluan pemeliharaan sistem.</li>
       </ul>
-      <p style="margin-top:12px">Pengiriman notifikasi push menggunakan layanan Google Firebase Cloud Messaging, yang memproses token perangkat Anda. Apabila Anda masuk menggunakan akun Google, proses autentikasi ditangani langsung oleh Google sesuai kebijakan privasi Google; kami hanya menerima nama, email, dan foto profil dasar setelah Anda memberikan izin. Peta Sebaran Anggota memuat ubin peta dari OpenStreetMap (openstreetmap.org), yang memproses permintaan peta sesuai kebijakan privasinya.</p>
+      <p style="margin-top:12px">Pengiriman notifikasi push menggunakan layanan Google Firebase Cloud Messaging (dan layanan notifikasi Apple pada perangkat Apple), yang memproses token perangkat Anda. Apabila Anda masuk menggunakan akun Google (Android), proses autentikasi ditangani langsung oleh Google sesuai kebijakan privasi Google; kami hanya menerima nama, email, dan foto profil dasar setelah Anda memberikan izin. Peta Sebaran Anggota memuat ubin peta dari OpenStreetMap (openstreetmap.org), yang memproses permintaan peta sesuai kebijakan privasinya.</p>
       <p>Pengungkapan data kepada pihak eksternal lain hanya dilakukan apabila diwajibkan oleh peraturan perundang-undangan yang berlaku di Indonesia.</p>
     </div>
   </div>
@@ -171,6 +181,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <li>Mengajukan koreksi data silsilah melalui fitur Usulan, atau menghubungi pengurus punguan.</li>
         <li>Mencabut izin lokasi perangkat kapan saja melalui pengaturan sistem perangkat.</li>
         <li>Mengajukan penghapusan akun melalui fitur Hapus Akun di aplikasi atau halaman web ini.</li>
+        <li>Meminta salinan, koreksi, atau penghapusan data pribadi Anda dengan menghubungi %(email)s.</li>
+        <li>Kami tidak melacak aktivitas Anda lintas aplikasi atau situs web lain, dan tidak menampilkan iklan.</li>
       </ul>
     </div>
   </div>
@@ -258,6 +270,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     langsung melalui email. Kami akan merespons setiap pertanyaan dalam waktu
     <strong>1 &times; 24 jam</strong> pada hari kerja.</p>
   </div>
+  <div class="intro">
+    <p><strong>Support (English).</strong> Tarombo is a members-only family-tree app for the Silaen clan, available on
+    Android and iOS. For help with sign-in, account verification, data corrections or account deletion,
+    email <a href="mailto:%(email)s">%(email)s</a>; we reply within one business day. You can also delete your
+    account inside the app (Account &rarr; Delete Account) or at <a href="/hapus-akun">/hapus-akun</a>.
+    Privacy policy: <a href="/kebijakan-privasi">/kebijakan-privasi</a>.</p>
+  </div>
 
   <div class="contact-grid">
     <div class="contact-card">
@@ -288,7 +307,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="section-body">
       <div class="faq-item">
         <div class="faq-q">Bagaimana cara mendaftar akun Tarombo?</div>
-        <div class="faq-a">Buka aplikasi, pilih "Belum punya akun? Daftar" (atau masuk langsung dengan akun Google), lalu ikuti langkah pendaftaran. Setelah masuk, Anda akan diminta melengkapi klaim identitas.</div>
+        <div class="faq-a">Buka aplikasi, pilih "Belum punya akun? Daftar", isi nama, email, dan kata sandi, lalu ikuti langkah pendaftaran. Di perangkat Android, Anda juga dapat masuk langsung dengan akun Google. Setelah masuk, Anda akan diminta melengkapi klaim identitas.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Apa itu "Klaim Identitas" dan kenapa wajib?</div>
@@ -309,6 +328,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="faq-item">
         <div class="faq-q">Bagaimana cara menghapus akun saya?</div>
         <div class="faq-a">Buka menu Akun di dalam aplikasi, pilih "Hapus Akun", lalu ikuti langkah konfirmasi. Anda juga bisa mengajukan lewat formulir web di <a href="/hapus-akun">tarombo.selstudio.id/hapus-akun</a>. Permintaan diproses oleh administrator dalam maksimal 30 hari kerja.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Saya mendaftar lewat Google di Android. Bagaimana masuk di iPhone?</div>
+        <div class="faq-a">Di aplikasi (Android), buka menu Akun &gt; Kata Sandi untuk membuat kata sandi. Setelah itu Anda dapat masuk di perangkat mana pun memakai email dan kata sandi tersebut.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Saya lupa kata sandi. Apa yang harus dilakukan?</div>
+        <div class="faq-a">Kirim email ke <a href="mailto:%(email)s">%(email)s</a> dengan nama dan username atau email akun Anda. Pengelola akan membantu memulihkan akses setelah memastikan akun tersebut milik Anda.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Apakah data saya aman?</div>
