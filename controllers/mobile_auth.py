@@ -140,6 +140,43 @@ class TaromboMobileAuthController(http.Controller):
             _logger.exception('Google login gagal untuk %s', email)
             return {'success': False, 'error': 'Terjadi kesalahan server. Silakan coba lagi.'}
 
+    @http.route('/tarombo/mobile/atur_sandi', type='jsonrpc', auth='user', csrf=False, cors='*')
+    def atur_sandi(self, password_baru=None, password_lama=None, **kwargs):
+        """Atur atau ganti kata sandi akun yang sedang login.
+
+        Dipakai terutama oleh akun yang dibuat lewat Google (belum punya kata
+        sandi) agar bisa masuk dengan email dan kata sandi, mis. di iOS yang
+        tidak menyediakan login Google. Akun yang SUDAH punya kata sandi wajib
+        menyebut kata sandi lamanya, supaya sesi yang dicuri tidak cukup untuk
+        mengambil alih akun (perilaku sama seperti change_password bawaan Odoo).
+        """
+        user = request.env.user
+        baru = password_baru or ''
+        if len(baru) < PASSWORD_MIN_LEN:
+            return {'success': False, 'error': 'Password minimal %d karakter' % PASSWORD_MIN_LEN}
+
+        request.env.cr.execute('SELECT password FROM res_users WHERE id = %s', (user.id,))
+        sudah_punya = bool((request.env.cr.fetchone() or [None])[0])
+        try:
+            if sudah_punya:
+                if not password_lama:
+                    return {'success': False, 'error': 'Kata sandi lama wajib diisi'}
+                credential = {'login': user.login, 'password': password_lama, 'type': 'password'}
+                user.sudo()._check_credentials(credential, {'interactive': True})
+            user.sudo()._change_password(baru)
+            return {'success': True, 'sudah_punya': sudah_punya}
+        except AccessDenied:
+            return {'success': False, 'error': 'Kata sandi lama salah'}
+        except Exception:
+            _logger.exception('Atur sandi gagal untuk user %s', user.id)
+            return {'success': False, 'error': 'Terjadi kesalahan server. Silakan coba lagi.'}
+
+    @http.route('/tarombo/mobile/status_sandi', type='jsonrpc', auth='user', csrf=False, cors='*')
+    def status_sandi(self, **kwargs):
+        """Apakah akun ini sudah punya kata sandi (untuk menentukan tampilan form)."""
+        request.env.cr.execute('SELECT password FROM res_users WHERE id = %s', (request.env.user.id,))
+        return {'sudah_punya': bool((request.env.cr.fetchone() or [None])[0])}
+
     @http.route('/tarombo/mobile/hapus_akun', type='jsonrpc', auth='user', csrf=False, cors='*')
     def hapus_akun(self, alasan=None, **kwargs):
         """Permintaan hapus akun dari app mobile — sengaja TIDAK menghapus
