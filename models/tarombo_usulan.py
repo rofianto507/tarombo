@@ -128,6 +128,15 @@ class TaromboUsulan(models.Model):
         'tarombo.orang', string='Hasil', readonly=True, ondelete='set null')
     lampiran_ids = fields.Many2many('ir.attachment', string='Lampiran')
 
+    @api.onchange('ayah_id', 'jenis')
+    def _onchange_ayah_urutan(self):
+        """Usulan tambah: sarankan nomor "Anak ke-" berikutnya setelah ayah dipilih.
+        Pengusul/pengurus boleh mengubahnya; bentrok tetap ditolak."""
+        if self.jenis == 'tambah' and self.ayah_id:
+            terpakai = self.ayah_id.anak_ids.mapped('urutan')
+            if not self.usul_urutan or self.usul_urutan in terpakai:
+                self.usul_urutan = self.env['tarombo.orang']._urutan_berikut(self.ayah_id)
+
     @api.onchange('orang_id')
     def _onchange_orang_id(self):
         # Isi Muatan Usulan dengan data terkini orang sasaran, supaya pengusul

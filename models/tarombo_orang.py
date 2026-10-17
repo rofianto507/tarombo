@@ -363,12 +363,67 @@ class TaromboOrang(models.Model):
             if r.tahun_lahir and r.tahun_wafat and r.tahun_wafat < r.tahun_lahir:
                 raise ValidationError(_('Tahun wafat tidak boleh sebelum tahun lahir.'))
 
+    # ── Nomor urut lahir ("Anak ke-") otomatis ───────────────────────────
+    # Tetap bisa diubah manual; batas UNIQUE(ayah_id, urutan) tetap berlaku.
+    @api.model
+    def _urutan_berikut(self, ayah, tambahan=()):
+        """Nomor urut kosong berikutnya di antara anak `ayah`: terbesar + 1.
+        `tambahan` = nomor yang sudah diambil oleh rekaman lain dalam batch."""
+        dipakai = set(self.sudo().search([('ayah_id', '=', ayah._origin.id or ayah.id)]).mapped('urutan'))
+        dipakai.update(tambahan)
+        return (max(dipakai) if dipakai else 0) + 1
+
     @api.model_create_multi
     def create(self, vals_list):
-        return super().create([self._sinkron_tahun_tanggal(v) for v in vals_list])
+        vals_list = [self._sinkron_tahun_tanggal(v) for v in vals_list]
+        diambil = {}  # ayah_id -> nomor yang sudah dibagikan pada batch ini
+        for vals in vals_list:
+            ayah_id = vals.get('ayah_id')
+            if ayah_id and not vals.get('urutan'):
+                ayah = self.env['tarombo.orang'].browse(ayah_id)
+                vals['urutan'] = self._urutan_berikut(ayah, diambil.get(ayah_id, ()))
+            if ayah_id and vals.get('urutan'):
+                diambil.setdefault(ayah_id, set()).add(vals['urutan'])
+        return super().create(vals_list)
 
     def write(self, vals):
-        return super().write(self._sinkron_tahun_tanggal(vals))
+        vals = self._sinkron_tahun_tanggal(vals)
+        if vals.get('ayah_id') and 'urutan' not in vals:
+            # Pindah ke ayah lain tanpa menyebut nomor: pertahankan nomor lama
+            # bila masih kosong di keluarga baru, bila tidak ambil yang berikutnya.
+            ayah = self.env['tarombo.orang'].browse(vals['ayah_id'])
+            hasil = True
+            for r in self:
+                v = dict(vals)
+                saudara = ayah.anak_ids - r
+                if r.urutan in saudara.mapped('urutan'):
+                    v['urutan'] = self._urutan_berikut(ayah)
+                hasil = super(TaromboOrang, r).write(v) and hasil
+            return hasil
+        return super().write(vals)
+
+    @api.model
+    def default_get(self, fields_list):
+        """Form "Create Anak" dibuka dari daftar Anak di form ayah: ayah masuk lewat
+        konteks `default_ayah_id`, dan onchange TIDAK jalan untuk nilai bawaan.
+        Karena itu nomor urut berikutnya diisi di sini, saat form dibuka."""
+        res = super().default_get(fields_list)
+        # Sub-form O2M mengirim ayah sebagai nilai awal sehingga 'ayah_id' tidak
+        # ikut di fields_list; ambil juga dari konteks.
+        ayah_id = res.get('ayah_id') or self.env.context.get('default_ayah_id')
+        if 'urutan' in fields_list and isinstance(ayah_id, int) and ayah_id:
+            res['urutan'] = self._urutan_berikut(self.browse(ayah_id))
+        return res
+
+    @api.onchange('ayah_id')
+    def _onchange_ayah_id_urutan(self):
+        """Di form: begitu ayah dipilih, isi "Anak ke-" dengan nomor berikutnya
+        (hanya bila nomor sekarang bentrok dengan saudara atau rekaman baru)."""
+        if not self.ayah_id:
+            return
+        saudara = self.ayah_id.anak_ids.filtered(lambda a: a.id != (self._origin.id or 0))
+        if not self._origin.id or self.urutan in saudara.mapped('urutan'):
+            self.urutan = self._urutan_berikut(self.ayah_id)
 
     @api.onchange('desa_id')
     def _onchange_desa_id(self):
