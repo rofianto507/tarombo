@@ -70,10 +70,16 @@
                             <field name="ayah_id" invisible="jenis != 'tambah'"
                                    context="{'list_view_ref': 'tarombo.view_tarombo_orang_list_ref'}"/>
                             <field name="pernikahan_id" invisible="jenis != 'tambah'"/>
-                            <field name="orang_id" invisible="jenis == 'tambah'"
+                            <field name="orang_id" invisible="jenis == 'tambah'" string="Orang / Suami"
                                    context="{'list_view_ref': 'tarombo.view_tarombo_orang_list_ref'}"/>
+                            <field name="istri_id" invisible="jenis != 'istri'"/>
                         </group>
-                        <group string="Muatan Usulan">
+                        <group string="Data Istri" invisible="jenis != 'istri'">
+                            <field name="usul_istri_nama"/>
+                            <field name="usul_istri_marga_id"/>
+                            <field name="usul_istri_tahun" options="{'enable_formatting': false}"/>
+                        </group>
+                        <group string="Muatan Usulan" invisible="jenis == 'istri'">
                             <group>
                                 <field name="usul_nama"/>
                                 <field name="usul_jenis_kelamin" widget="radio" options="{'horizontal': true}"/>

@@ -1,4 +1,6 @@
-from odoo import fields, models
+from odoo import _, fields, models
+
+from .partuturan_visual import bangun_visual
 
 
 class TaromboPartuturanWizard(models.TransientModel):
@@ -14,6 +16,7 @@ class TaromboPartuturanWizard(models.TransientModel):
     senior_a = fields.Boolean('A Berkedudukan Lebih Tinggi', readonly=True)
     jarak = fields.Integer('Selisih Sundut', readonly=True)
     keterangan = fields.Text('Keterangan', readonly=True)
+    visual_html = fields.Html('Pohon Penjelasan', readonly=True, sanitize=False)
     jalur_a_ids = fields.Many2many(
         'tarombo.orang', 'tarombo_partuturan_wizard_jalur_a_rel', 'wizard_id', 'orang_id',
         string='Jalur Leluhur Bersama ke A', readonly=True)
@@ -31,11 +34,13 @@ class TaromboPartuturanWizard(models.TransientModel):
             'senior_a': hasil['senior_a'],
             'jarak': hasil['jarak'],
             'keterangan': hasil['keterangan'],
+            'visual_html': bangun_visual(self.orang_a_id, self.orang_b_id, hasil),
             'jalur_a_ids': [(6, 0, hasil['jalur_a'].ids)],
             'jalur_b_ids': [(6, 0, hasil['jalur_b'].ids)],
         })
         return {
             'type': 'ir.actions.act_window',
+            'name': _('Hitung Partuturan'),
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',

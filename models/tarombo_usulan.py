@@ -9,6 +9,7 @@ JENIS_SELECTION = [
     ('tambah', 'Tambah'),
     ('koreksi', 'Koreksi'),
     ('lengkapi', 'Lengkapi'),
+    ('istri', 'Data Istri'),
 ]
 
 STATE_SELECTION = [
@@ -76,6 +77,16 @@ class TaromboUsulan(models.Model):
     pernikahan_id = fields.Many2one(
         'tarombo.pernikahan', string='Dari Istri ke-',
         domain="[('suami_id', '=', ayah_id)]")
+
+    # Usulan data istri (jenis 'istri'): suami = orang_id. Kosongkan istri_id untuk
+    # menambah istri baru; isi untuk memperbarui istri yang sudah tercatat.
+    istri_id = fields.Many2one(
+        'tarombo.pernikahan', string='Istri yang Diperbarui',
+        domain="[('suami_id', '=', orang_id)]",
+        help='Kosongkan untuk mengusulkan istri baru.')
+    usul_istri_nama = fields.Char('Nama Istri')
+    usul_istri_marga_id = fields.Many2one('tarombo.marga', string='Marga Istri')
+    usul_istri_tahun = fields.Integer('Tahun Menikah')
 
     # Muatan usulan
     usul_nama = fields.Char('Nama')
@@ -279,6 +290,9 @@ class TaromboUsulan(models.Model):
     def _cek_kelengkapan(self):
         self.ensure_one()
         jenis_label = dict(self._fields['jenis'].selection).get(self.jenis)
+        if self.jenis == 'istri':
+            self._cek_kelengkapan_istri()
+            return
         if self.jenis == 'tambah':
             if not self.ayah_id:
                 raise UserError(_('Usulan penambahan wajib mengisi Ayah.'))
@@ -291,6 +305,46 @@ class TaromboUsulan(models.Model):
                 raise UserError(_('Usulan %s wajib memilih orang sasaran.') % jenis_label)
             if not self._muatan():
                 raise UserError(_('Usulan %s tidak berisi perubahan apa pun.') % jenis_label)
+
+    def _cek_kelengkapan_istri(self):
+        self.ensure_one()
+        if not self.orang_id:
+            raise UserError(_('Usulan data istri wajib memilih suami.'))
+        if self.orang_id.jenis_kelamin != 'L':
+            raise UserError(_('Suami pada usulan data istri harus berjenis kelamin laki-laki.'))
+        if self.istri_id:
+            if self.istri_id.suami_id != self.orang_id:
+                raise UserError(_('Istri yang dipilih bukan istri dari suami tersebut.'))
+            if not (self.usul_istri_nama or self.usul_istri_marga_id or self.usul_istri_tahun):
+                raise UserError(_('Usulan data istri tidak berisi perubahan apa pun.'))
+        elif not self.usul_istri_marga_id:
+            raise UserError(_('Mohon isi marga istri.'))
+        sekarang = fields.Date.context_today(self).year
+        if self.usul_istri_tahun and not (1000 <= self.usul_istri_tahun <= sekarang):
+            raise UserError(_(
+                'Tahun menikah tidak valid: %(nilai)s. Isi tahun 4 digit antara 1000 dan %(max)s.',
+                nilai=self.usul_istri_tahun, max=sekarang))
+
+    def _terapkan_istri(self):
+        """Tulis usulan data istri ke tarombo.pernikahan. Hanya mengisi yang
+        diusulkan; nilai lain pada istri yang sudah ada tidak diubah."""
+        self.ensure_one()
+        vals = {}
+        if self.usul_istri_nama:
+            vals['istri_nama'] = self.usul_istri_nama.strip()
+        if self.usul_istri_marga_id:
+            vals['istri_marga_id'] = self.usul_istri_marga_id.id
+        if self.usul_istri_tahun:
+            vals['tahun'] = self.usul_istri_tahun
+        if self.istri_id:
+            self.istri_id.write(vals)
+            return self.istri_id
+        ada = self.env['tarombo.pernikahan'].search([('suami_id', '=', self.orang_id.id)])
+        vals.update({
+            'suami_id': self.orang_id.id,
+            'urutan': (max(ada.mapped('urutan')) if ada else 0) + 1,
+        })
+        return self.env['tarombo.pernikahan'].create(vals)
 
     def action_ajukan(self):
         for r in self:
@@ -305,7 +359,11 @@ class TaromboUsulan(models.Model):
         for r in self:
             r._cek_urutan_bentrok()
             vals = r._muatan()
-            if r.jenis == 'tambah':
+            if r.jenis == 'istri':
+                r._cek_kelengkapan_istri()
+                r._terapkan_istri()
+                orang = r.orang_id
+            elif r.jenis == 'tambah':
                 vals.update({
                     'ayah_id': r.ayah_id.id,
                     'marga_id': r.ayah_id.marga_id.id,

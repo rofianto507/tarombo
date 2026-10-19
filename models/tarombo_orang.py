@@ -481,11 +481,15 @@ class TaromboOrang(models.Model):
                 r.pekerjaan_kini = False
                 r.bidang_kini_id = False
 
-    @api.depends('name', 'sundut')
+    @api.depends('name', 'sundut', 'ayah_id.name')
+    @api.depends_context('tampil_ayah')
     def _compute_display_name(self):
         # Nama berulang antar sundut (mis. banyak "Partalinga"), jadi sundut
-        # disertakan supaya display_name tetap membedakan orangnya.
+        # disertakan supaya display_name tetap membedakan orangnya. Dengan
+        # context tampil_ayah (dipakai pemilih orang di Hitung Partuturan),
+        # nama ayah ikut ditampilkan karena nama + sundut pun bisa kembar.
         acuan = self._leluhur_acuan()
+        tampil_ayah = self.env.context.get('tampil_ayah')
         for r in self:
             if r.sundut >= 1:
                 r.display_name = '%s (sundut %s)' % (r.name, r.sundut)
@@ -493,6 +497,8 @@ class TaromboOrang(models.Model):
                 r.display_name = '%s (di atas %s)' % (r.name, acuan.name)
             else:
                 r.display_name = r.name
+            if tampil_ayah and r.ayah_id:
+                r.display_name = '%s · ayah: %s' % (r.display_name, r.ayah_id.name)
 
     @api.constrains('ayah_id')
     def _cek_garis_perempuan(self):

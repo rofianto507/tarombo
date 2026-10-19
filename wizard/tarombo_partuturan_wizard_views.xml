@@ -8,13 +8,19 @@
             <field name="arch" type="xml">
                 <form string="Hitung Partuturan">
                     <div class="alert alert-info" role="alert">
-                        Perhitungan ini hanya menangani dongan tubu, yaitu sesama keturunan
-                        patrilineal lewat garis ayah. Jalur tulang dan hula-hula lewat garis ibu
-                        baru bisa dihitung setelah marga istri terisi lengkap.
+                        Perhitungan ini menangani hubungan sesama keturunan garis ayah
+                        (dongan tubu), termasuk namboru dan paraman. Hubungan lewat garis ibu
+                        (tulang, hula-hula) belum dihitung karena belum ada data ibu pada
+                        setiap anak dan silsilah pihak ibu.
                     </div>
                     <group>
-                        <field name="orang_a_id"/>
-                        <field name="orang_b_id"/>
+                        <field name="orang_a_id"
+                               context="{'tampil_ayah': True, 'list_view_ref': 'tarombo.view_tarombo_orang_list_ref'}"/>
+                        <field name="orang_b_id"
+                               context="{'tampil_ayah': True, 'list_view_ref': 'tarombo.view_tarombo_orang_list_ref'}"/>
+                    </group>
+                    <group string="Pohon Penjelasan" invisible="not sebutan_a">
+                        <field name="visual_html" nolabel="1" colspan="2"/>
                     </group>
                     <group string="Hasil" invisible="not sebutan_a">
                         <field name="anc_id"/>

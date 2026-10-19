@@ -73,8 +73,9 @@ class TestPartuturan(TransactionCase):
     def test_leluhur_jauh(self):
         hasil = self.A.hitung_partuturan(self.H1)
         self.assertEqual(hasil['jarak'], 4)
-        self.assertEqual(hasil['sebutan_a'], 'ompung sundut ke-4')
-        self.assertEqual(hasil['sebutan_b'], 'pahompu sundut ke-4')
+        # Tangga tiga generasi: selisih 4 dihitung seperti selisih 2.
+        self.assertEqual(hasil['sebutan_a'], 'ompung')
+        self.assertEqual(hasil['sebutan_b'], 'pahompu')
 
     def test_saudara_sekandung_haha_anggi(self):
         hasil = self.C1.hitung_partuturan(self.C2)
@@ -112,11 +113,93 @@ class TestPartuturan(TransactionCase):
         self.assertEqual(hasil['sebutan_a'], 'amanguda')
         self.assertEqual(hasil['sebutan_b'], 'anak')
 
-    def test_namboru_bere(self):
+    def test_namboru_paraman(self):
         hasil = self.B3.hitung_partuturan(self.C1)
         self.assertEqual(hasil['jarak'], 1)
         self.assertEqual(hasil['sebutan_a'], 'namboru')
-        self.assertEqual(hasil['sebutan_b'], 'bere')
+        self.assertEqual(hasil['sebutan_b'], 'paraman')
+
+    def test_ompung_hanya_antar_lelaki(self):
+        # D1 (lelaki) dan H1 (lelaki) berselisih 2 sundut tanpa garis lurus -> ompung/pahompu.
+        hasil = self.D1.hitung_partuturan(self.H1)
+        self.assertEqual(hasil['jarak'], 2)
+        self.assertEqual(hasil['sebutan_a'], 'ompung')
+        self.assertEqual(hasil['sebutan_b'], 'pahompu')
+
+    def test_selisih_2_melibatkan_perempuan_jadi_ito(self):
+        # E2 (perempuan) dan H1 (lelaki) berselisih 2 sundut -> keduanya ito.
+        for x, y in ((self.E2, self.H1), (self.H1, self.E2)):
+            hasil = x.hitung_partuturan(y)
+            self.assertEqual(hasil['jarak'], 2)
+            self.assertEqual(hasil['sebutan_a'], 'ito')
+            self.assertEqual(hasil['sebutan_b'], 'ito')
+
+    def test_selisih_3_seperti_selisih_1_amanguda(self):
+        # B2 (cabang muda) dan H1 (keturunan cabang tua) berselisih 3 sundut.
+        hasil = self.B2.hitung_partuturan(self.H1)
+        self.assertEqual(hasil['jarak'], 3)
+        self.assertEqual(hasil['sebutan_a'], 'amanguda')
+        self.assertEqual(hasil['sebutan_b'], 'anak')
+
+    def test_selisih_3_amangtua(self):
+        # Kebalikannya: cabang tua (B1) dengan keturunan cabang muda berselisih 3 sundut.
+        buat = lambda n, jk, ayah, u: self.env['tarombo.orang'].create({
+            'name': n, 'jenis_kelamin': jk, 'marga_id': self.marga.id,
+            'punguan_id': self.punguan.id, 'urutan': u, 'ayah_id': ayah.id})
+        d2 = buat('D2', 'L', self.D1, 1)
+        d3 = buat('D3', 'L', d2, 1)
+        hasil = self.B1.hitung_partuturan(d3)
+        self.assertEqual(hasil['jarak'], 3)
+        self.assertEqual(hasil['sebutan_a'], 'amangtua')
+        self.assertEqual(hasil['sebutan_b'], 'anak')
+
+    def test_selisih_3_perempuan_namboru_paraman(self):
+        hasil = self.B3.hitung_partuturan(self.H1)
+        self.assertEqual(hasil['jarak'], 3)
+        self.assertEqual(hasil['sebutan_a'], 'namboru')
+        self.assertEqual(hasil['sebutan_b'], 'paraman')
+
+    def test_selisih_3_garis_lurus_seperti_selisih_1(self):
+        # Garis lurus pun mengikuti tangga tiga generasi: selisih 3 seperti selisih 1.
+        hasil = self.B1.hitung_partuturan(self.H1)
+        self.assertEqual(hasil['jarak'], 3)
+        self.assertEqual(hasil['sebutan_a'], 'amang')
+        self.assertEqual(hasil['sebutan_b'], 'anak')
+
+    def test_selisih_4_dan_5_berulang(self):
+        buat = lambda n, jk, ayah, u: self.env['tarombo.orang'].create({
+            'name': n, 'jenis_kelamin': jk, 'marga_id': self.marga.id,
+            'punguan_id': self.punguan.id, 'urutan': u, 'ayah_id': ayah.id})
+        i1 = buat('I1', 'L', self.H1, 1)   # sundut 6
+        j1 = buat('J1', 'L', i1, 1)        # sundut 7
+        # A (sundut 1) - j1 (sundut 7): selisih 6, garis lurus -> seperti selisih 2
+        hasil = self.A.hitung_partuturan(j1)
+        self.assertEqual(hasil['jarak'], 6)
+        self.assertEqual(hasil['sebutan_a'], 'ompung')
+        # A - i1 (sundut 6): selisih 5, garis lurus -> seperti selisih 1
+        hasil = self.A.hitung_partuturan(i1)
+        self.assertEqual(hasil['jarak'], 5)
+        self.assertEqual(hasil['sebutan_a'], 'amang')
+        self.assertEqual(hasil['sebutan_b'], 'anak')
+        # B2 (sundut 2) - i1 (sundut 6): selisih 4, percabangan lelaki -> ompung
+        hasil = self.B2.hitung_partuturan(i1)
+        self.assertEqual(hasil['jarak'], 4)
+        self.assertEqual(hasil['sebutan_a'], 'ompung')
+
+    def test_dua_perempuan_selisih_1_namboru_selisih_2_kakak(self):
+        buat = lambda n, jk, ayah, u: self.env['tarombo.orang'].create({
+            'name': n, 'jenis_kelamin': jk, 'marga_id': self.marga.id,
+            'punguan_id': self.punguan.id, 'urutan': u, 'ayah_id': ayah.id})
+        k1 = buat('K1', 'P', self.G1, 2)   # sundut 5, perempuan
+        # F1 (perempuan, sundut 3) dan K1 (perempuan, sundut 5): selisih 2 -> angkang/anggi
+        hasil = self.F1.hitung_partuturan(k1)
+        self.assertEqual(hasil['jarak'], 2)
+        self.assertEqual(hasil['sebutan_b'], 'anggi')    # F1 memanggil K1
+        self.assertEqual(hasil['sebutan_a'], 'angkang')  # K1 memanggil F1
+        # B3 (perempuan, sundut 2) dan E2 (perempuan, sundut 3): selisih 1 -> namboru/paraman
+        hasil = self.B3.hitung_partuturan(self.E2)
+        self.assertEqual(hasil['jarak'], 1)
+        self.assertEqual(hasil['sebutan_a'], 'namboru')
 
     def test_diri_sendiri(self):
         hasil = self.A.hitung_partuturan(self.A)

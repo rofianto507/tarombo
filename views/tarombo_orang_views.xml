@@ -32,6 +32,7 @@
                 <list string="Pilih Orang">
                     <field name="name"/>
                     <field name="sundut"/>
+                    <field name="ayah_id" string="Ayah"/>
                     <field name="wilayah_id"/>
                 </list>
             </field>

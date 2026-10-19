@@ -39,30 +39,44 @@ class TaromboOrang(models.Model):
             common.append(a)
         return self.browse(int(common[-1])) if common else self.browse()
 
+    @staticmethod
+    def _jarak_efektif(jarak):
+        """Tangga generasi Batak hanya tiga tingkat (cucu, anak, ompung) lalu
+        berulang: selisih 3 sama dengan 1, selisih 4 sama dengan 2, dst. Selisih
+        0, 1, dan 2 dipakai apa adanya."""
+        if jarak <= 2:
+            return jarak
+        return 1 if jarak % 2 else 2
+
+    @classmethod
+    def _catatan_tangga(cls, jarak):
+        eff = cls._jarak_efektif(jarak)
+        if eff == jarak:
+            return ''
+        return (
+            ' Tangga generasi Batak hanya tiga tingkat, sehingga selisih %d sundut '
+            'dihitung seperti selisih %d sundut.'
+        ) % (jarak, eff)
+
     def _istilah_leluhur(self, jarak):
         """Istilah untuk pihak yang lebih tua pada garis lurus, dipanggil oleh keturunannya."""
-        if jarak == 1:
-            return 'amang'
-        if jarak in (2, 3):
-            return 'ompung'
-        return 'ompung sundut ke-%d' % jarak
+        return 'amang' if self._jarak_efektif(jarak) == 1 else 'ompung'
 
     def _istilah_keturunan(self, jarak, gender_muda):
         """Istilah untuk pihak yang lebih muda pada garis lurus, dipanggil oleh leluhurnya."""
-        if jarak == 1:
+        if self._jarak_efektif(jarak) == 1:
             return 'anak' if gender_muda == 'L' else 'boru'
-        if jarak in (2, 3):
-            return 'pahompu'
-        return 'pahompu sundut ke-%d' % jarak
+        return 'pahompu'
 
     def hitung_partuturan(self, lain):
         """Kembalikan istilah partuturan (sapaan kekerabatan Batak) antara self dan lain.
 
-        Batasan: perhitungan ini hanya menangani dongan tubu, yaitu sesama
-        keturunan patrilineal lewat garis ayah_id/parent_path. Jalur tulang
-        dan hula-hula lewat garis ibu baru bisa dihitung setelah marga istri
-        (tarombo.pernikahan.istri_marga_id) terisi lengkap untuk seluruh
-        leluhur perempuan yang terlibat.
+        Batasan: perhitungan ini menangani dongan tubu, yaitu sesama keturunan
+        patrilineal lewat garis ayah_id/parent_path (termasuk namboru dan
+        paraman). Jalur tulang dan hula-hula lewat garis ibu belum dihitung:
+        marga istri (tarombo.pernikahan.istri_marga_id) sudah terisi, tetapi
+        anak belum tertaut ke ibunya (orang.pernikahan_id) dan silsilah pihak
+        ibu tidak ada di sistem.
 
         :return: dict dengan kunci anc, jalur_a, jalur_b, sebutan_a,
             sebutan_b, senior_a, jarak, keterangan.
@@ -111,7 +125,7 @@ class TaromboOrang(models.Model):
             senior_a = True
             keterangan = (
                 '%s adalah leluhur langsung %s, berjarak %d sundut melalui garis ayah.'
-            ) % (self.name, lain.name, jarak)
+            ) % (self.name, lain.name, jarak) + self._catatan_tangga(jarak)
 
         elif anc.id == lain.id:
             # Garis lurus, kebalikannya: lain adalah leluhur langsung self.
@@ -120,13 +134,14 @@ class TaromboOrang(models.Model):
             senior_a = False
             keterangan = (
                 '%s adalah leluhur langsung %s, berjarak %d sundut melalui garis ayah.'
-            ) % (lain.name, self.name, jarak)
+            ) % (lain.name, self.name, jarak) + self._catatan_tangga(jarak)
 
         else:
             # Percabangan: cabang lebih tua ditentukan dari urutan lahir anak
             # leluhur bersama yang dilalui masing-masing jalur, BUKAN tahun lahir.
             cabang_a, cabang_b = jalur_a[1], jalur_b[1]
             a_cabang_tua = cabang_a.urutan < cabang_b.urutan
+            eff = self._jarak_efektif(jarak)
 
             if jarak == 0:
                 senior_a = a_cabang_tua
@@ -155,7 +170,34 @@ class TaromboOrang(models.Model):
                         tua.name, istilah_tua, muda.name, istilah_muda,
                     )
 
-            elif jarak == 1:
+            elif eff == 2 and 'P' in (self.jenis_kelamin, lain.jenis_kelamin):
+                # Aturan punguan: sebutan ompung hanya antar lelaki. Lelaki dengan
+                # perempuan semarga: ito. Dua perempuan semarga: kakak (angkang) untuk
+                # yang generasinya lebih tinggi, adik (anggi) untuk yang lebih rendah.
+                self_atas = self.sundut < lain.sundut
+                senior_a = self_atas
+                if self.jenis_kelamin == lain.jenis_kelamin == 'P':
+                    istilah_atas, istilah_bawah = 'angkang', 'anggi'
+                    sebutan_a, sebutan_b = (
+                        (istilah_atas, istilah_bawah) if self_atas else (istilah_bawah, istilah_atas))
+                    atas, bawah = (self, lain) if self_atas else (lain, self)
+                    keterangan = (
+                        '%s dan %s sama-sama perempuan semarga dan berselisih %d sundut melalui '
+                        'leluhur bersama %s. %s dipanggil "angkang" (kakak) oleh %s, dan sebaliknya '
+                        '"anggi".'
+                    ) % (self.name, lain.name, jarak, anc.name, atas.name, bawah.name)
+                else:
+                    sebutan_a = sebutan_b = 'ito'
+                    keterangan = (
+                        '%s dan %s berselisih %d sundut melalui leluhur bersama %s. Karena salah '
+                        'satunya perempuan, keduanya saling memanggil "ito" (sebutan ompung '
+                        'hanya dipakai antar lelaki).'
+                    ) % (self.name, lain.name, jarak, anc.name)
+                keterangan += self._catatan_tangga(jarak)
+
+            elif eff == 1:
+                # Selisih 1, 3, 5, ... dihitung seperti selisih 1 sundut: tangga generasi
+                # Batak hanya tiga tingkat (cucu, anak, ompung), lalu berulang.
                 self_atas = self.sundut < lain.sundut
                 atas, bawah = (self, lain) if self_atas else (lain, self)
                 atas_cabang_tua = a_cabang_tua if self_atas else (not a_cabang_tua)
@@ -167,18 +209,33 @@ class TaromboOrang(models.Model):
                         'Sebutan %s di sini merupakan sapaan kekerabatan, bukan hubungan anak kandung.'
                     ) % istilah_bawah
                 else:
+                    # Perempuan Silaen yang generasinya lebih tinggi dipanggil "namboru"
+                    # oleh anggota Silaen yang lebih muda, dan ia memanggil mereka
+                    # "paraman" (bukan "bere": bere adalah sebutan marga Silaen untuk
+                    # anak dari boru Silaen, yang bermarga lain dan tidak ada di pohon).
                     istilah_atas = 'namboru'
-                    istilah_bawah = 'bere'
+                    istilah_bawah = 'paraman'
                     penjelas = (
-                        'Sebutan namboru/bere mengikuti garis saudara perempuan ayah, '
-                        'bukan hubungan anak kandung.'
+                        'Sebutan namboru/paraman mengikuti garis saudara perempuan ayah: '
+                        'boru Silaen memanggil marga Silaen yang lebih muda satu generasi '
+                        '"paraman", bukan hubungan anak kandung.'
                     )
                 sebutan_a, sebutan_b = (
                     (istilah_atas, istilah_bawah) if self_atas else (istilah_bawah, istilah_atas))
                 senior_a = self_atas
-                keterangan = (
-                    '%s berada pada sundut yang sama dengan %s, yaitu ayah %s. %s'
-                ) % (atas.name, induk_bawah.name, bawah.name, penjelas)
+                if jarak == 1:
+                    keterangan = (
+                        '%s berada pada sundut yang sama dengan %s, yaitu ayah %s. %s'
+                    ) % (atas.name, induk_bawah.name, bawah.name, penjelas)
+                else:
+                    keterangan = (
+                        '%s dan %s berselisih %d sundut melalui leluhur bersama %s.%s %s'
+                    ) % (atas.name, bawah.name, jarak, anc.name, self._catatan_tangga(jarak), penjelas)
+                if jarak != 1 and atas.jenis_kelamin == 'L':
+                    keterangan += (
+                        ' Cabang %s lebih %s dalam pohon tarombo, sehingga disebut %s.'
+                    ) % (
+                        atas.name, 'tua' if atas_cabang_tua else 'muda', istilah_atas)
 
             else:
                 self_atas = self.sundut < lain.sundut
@@ -194,7 +251,7 @@ class TaromboOrang(models.Model):
                 ) % (
                     self.name, lain.name, jarak, anc.name,
                     bawah.name, atas.name, istilah_atas, istilah_bawah,
-                )
+                ) + self._catatan_tangga(jarak)
 
         return {
             'anc': anc,

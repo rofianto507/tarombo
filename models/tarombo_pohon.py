@@ -27,7 +27,20 @@ class TaromboOrang(models.Model):
             return self._pohon_radial(orang)
         return self._pohon_cabang(orang)
 
+    @staticmethod
+    def _pohon_label_istri(pernikahan):
+        """Satu baris untuk satu istri, mis. "Agnes Amd. br Gultom"; bila nama
+        istri tidak tercatat cukup "br Gultom"."""
+        nama = (pernikahan.istri_nama or '').strip()
+        marga = pernikahan.istri_marga_id.name if pernikahan.istri_marga_id else ''
+        if marga and marga.lower() not in nama.lower():
+            return ('%s br %s' % (nama, marga)).strip()
+        return nama or ('br %s' % marga if marga else '')
+
     def _pohon_node_dasar(self, orang):
+        istri = [
+            t for t in (self._pohon_label_istri(p) for p in orang.pernikahan_ids.sorted('urutan')) if t
+        ] if orang.jenis_kelamin == 'L' else []
         return {
             'id': orang.id,
             'name': orang.name,
@@ -40,6 +53,9 @@ class TaromboOrang(models.Model):
             'punya_foto': bool(orang.foto),
             # Lencana terverifikasi: orang ini sudah tersambung ke akun anggota.
             'terhubung_akun': bool(orang.terhubung_akun),
+            # Daftar istri (teks siap tampil), hanya untuk laki-laki. Kunci baru
+            # yang diabaikan aplikasi versi lama.
+            'istri': istri,
             'selected': False,
             'collapsed': False,
             'has_more': False,
