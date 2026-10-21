@@ -53,6 +53,7 @@ mengikuti kaidah pencatatan tarombo asli, bukan aplikasi silsilah umum.
              'tarombo/static/src/scss/tarombo_primary_variables.scss'),
         ],
         'web.assets_backend': [
+            'tarombo/static/src/manual/manual_menu.js',
             'tarombo/static/src/navbar/tarombo_navbar.js',
             'tarombo/static/src/navbar/tarombo_navbar.scss',
             'tarombo/static/lib/echarts/echarts.min.js',

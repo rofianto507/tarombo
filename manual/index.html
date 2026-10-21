@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<base href="/tarombo/manual/">
+<title>Manual Book Pengurus Tarombo</title>
+<style>
+:root {
+  --hijau: #2e5339; --hijau-tua: #223f2b; --emas: #c8a24a; --krem: #f7f5ee;
+  --teks: #1f2a24; --muted: #66726b; --garis: #dfe3dc; --putih: #fff;
+  --info: #e8f1f6; --info-b: #7fb2cc; --tip: #eef6ec; --tip-b: #7fb27a;
+  --awas: #fdf3e1; --awas-b: #d9a441; --bahaya: #fbeaea; --bahaya-b: #d46a6a;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+body { margin: 0; font: 16px/1.65 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; color: var(--teks); background: var(--krem); }
+a { color: var(--hijau); }
+header.atas { position: sticky; top: 0; z-index: 30; background: var(--hijau); color: #fff; display: flex; align-items: center; gap: 14px; padding: 10px 20px; border-bottom: 3px solid var(--emas); }
+header.atas .judul { font-weight: 700; font-size: 18px; white-space: nowrap; }
+header.atas .judul small { color: var(--emas); font-weight: 600; margin-left: 6px; }
+header.atas input { flex: 1; max-width: 420px; margin-left: auto; padding: 8px 12px; border-radius: 8px; border: 0; font-size: 15px; }
+#tombolMenu { display: none; background: transparent; border: 1px solid #ffffff66; color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 18px; cursor: pointer; }
+.tata { display: grid; grid-template-columns: 290px minmax(0, 1fr); max-width: 1380px; margin: 0 auto; }
+nav.samping { position: sticky; top: 56px; align-self: start; height: calc(100vh - 56px); overflow: auto; padding: 18px 12px 40px 20px; border-right: 1px solid var(--garis); background: var(--putih); }
+nav.samping a { display: block; padding: 6px 10px; border-radius: 6px; color: var(--teks); text-decoration: none; font-size: 14.5px; }
+nav.samping a:hover { background: var(--tip); }
+nav.samping a.aktif { background: var(--hijau); color: #fff; }
+nav.samping a.bab { margin-top: 10px; font-weight: 700; color: var(--hijau-tua); font-size: 15px; }
+nav.samping a.bab.aktif { color: #fff; }
+nav.samping .sub { padding-left: 22px; font-size: 13.5px; color: var(--muted); }
+main { padding: 28px clamp(16px, 4vw, 48px) 80px; min-width: 0; }
+section.bagian { background: var(--putih); border: 1px solid var(--garis); border-radius: 12px; padding: 8px clamp(16px, 3vw, 36px) 28px; margin-bottom: 26px; }
+h1 { font-size: 30px; color: var(--hijau-tua); margin: 6px 0 4px; }
+h2 { font-size: 24px; color: var(--hijau); border-bottom: 2px solid var(--emas); padding-bottom: 6px; margin-top: 26px; }
+h3 { font-size: 18.5px; color: var(--hijau-tua); margin: 26px 0 6px; }
+.lead { color: var(--muted); font-size: 17px; }
+ol.langkah { counter-reset: l; list-style: none; padding: 0; margin: 12px 0; }
+ol.langkah > li { counter-increment: l; position: relative; padding: 4px 0 10px 46px; }
+ol.langkah > li::before { content: counter(l); position: absolute; left: 0; top: 2px; width: 30px; height: 30px; border-radius: 50%; background: var(--hijau); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 14px; }
+ul { padding-left: 22px; }
+.kotak { border-left: 4px solid; border-radius: 8px; padding: 10px 14px; margin: 14px 0; }
+.kotak b.k { display: block; margin-bottom: 2px; }
+.info { background: var(--info); border-color: var(--info-b); }
+.tip { background: var(--tip); border-color: var(--tip-b); }
+.awas { background: var(--awas); border-color: var(--awas-b); }
+.bahaya { background: var(--bahaya); border-color: var(--bahaya-b); }
+kbd, .btn { display: inline-block; background: #eef0ec; border: 1px solid #c9cfc6; border-bottom-width: 2px; border-radius: 5px; padding: 0 7px; font: 600 13.5px/1.6 "Segoe UI", sans-serif; white-space: nowrap; }
+.btn.h { background: var(--hijau); color: #fff; border-color: var(--hijau-tua); }
+.btn.m { background: #dc3545; color: #fff; border-color: #b02a37; }
+.menu { color: var(--hijau-tua); font-weight: 700; }
+figure { margin: 14px 0 20px; }
+figure img { width: 100%; max-width: 980px; display: block; border: 1px solid var(--garis); border-radius: 8px; box-shadow: 0 2px 10px #0000001a; cursor: zoom-in; background: #fff; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 6px; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 15px; }
+th, td { border: 1px solid var(--garis); padding: 8px 10px; text-align: left; vertical-align: top; }
+th { background: var(--tip); color: var(--hijau-tua); }
+details { border: 1px solid var(--garis); border-radius: 8px; padding: 8px 14px; margin: 8px 0; background: #fcfcfa; }
+summary { cursor: pointer; font-weight: 600; }
+.kartu { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 14px 0; }
+.kartu a { border: 1px solid var(--garis); border-radius: 10px; padding: 12px 14px; text-decoration: none; color: var(--teks); background: #fcfcfa; border-top: 3px solid var(--emas); }
+.kartu a:hover { background: var(--tip); }
+.kartu b { color: var(--hijau); display: block; }
+.kartu span { font-size: 14px; color: var(--muted); }
+#lightbox { position: fixed; inset: 0; background: #000000d9; display: none; z-index: 100; align-items: center; justify-content: center; padding: 20px; cursor: zoom-out; }
+#lightbox.buka { display: flex; }
+#lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; }
+mark { background: #ffe58a; }
+.sembunyi { display: none !important; }
+#kosong { display: none; padding: 20px; text-align: center; color: var(--muted); }
+footer { text-align: center; color: var(--muted); font-size: 13px; padding: 10px; }
+@media (max-width: 900px) {
+  .tata { grid-template-columns: 1fr; }
+  #tombolMenu { display: block; }
+  nav.samping { position: fixed; z-index: 40; top: 56px; left: 0; width: 290px; max-width: 86vw; transform: translateX(-105%); transition: transform .2s; box-shadow: 4px 0 18px #0003; }
+  nav.samping.buka { transform: none; }
+  header.atas .judul small { display: none; }
+}
+@media print { header.atas, nav.samping { display: none; } .tata { display: block; } section.bagian { break-inside: avoid-page; } }
+</style>
+</head>
+<body>
+
+<header class="atas">
+  <button id="tombolMenu" aria-label="Daftar isi">&#9776;</button>
+  <div class="judul">Tarombo <small>Manual Book Pengurus</small></div>
+  <input id="cari" type="search" placeholder="Cari di manual… (mis. usulan, partuturan, peta)" autocomplete="off">
+</header>
+
+<div class="tata">
+<nav class="samping" id="daftarIsi"></nav>
+
+<main id="isi">
+
+<!-- ================= 0. PENGANTAR ================= -->
+<section class="bagian" id="pengantar" data-judul="Pengantar">
+  <h1>Manual Book Pengurus Tarombo</h1>
+  <p class="lead">Panduan langkah demi langkah untuk pengurus punguan dalam mengelola data silsilah, usulan anggota, berita, dan laporan di web admin Tarombo.</p>
+
+  <h2>Untuk siapa manual ini?</h2>
+  <p>Manual ini ditujukan bagi <b>admin pengurus</b> (pengguna dengan hak akses <i>Pengurus Tarombo</i>). Pengurus bertugas menjaga kualitas data silsilah: meninjau usulan dari anggota, memverifikasi klaim akun, menerbitkan berita/agenda, dan menindaklanjuti laporan serta masukan pengguna aplikasi.</p>
+
+  <div class="kartu">
+    <a href="#dashboard"><b>Dashboard</b><span>Ringkasan angka, grafik, dan peta sebaran anggota.</span></a>
+    <a href="#anggota"><b>Anggota</b><span>Cari, lihat, tambah, dan ubah data orang; pohon silsilah.</span></a>
+    <a href="#arsip"><b>Arsip</b><span>Foto, dokumen, dan video sejarah keluarga.</span></a>
+    <a href="#berita"><b>Berita &amp; Agenda</b><span>Menulis dan menerbitkan kabar untuk anggota.</span></a>
+    <a href="#usulan"><b>Usulan &amp; Klaim Akun</b><span>Tinjau, setujui, atau tolak usulan dan klaim.</span></a>
+    <a href="#laporan"><b>Laporan</b><span>Hitung Partuturan dan Direktori Keahlian.</span></a>
+    <a href="#konfigurasi"><b>Konfigurasi</b><span>Data master, laporan konten, masukan, hapus akun.</span></a>
+    <a href="#faq"><b>Tanya Jawab</b><span>Masalah yang sering ditemui dan solusinya.</span></a>
+  </div>
+
+  <h2>Cara membaca manual ini</h2>
+  <ul>
+    <li>Nama menu dan tombol ditulis sesuai tampilan layar, misalnya menu <span class="menu">Anggota</span>, tombol <span class="btn h">Setujui</span>. Sebagian tombol bawaan Odoo tampil dalam bahasa Inggris (<span class="btn">New</span>, <span class="btn">Send message</span>, <span class="btn">Log note</span>); artinya diterangkan di tempatnya.</li>
+    <li>Klik gambar mana pun untuk memperbesar. Gunakan kotak <b>Cari</b> di bagian atas untuk menemukan topik dengan cepat.</li>
+    <li>Tangkapan layar diambil dari server sebenarnya. <b>Data pribadi (nama pengguna, kontak, foto) sengaja diburamkan.</b></li>
+  </ul>
+
+  <div class="kotak awas"><b class="k">Penting: jaga kerahasiaan data</b>
+    Data silsilah bersifat tertutup. Jangan membagikan tangkapan layar yang memuat nomor telepon, email, alamat, atau foto anggota ke luar grup pengurus. Jangan memberikan akun pengurus kepada orang lain.</div>
+
+  <h2 id="istilah">Istilah penting</h2>
+  <table>
+    <tr><th style="width:200px">Istilah</th><th>Arti</th></tr>
+    <tr><td><b>Sundut</b></td><td>Generasi dalam silsilah. Tuan Sihubil = sundut 1, anaknya sundut 2, dan seterusnya.</td></tr>
+    <tr><td><b>Anak ke-</b></td><td>Urutan lahir seorang anak dari satu ayah (semua istri dihitung bersama). Penting untuk menentukan tua/muda saat menghitung partuturan.</td></tr>
+    <tr><td><b>Punguan</b></td><td>Perkumpulan/paguyuban marga.</td></tr>
+    <tr><td><b>Partuturan</b></td><td>Sistem sebutan kekerabatan Batak (amang, anak, ito, angkang, anggi, namboru, paraman, dst).</td></tr>
+    <tr><td><b>Usulan</b></td><td>Permintaan anggota (dari aplikasi) untuk menambah, mengoreksi, atau melengkapi data. Baru berlaku setelah pengurus <i>Setujui</i>.</td></tr>
+    <tr><td><b>Klaim Akun</b></td><td>Permintaan anggota agar akun aplikasinya dihubungkan ke satu nama di pohon silsilah. Diverifikasi pengurus.</td></tr>
+    <tr><td><b>Terverifikasi</b></td><td>Status data yang sudah ditinjau dan dinyatakan benar oleh pengurus/sumber resmi.</td></tr>
+  </table>
+</section>
+
+<!-- ================= 1. MASUK ================= -->
+<section class="bagian" id="masuk" data-judul="Masuk, menu, dan keluar">
+  <h2>1. Masuk, menu utama, dan keluar</h2>
+
+  <h3>1.1 Masuk ke web admin</h3>
+  <ol class="langkah">
+    <li>Buka alamat web admin Tarombo di peramban (Chrome, Edge, atau Firefox): <b>tarombo.selstudio.id</b>.</li>
+    <li>Isi <b>Email / Login</b> dan <b>Password</b> akun pengurus Anda, lalu klik <span class="btn h">Log in</span>.</li>
+    <li>Bila berhasil, Anda langsung masuk ke halaman <span class="menu">Dashboard</span>.</li>
+  </ol>
+  <figure><img src="img/01-login.png" alt="Halaman masuk"><figcaption>Gambar 1.1 — Halaman masuk web admin.</figcaption></figure>
+  <div class="kotak tip"><b class="k">Lupa password?</b>Gunakan tautan <i>Reset Password</i> di halaman masuk, atau minta admin sistem mengatur ulang. Ganti password secara berkala lewat <i>My Preferences</i> (menu pengguna, lihat 1.3).</div>
+
+  <h3>1.2 Mengenal menu utama</h3>
+  <p>Menu utama berada di bilah hijau bagian atas:</p>
+  <table>
+    <tr><th style="width:190px">Menu</th><th>Fungsi</th></tr>
+    <tr><td class="menu">Dashboard</td><td>Ringkasan angka, grafik, tabel wilayah, peta sebaran anggota.</td></tr>
+    <tr><td class="menu">Anggota</td><td>Daftar semua orang dalam silsilah, formulir data, pohon silsilah.</td></tr>
+    <tr><td class="menu">Arsip</td><td>Foto, dokumen, video sejarah.</td></tr>
+    <tr><td class="menu">Berita &amp; Agenda</td><td>Kabar dan acara yang tampil di aplikasi anggota.</td></tr>
+    <tr><td class="menu">Usulan</td><td>Usulan perubahan data dan Klaim Akun dari anggota.</td></tr>
+    <tr><td class="menu">Laporan</td><td>Hitung Partuturan, Direktori Keahlian.</td></tr>
+    <tr><td class="menu">Konfigurasi</td><td>Data master (Marga, Padan, Wilayah, Punguan, Bidang) dan kotak masuk moderasi.</td></tr>
+  </table>
+
+  <h3>1.3 Menu pengguna dan Manual Book</h3>
+  <p>Klik <b>nama/foto Anda di pojok kanan atas</b> untuk membuka menu pengguna. Di dalamnya ada <span class="menu">My Preferences</span> (ubah bahasa, password, tanda tangan) dan <span class="menu">Manual Book</span> (halaman ini), serta <span class="menu">Log out</span>.</p>
+  <figure><img src="img/05-menu-pengguna.png" alt="Menu pengguna"><figcaption>Gambar 1.2 — Menu pengguna di pojok kanan atas.</figcaption></figure>
+
+  <h3>1.4 Keluar</h3>
+  <p>Klik menu pengguna, lalu pilih <span class="menu">Log out</span>. Selalu keluar bila memakai komputer bersama.</p>
+
+  <h3>1.5 Kebiasaan umum di layar Odoo</h3>
+  <table>
+    <tr><th style="width:200px">Elemen</th><th>Cara pakai</th></tr>
+    <tr><td><span class="btn h">New</span></td><td>Membuat data baru (kiri atas).</td></tr>
+    <tr><td>Kotak <i>Search…</i></td><td>Ketik kata kunci lalu tekan <kbd>Enter</kbd>. Klik panah kecil di kanan kotak untuk filter dan pengelompokan.</td></tr>
+    <tr><td>Ikon tampilan (kanan atas)</td><td>Berpindah antara daftar, grafik, pivot, atau kanban.</td></tr>
+    <tr><td>Ikon disket/awan <b>&#9729;</b></td><td>Menyimpan perubahan formulir (muncul di samping judul saat ada perubahan). Ikon <b>&times;</b> membatalkan perubahan.</td></tr>
+    <tr><td>Kolom <i>Chatter</i> (kanan formulir)</td><td><span class="btn">Send message</span> = kirim pesan (terlihat oleh pengaju di aplikasi); <span class="btn">Log note</span> = catatan internal pengurus; <span class="btn">Activity</span> = jadwal tugas.</td></tr>
+  </table>
+</section>
+
+<!-- ================= 2. DASHBOARD ================= -->
+<section class="bagian" id="dashboard" data-judul="Dashboard">
+  <h2>2. Dashboard</h2>
+  <p>Dashboard adalah halaman pertama setelah masuk. Gunakan untuk memantau kondisi data dan menuju ke daftar yang perlu ditindaklanjuti.</p>
+
+  <h3>2.1 Kartu angka (KPI)</h3>
+  <figure><img src="img/02-dashboard-atas.png" alt="Dashboard bagian atas"><figcaption>Gambar 2.1 — Kartu angka dan grafik utama.</figcaption></figure>
+  <table>
+    <tr><th style="width:200px">Kartu</th><th>Arti dan aksi klik</th></tr>
+    <tr><td><b>Total Anggota</b></td><td>Jumlah orang dalam silsilah. Klik untuk membuka daftar Anggota.</td></tr>
+    <tr><td><b>Terhubung Akun</b></td><td>Jumlah anggota yang sudah terhubung dengan akun aplikasi dan terverifikasi, beserta persentasenya. Klik untuk melihat daftar anggotanya.</td></tr>
+    <tr><td><b>Usulan Menunggu</b></td><td>Usulan yang perlu ditinjau. Klik untuk langsung membuka daftar usulan berstatus <i>Diajukan</i>.</td></tr>
+    <tr><td><b>Punguan / Marga</b></td><td>Jumlah punguan dan marga terdaftar. Klik angkanya untuk membuka daftar masing-masing.</td></tr>
+  </table>
+  <div class="kotak tip"><b class="k">Tombol Muat Ulang</b>Klik <span class="btn">Muat Ulang</span> (kiri atas) untuk memperbarui angka tanpa memuat ulang seluruh halaman.</div>
+
+  <h3>2.2 Grafik</h3>
+  <p>Gulir ke bawah untuk melihat grafik: <b>Distribusi Jenis Kelamin</b>, <b>Anggota per Sundut</b>, <b>Anggota per Pendidikan Tertinggi</b>, dan <b>Anggota per Bidang Pekerjaan</b>. Semua grafik bisa diklik:</p>
+  <ol class="langkah">
+    <li>Klik potongan donat, titik garis, atau batang grafik.</li>
+    <li>Daftar Anggota terbuka dengan filter yang sesuai (misalnya hanya sundut 16, atau hanya berpendidikan S1).</li>
+    <li>Kembali ke dashboard lewat menu <span class="menu">Dashboard</span> atau tautan di jejak navigasi (breadcrumb).</li>
+  </ol>
+  <figure><img src="img/03-dashboard-grafik.png" alt="Grafik dashboard"><figcaption>Gambar 2.2 — Grafik per sundut, pendidikan, dan pekerjaan.</figcaption></figure>
+
+  <h3>2.3 Tabel domisili dan peta sebaran</h3>
+  <p>Bagian bawah menampilkan tabel wilayah (jumlah anggota per provinsi/kabupaten) dan <b>peta sebaran</b>.</p>
+  <figure><img src="img/04-dashboard-tabel-peta.png" alt="Tabel dan peta"><figcaption>Gambar 2.3 — Tabel domisili dan peta sebaran anggota.</figcaption></figure>
+  <ol class="langkah">
+    <li>Pilih tab <span class="btn">Provinsi</span> atau <span class="btn">Kabupaten/Kota</span> di atas peta untuk mengubah tingkat pengelompokan.</li>
+    <li>Titik berangka adalah <b>kelompok anggota</b>: angkanya jumlah anggota di sekitar titik itu. Perbesar peta (tombol <b>+</b> atau gulir mouse) agar kelompok terurai.</li>
+    <li>Klik sebuah titik. Muncul jendela info berisi nama wilayah dan tombol <span class="btn h">Lihat N anggota</span>.</li>
+    <li>Klik tombol itu untuk membuka daftar anggota di wilayah tersebut.</li>
+  </ol>
+  <figure><img src="img/06-dashboard-popup-peta.png" alt="Jendela info peta"><figcaption>Gambar 2.4 — Jendela info peta dengan tombol menuju daftar anggota.</figcaption></figure>
+  <div class="kotak info"><b class="k">Catatan</b>Peta hanya menampilkan anggota yang domisilinya sudah diisi (provinsi/kabupaten). Makin lengkap isian <i>Domisili</i> pada data anggota, makin akurat peta.</div>
+
+  <h3>2.4 Visualisasi Pohon</h3>
+  <p>Tombol hijau <span class="btn h">Visualisasi Pohon</span> di kanan atas Dashboard membuka halaman penuh yang menampilkan silsilah sebagai jaringan interaktif.</p>
+  <figure><img src="img/07-visualisasi-pohon.png" alt="Visualisasi pohon"><figcaption>Gambar 2.5 — Halaman Visualisasi Pohon Silsilah.</figcaption></figure>
+  <table>
+    <tr><th style="width:230px">Kontrol</th><th>Fungsi</th></tr>
+    <tr><td>Kotak <i>Cari nama orang di pohon…</i></td><td>Ketik minimal beberapa huruf, pilih nama dari daftar; pohon berpindah fokus ke orang itu.</td></tr>
+    <tr><td><b>Tingkat awal</b></td><td>Kedalaman keturunan yang langsung ditampilkan saat membuka halaman.</td></tr>
+    <tr><td><span class="btn">Perluas</span> / <span class="btn">Ciutkan</span></td><td>Membuka semua cabang / menutup kembali ke tingkat awal.</td></tr>
+    <tr><td><span class="btn">Atur ulang</span></td><td>Menata ulang letak titik bila terlalu menumpuk.</td></tr>
+    <tr><td><span class="btn h">Nama</span></td><td>Menampilkan / menyembunyikan label nama.</td></tr>
+    <tr><td><span class="btn">Leluhur utama</span></td><td>Kembali ke leluhur paling atas.</td></tr>
+  </table>
+  <ul>
+    <li><b>Seret</b> latar untuk menggeser, <b>gulir mouse</b> untuk memperbesar/memperkecil.</li>
+    <li><b>Klik</b> sebuah titik untuk membuka/menutup keturunannya. <b>Klik dua kali</b> untuk membuka profilnya. Titik bercincin emas berarti masih ada keturunan yang belum ditampilkan.</li>
+    <li>Biru = laki-laki, merah muda = perempuan.</li>
+  </ul>
+  <figure><img src="img/09-visualisasi-fokus.png" alt="Pohon terfokus"><figcaption>Gambar 2.6 — Pohon setelah mencari dan memfokuskan satu nama.</figcaption></figure>
+</section>
+
+<!-- ================= 3. ANGGOTA ================= -->
+<section class="bagian" id="anggota" data-judul="Anggota">
+  <h2>3. Anggota (data orang)</h2>
+  <p>Menu <span class="menu">Anggota</span> berisi seluruh data orang dalam silsilah.</p>
+
+  <h3>3.1 Melihat dan mencari anggota</h3>
+  <figure><img src="img/10-anggota-daftar.png" alt="Daftar anggota"><figcaption>Gambar 3.1 — Daftar anggota (diurutkan menurut sundut).</figcaption></figure>
+  <ol class="langkah">
+    <li>Klik menu <span class="menu">Anggota</span>. Daftar menampilkan Nama, Jenis Kelamin, Sundut, Ayah, Anak ke-, Alamat Domisili, dan Akun.</li>
+    <li>Ketik nama di kotak <i>Search…</i> lalu tekan <kbd>Enter</kbd>.</li>
+    <li>Klik baris untuk membuka formulir lengkap orang tersebut.</li>
+    <li>Gunakan panah <b>&lt; &gt;</b> di kanan atas untuk berpindah halaman (80 baris per halaman).</li>
+  </ol>
+  <figure><img src="img/12-anggota-hasil-cari.png" alt="Hasil pencarian"><figcaption>Gambar 3.2 — Hasil pencarian nama.</figcaption></figure>
+
+  <h3>3.2 Filter dan pengelompokan</h3>
+  <p>Klik panah kecil di sisi kanan kotak pencarian untuk membuka menu <b>Filters</b> dan <b>Group By</b> (misalnya kelompokkan per Sundut, Punguan, atau Jenis Kelamin).</p>
+  <figure><img src="img/13-anggota-filter.png" alt="Menu filter"><figcaption>Gambar 3.3 — Menu filter dan pengelompokan.</figcaption></figure>
+
+  <h3>3.3 Tampilan alternatif</h3>
+  <p>Tiga ikon di kanan atas mengubah cara melihat data: <b>Daftar</b>, <b>Grafik</b>, dan <b>Pivot</b> (tabel ringkasan).</p>
+  <figure><img src="img/19-anggota-tampilan-2.png" alt="Tampilan grafik"><figcaption>Gambar 3.4 — Tampilan grafik.</figcaption></figure>
+
+  <h3>3.4 Formulir anggota</h3>
+  <p>Formulir dibagi dalam enam tab. Bagian atas formulir selalu menampilkan <b>Nama</b>, <b>Jenis Kelamin</b>, <b>Sundut</b>, dan foto.</p>
+  <figure><img src="img/14-anggota-form.png" alt="Formulir anggota"><figcaption>Gambar 3.5 — Formulir anggota, tab Identitas.</figcaption></figure>
+
+  <details open><summary>Tab Identitas</summary>
+    <p>No. Telepon, Email, Marga, Punguan, Tahun Lahir/Wafat, Umur, Masih Hidup, serta kolom <i>Akun Terhubung</i> (terisi otomatis bila anggota sudah klaim akun, tidak diubah manual) dan Catatan. Data kontak hanya terlihat oleh pengurus.</p></details>
+  <details open><summary>Tab Keluarga</summary>
+    <p>Berisi <b>Ayah</b>, <b>Dari istri ke-</b>, <b>Nama/Marga Ibu</b>, <b>Anak ke-</b>, Putra ke-, Jumlah Saudara, dan tabel <b>Pernikahan</b> (Istri ke-, Nama Istri, Marga Istri, Tahun, Anak, dan <i>Pemeriksaan Adat</i>).</p>
+    <figure><img src="img/15-anggota-tab-2.png" alt="Tab Keluarga"><figcaption>Gambar 3.6 — Tab Keluarga: ayah, urutan anak, dan data pernikahan.</figcaption></figure>
+    <div class="kotak info"><b class="k">Pemeriksaan Adat</b>Kolom ini otomatis memeriksa larangan adat (semarga, padan) dan menampilkan hasilnya, misalnya <i>"Sesuai: tidak ada larangan semarga atau padan"</i>.</div>
+  </details>
+  <details><summary>Tab Domisili</summary>
+    <p>Alamat jalan, kode pos, wilayah (provinsi/kabupaten), serta titik lokasi pada peta. Isian wilayah dipakai peta di Dashboard.</p>
+    <figure><img src="img/15-anggota-tab-3.png" alt="Tab Domisili"><figcaption>Gambar 3.7 — Tab Domisili.</figcaption></figure></details>
+  <details><summary>Tab Riwayat</summary>
+    <p>Riwayat pendidikan dan pekerjaan. Dipakai oleh Direktori Keahlian.</p>
+    <figure><img src="img/15-anggota-tab-4.png" alt="Tab Riwayat"><figcaption>Gambar 3.8 — Tab Riwayat.</figcaption></figure></details>
+  <details><summary>Tab Arsip</summary>
+    <p>Daftar arsip (foto/dokumen/video) yang terkait dengan orang ini.</p>
+    <figure><img src="img/15-anggota-tab-5.png" alt="Tab Arsip"><figcaption>Gambar 3.9 — Tab Arsip.</figcaption></figure></details>
+  <details><summary>Tab Keabsahan</summary>
+    <p>Berisi <b>Status</b> (misalnya <i>Terverifikasi</i> atau belum), <b>Sumber Keterangan</b>, dan tanda <b>Lengkap</b> (otomatis, bergantung pada kelengkapan data).</p>
+    <figure><img src="img/15-anggota-tab-6.png" alt="Tab Keabsahan"><figcaption>Gambar 3.10 — Tab Keabsahan.</figcaption></figure></details>
+
+  <h3>3.5 Mengubah data anggota</h3>
+  <ol class="langkah">
+    <li>Buka formulir anggota (3.1).</li>
+    <li>Klik kolom yang ingin diubah, lalu ketik nilai baru.</li>
+    <li>Klik ikon <b>&#9729; (simpan)</b> di samping judul formulir. Untuk membatalkan, klik <b>&times;</b>.</li>
+  </ol>
+  <div class="kotak awas"><b class="k">Hati-hati mengubah Ayah dan Anak ke-</b>
+    Kolom <i>Ayah</i> menentukan posisi seseorang di pohon, dan <i>Anak ke-</i> menentukan siapa yang tua/muda dalam perhitungan partuturan. Pastikan sumbernya jelas sebelum diubah. Bila ragu, minta anggota mengajukan <b>Usulan</b> agar ada catatan peninjauan.</div>
+
+  <h3>3.6 Menambah anggota baru</h3>
+  <ol class="langkah">
+    <li>Di daftar Anggota klik <span class="btn h">New</span>.</li>
+    <li>Isi <b>Nama</b> dan pilih <b>Jenis Kelamin</b>.</li>
+    <li>Buka tab <b>Keluarga</b> dan pilih <b>Ayah</b>. Sundut terisi otomatis dari ayah. Isi <b>Marga</b> di tab Identitas.</li>
+    <li>Isi data lain yang diketahui, lalu klik ikon simpan.</li>
+  </ol>
+  <figure><img src="img/18-anggota-baru.png" alt="Anggota baru"><figcaption>Gambar 3.11 — Formulir anggota baru.</figcaption></figure>
+  <div class="kotak tip"><b class="k">Nomor "Anak ke-" otomatis</b>Saat memilih ayah pada anggota baru, <i>Anak ke-</i> terisi otomatis menjadi urutan berikutnya. Periksa kembali bila anak ini bukan yang termuda.</div>
+
+  <h3>3.7 Menambah istri atau anak lewat tab Keluarga</h3>
+  <ol class="langkah">
+    <li>Buka formulir ayah lalu tab <b>Keluarga</b>.</li>
+    <li>Di tabel <b>Pernikahan</b> klik <i>Add a line</i> untuk menambah istri: isi <b>Nama Istri</b>, <b>Marga Istri</b>, dan tahun bila ada.</li>
+    <li>Klik ikon simpan. Nama istri beserta marganya (mis. <i>Agnes br. Gultom</i>) akan tampil di bawah nama pada kartu pohon dan profil di aplikasi.</li>
+  </ol>
+
+  <h3>3.8 Pohon Silsilah</h3>
+  <p>Dari formulir anggota, klik tombol <span class="btn">Pohon Silsilah</span> (kiri atas formulir) untuk membuka pohon bergambar mulai dari orang tersebut.</p>
+  <figure><img src="img/17-pohon-silsilah.png" alt="Pohon silsilah"><figcaption>Gambar 3.12 — Pohon Silsilah.</figcaption></figure>
+  <ul>
+    <li><span class="btn h">Cabang Terpilih</span> hanya menampilkan garis dari leluhur ke orang tersebut; <span class="btn">Seluruh Keturunan</span> menampilkan semua turunan.</li>
+    <li>Kotak <i>Cari nama…</i> menyorot nama di pohon. Ikon <b>&#8635;</b> memuat ulang dan ikon <b>&#11015;</b> mengunduh gambar pohon.</li>
+    <li>Legenda (kanan bawah): lingkaran = laki-laki, belah ketupat = perempuan, biru = terverifikasi, abu-abu = belum.</li>
+  </ul>
+</section>
+
+<!-- ================= 4. ARSIP ================= -->
+<section class="bagian" id="arsip" data-judul="Arsip">
+  <h2>4. Arsip</h2>
+  <p>Menu <span class="menu">Arsip</span> menyimpan foto, dokumen, dan video sejarah. Arsip yang ditandai <i>Boleh Dilihat Seluruh Anggota</i> tampil di aplikasi.</p>
+  <figure><img src="img/20-arsip-daftar.png" alt="Daftar arsip"><figcaption>Gambar 4.1 — Arsip tampil sebagai kartu (kanban).</figcaption></figure>
+  <h3>4.1 Membuka dan memeriksa arsip</h3>
+  <ol class="langkah">
+    <li>Klik kartu arsip.</li>
+    <li>Formulir menampilkan <b>Jenis</b>, <b>Berkas</b> (ikon pensil = ganti, panah = unduh, tempat sampah = hapus), <b>Tahun (Perkiraan)</b>, <b>Sumber</b>, dan <b>Orang Terkait</b>.</li>
+  </ol>
+  <figure><img src="img/21-arsip-form.png" alt="Formulir arsip"><figcaption>Gambar 4.2 — Formulir arsip.</figcaption></figure>
+  <h3>4.2 Menambah arsip baru</h3>
+  <ol class="langkah">
+    <li>Klik <span class="btn h">New</span> di menu Arsip.</li>
+    <li>Isi judul, pilih <b>Jenis</b>, lalu unggah <b>Berkas</b>.</li>
+    <li>Isi <b>Sumber</b> dan <b>Tahun (Perkiraan)</b> bila diketahui.</li>
+    <li>Di <b>Orang Terkait</b> klik <i>Add a line</i> dan pilih orang yang ada pada arsip tersebut. Arsip akan muncul pada tab <b>Arsip</b> orang itu.</li>
+    <li>Centang <b>Boleh Dilihat Seluruh Anggota</b> bila boleh dilihat anggota; kosongkan bila hanya untuk pengurus.</li>
+    <li>Simpan.</li>
+  </ol>
+  <div class="kotak awas"><b class="k">Hak cipta dan privasi</b>Unggah hanya arsip yang boleh dibagikan. Cantumkan sumbernya. Foto atau dokumen pribadi orang yang masih hidup sebaiknya tidak dibuka untuk seluruh anggota tanpa izin.</div>
+</section>
+
+<!-- ================= 5. BERITA ================= -->
+<section class="bagian" id="berita" data-judul="Berita & Agenda">
+  <h2>5. Berita &amp; Agenda</h2>
+  <p>Menu <span class="menu">Berita &amp; Agenda</span> dipakai untuk mengumumkan kabar dan acara kepada anggota di aplikasi.</p>
+  <figure><img src="img/30-berita-daftar.png" alt="Daftar berita"><figcaption>Gambar 5.1 — Daftar berita dan agenda.</figcaption></figure>
+  <p>Ikon di kanan atas mengganti tampilan: <b>Daftar</b>, <b>Kanban</b> (kartu dikelompokkan per status Draft/Terbit), <b>Grafik</b>, dan <b>Pivot</b> (ringkasan jumlah).</p>
+  <figure><img src="img/31-berita-tampilan-3.png" alt="Tampilan lain berita"><figcaption>Gambar 5.2 — Salah satu tampilan alternatif.</figcaption></figure>
+
+  <h3>5.1 Menulis dan menerbitkan</h3>
+  <ol class="langkah">
+    <li>Klik <span class="menu">Berita &amp; Agenda</span> lalu <span class="btn h">New</span>.</li>
+    <li>Isi <b>Judul</b>. Pilih <b>Jenis</b>: <i>Berita</i> atau <i>Agenda</i>.</li>
+    <li>Isi <b>Ringkasan</b> (tampil di beranda aplikasi — buat singkat dan menarik) dan <b>Isi</b> (teks lengkap; boleh menyisipkan gambar).</li>
+    <li>Klik ikon simpan. Status awal adalah <b>Draft</b> (belum terlihat anggota).</li>
+    <li>Periksa sekali lagi, lalu klik <span class="btn h">Terbitkan</span>. Status berubah menjadi <b>Terbit</b> dan tanggal terbit tercatat.</li>
+  </ol>
+  <figure><img src="img/35-berita-baru.png" alt="Berita baru"><figcaption>Gambar 5.3 — Formulir berita baru (status Draft).</figcaption></figure>
+  <h3>5.2 Menarik kembali</h3>
+  <p>Bila ada kesalahan, buka beritanya dan klik <span class="btn">Tarik ke Draft</span> agar tidak lagi terlihat anggota, perbaiki, lalu terbitkan lagi.</p>
+  <div class="kotak tip"><b class="k">Komentar anggota</b>Anggota dapat berkomentar pada berita di aplikasi. Komentar yang dilaporkan akan masuk ke <span class="menu">Konfigurasi › Laporan Konten</span> (lihat bagian 8).</div>
+</section>
+
+<!-- ================= 6. USULAN ================= -->
+<section class="bagian" id="usulan" data-judul="Usulan & Klaim Akun">
+  <h2>6. Usulan dan Klaim Akun</h2>
+  <p>Ini tugas utama pengurus: meninjau permintaan dari anggota sebelum data berubah. Angka <b>Usulan Menunggu</b> di Dashboard menunjukkan jumlah yang perlu ditinjau.</p>
+
+  <h3>6.1 Daftar Usulan</h3>
+  <p>Buka <span class="menu">Usulan › Daftar Usulan</span>. Usulan dikelompokkan menurut status: <b>Draft</b>, <b>Diajukan</b> (menunggu tinjauan), dan <b>Disetujui</b>. Klik judul kelompok <i>Diajukan</i> untuk membukanya.</p>
+  <figure><img src="img/40-usulan-daftar.png" alt="Daftar usulan"><figcaption>Gambar 6.1 — Usulan dikelompokkan per status. Klik kelompok <i>Diajukan</i> untuk melihat isinya.</figcaption></figure>
+  <table>
+    <tr><th style="width:190px">Jenis usulan</th><th>Arti</th></tr>
+    <tr><td><b>Tambah</b></td><td>Menambahkan anak/orang baru di bawah seorang ayah.</td></tr>
+    <tr><td><b>Koreksi</b></td><td>Memperbaiki data orang yang sudah ada.</td></tr>
+    <tr><td><b>Lengkapi</b></td><td>Melengkapi data yang masih kosong.</td></tr>
+    <tr><td><b>Data Istri</b></td><td>Menambahkan atau melengkapi data istri (nama dan marga) pada seorang suami.</td></tr>
+  </table>
+
+  <h3>6.2 Meninjau satu usulan</h3>
+  <ol class="langkah">
+    <li>Buka usulan berstatus <b>Diajukan</b> dengan mengklik barisnya.</li>
+    <li>Baca bagian <b>Sasaran</b> (orang atau ayah yang dituju) dan <b>Muatan Usulan</b> (nama, jenis kelamin, anak ke-, data istri, kontak, dan seterusnya).</li>
+    <li>Baca <b>Sumber Keterangan</b> serta lampiran foto/bukti (ikon klip kertas di kanan atas).</li>
+    <li>Cocokkan dengan data yang ada di Anggota. Bila perlu, tanyakan ke pengaju lewat <span class="btn">Send message</span> — pesan ini <b>terlihat oleh pengaju di aplikasi</b>. Gunakan <span class="btn">Log note</span> untuk catatan internal.</li>
+    <li>Ambil keputusan: <span class="btn h">Setujui</span> atau <span class="btn">Tolak</span>.</li>
+  </ol>
+  <figure><img src="img/41-usulan-form.png" alt="Formulir usulan"><figcaption>Gambar 6.2 — Formulir usulan: tombol Setujui/Tolak di kiri atas, status di tengah.</figcaption></figure>
+
+  <h3>6.3 Menyetujui</h3>
+  <ol class="langkah">
+    <li>Klik <span class="btn h">Setujui</span>.</li>
+    <li>Data langsung diterapkan: orang baru dibuat atau data orang yang ada diperbarui. Status menjadi <b>Disetujui</b>, nama peninjau dan tanggal tinjau tercatat, dan <b>Hasil</b> terisi.</li>
+    <li>Pengaju mendapat pemberitahuan di aplikasi, dan jejak asal-usul usulan dicatat di <i>chatter</i> data orang tersebut.</li>
+  </ol>
+  <div class="kotak info"><b class="k">Penomoran "Anak ke-"</b>Untuk usulan <i>Tambah</i>, urutan anak dihitung otomatis berdasarkan anak yang sudah ada pada ayah itu bila pengaju tidak mengisinya. Periksa hasilnya bila ayah punya lebih dari satu istri.</div>
+
+  <h3>6.4 Menolak</h3>
+  <ol class="langkah">
+    <li>Klik <span class="btn">Tolak</span>.</li>
+    <li>Pada jendela <b>Alasan Penolakan</b> tulis alasan yang <b>sopan, jelas, dan membantu</b> (mis. "Data ayah belum sesuai catatan punguan, mohon sertakan sumber"). Alasan wajib diisi dan dibaca oleh pengaju.</li>
+    <li>Klik <span class="btn m">Tolak</span> untuk menyimpan, atau <span class="btn">Batal</span> untuk kembali.</li>
+  </ol>
+  <figure><img src="img/45-usulan-tolak.png" alt="Alasan penolakan"><figcaption>Gambar 6.3 — Jendela alasan penolakan.</figcaption></figure>
+  <div class="kotak tip"><b class="k">Praktik baik</b>Hindari menolak tanpa penjelasan. Bila data belum cukup, lebih baik tanyakan dulu lewat <i>Send message</i> agar pengaju dapat melengkapi.</div>
+
+  <h3>6.5 Klaim Akun</h3>
+  <p>Anggota yang mendaftar di aplikasi harus <b>mengklaim</b> satu nama di pohon sebagai dirinya. Klaim ini harus diverifikasi pengurus supaya orang lain tidak bisa mengaku sebagai anggota keluarga Anda.</p>
+  <p>Buka <span class="menu">Usulan › Klaim Akun</span>.</p>
+  <figure><img src="img/43-klaim-daftar.png" alt="Daftar klaim akun"><figcaption>Gambar 6.4 — Daftar klaim akun.</figcaption></figure>
+  <ol class="langkah">
+    <li>Klik klaim berstatus <b>Menunggu Verifikasi</b>.</li>
+    <li>Periksa <b>Akun Pengklaim</b>, <b>Jenis</b> (<i>Orang Sudah Ada di Pohon</i> atau orang baru), dan <b>Orang yang Diklaim</b>, lalu baca <b>Keterangan Pengklaim</b> dan <b>Bukti Pendukung</b>.</li>
+    <li>Pastikan benar-benar orang yang sama, misalnya hubungi pengklaim lewat <span class="btn">Send message</span> atau konfirmasi ke kerabat/pengurus punguan. Tanyakan nama ayah/kakek bila perlu.</li>
+    <li>Klik <span class="btn h">Setujui</span> bila yakin. Akun pengguna dihubungkan ke nama tersebut (kolom <i>Akun Terhubung</i> di data anggota terisi, dan angka <i>Terhubung Akun</i> di Dashboard bertambah).</li>
+    <li>Klik <span class="btn">Tolak</span> bila tidak sesuai. Tulis alasan agar pengklaim dapat memperbaiki atau mengajukan ulang.</li>
+  </ol>
+  <figure><img src="img/44-klaim-form.png" alt="Formulir klaim akun"><figcaption>Gambar 6.5 — Formulir klaim akun (nama pengklaim diburamkan).</figcaption></figure>
+  <div class="kotak awas"><b class="k">Satu nama, satu akun</b>Satu orang hanya boleh dihubungkan ke satu akun. Bila ada dua pengklaim untuk nama yang sama, selidiki dahulu sebelum menyetujui salah satunya. Klaim yang telah disetujui dapat dicabut (status <b>Dicabut</b>) bila ternyata salah.</div>
+  <figure><img src="img/46-klaim-tolak.png" alt="Tolak klaim"><figcaption>Gambar 6.6 — Alasan penolakan klaim akun.</figcaption></figure>
+</section>
+
+<!-- ================= 7. LAPORAN ================= -->
+<section class="bagian" id="laporan" data-judul="Laporan">
+  <h2>7. Laporan</h2>
+
+  <h3 id="partuturan">7.1 Hitung Partuturan</h3>
+  <p>Alat untuk menentukan sebutan kekerabatan antara dua orang berdasarkan silsilah, lengkap dengan <b>pohon penjelasan</b> bergambar. Berguna untuk menjawab pertanyaan anggota atau memeriksa hasil yang dipertanyakan.</p>
+  <ol class="langkah">
+    <li>Klik <span class="menu">Laporan › Hitung Partuturan</span>. Jendela perhitungan terbuka.</li>
+    <li>Pada <b>Orang A</b>, ketik sebagian nama lalu pilih dari daftar. Daftar menampilkan <b>nama, sundut, dan nama ayah</b> supaya mudah membedakan orang bernama sama. Bila tidak ketemu, klik <i>Search More…</i> untuk pencarian lanjut.</li>
+    <li>Pilih <b>Orang B</b> dengan cara yang sama.</li>
+    <li>Klik <span class="btn h">Hitung</span>.</li>
+    <li>Baca hasilnya di bagian <b>Pohon Penjelasan</b>, kotak hijau sebutan, dan tabel <b>Hasil</b>.</li>
+  </ol>
+  <figure><img src="img/50-partuturan-kosong.png" alt="Jendela partuturan kosong"><figcaption>Gambar 7.1 — Jendela Hitung Partuturan sebelum diisi.</figcaption></figure>
+  <figure><img src="img/52-partuturan-hasil.png" alt="Hasil partuturan"><figcaption>Gambar 7.2 — Hasil: pohon penjelasan, kotak sebutan, dan ringkasan.</figcaption></figure>
+  <h4>Cara membaca hasil</h4>
+  <ul>
+    <li><b>Pohon penjelasan</b>: garis <span style="color:#3b73b9;font-weight:700">biru</span> = jalur ke Orang A, <span style="color:#2e7d4a;font-weight:700">hijau</span> = jalur ke Orang B, <span style="color:#c8a24a;font-weight:700">emas</span> = leluhur bersama. Penanda <b>A</b> dan <b>B</b> menunjukkan kedua orang.</li>
+    <li><b>Kotak hijau</b>: "A memanggil B: …" dan "B memanggil A: …", disertai penjelasan hubungan (misalnya leluhur langsung, berjarak 1 sundut).</li>
+    <li><b>Tua atau muda ditentukan oleh urutan anak pada titik percabangan</b>, bukan umur. Karena itu isian <i>Anak ke-</i> harus benar.</li>
+    <li>Tabel <b>Hasil</b> menunjukkan leluhur bersama, selisih sundut, dan keterangan tambahan. Gulir ke bawah di jendela bila perlu.</li>
+  </ul>
+  <figure><img src="img/53-partuturan-hasil-bawah.png" alt="Hasil bagian bawah"><figcaption>Gambar 7.3 — Bagian bawah hasil perhitungan.</figcaption></figure>
+  <div class="kotak info"><b class="k">Cakupan perhitungan</b>Perhitungan menangani hubungan sesama keturunan garis ayah (dongan tubu), termasuk <i>namboru</i> dan <i>paraman</i> serta aturan <i>ito</i>, <i>angkang</i>, <i>anggi</i>. Hubungan lewat garis ibu (hula-hula/tulang) belum dihitung karena data ibu belum tersedia pada setiap anak.</div>
+  <div class="kotak tip"><b class="k">Halaman uji tanpa login</b>Untuk menguji aturan partuturan bersama pengurus lain tanpa akun, tersedia halaman publik berkode akses di <b>/uji-partuturan</b>. Kode akses diatur admin sistem (parameter sistem) dan sebaiknya diganti berkala.</div>
+
+  <h3 id="direktori">7.2 Direktori Keahlian</h3>
+  <p>Daftar anggota beserta pekerjaan, pendidikan, dan wilayahnya, untuk mencari tenaga ahli di lingkungan marga (misalnya dokter, notaris, atau guru).</p>
+  <ol class="langkah">
+    <li>Klik <span class="menu">Laporan › Direktori Keahlian</span>.</li>
+    <li>Cari berdasarkan nama, bidang, atau pekerjaan di kotak pencarian, atau gunakan filter/pengelompokan (mis. per Bidang atau per Wilayah).</li>
+    <li>Klik baris untuk membuka data anggotanya.</li>
+  </ol>
+  <figure><img src="img/54-direktori-keahlian.png" alt="Direktori keahlian"><figcaption>Gambar 7.4 — Direktori Keahlian.</figcaption></figure>
+  <div class="kotak info"><b class="k">Kelengkapan data</b>Direktori hanya sebagus isian <i>Riwayat</i> dan <i>Bidang</i> pada data anggota. Dorong anggota melengkapi profilnya di aplikasi.</div>
+</section>
+
+<!-- ================= 8. KONFIGURASI ================= -->
+<section class="bagian" id="konfigurasi" data-judul="Konfigurasi">
+  <h2>8. Konfigurasi</h2>
+  <p>Berisi data master dan kotak masuk moderasi. Perubahan di sini berdampak ke seluruh data, ubah dengan hati-hati.</p>
+
+  <h3>8.1 Data master</h3>
+  <table>
+    <tr><th style="width:170px">Menu</th><th>Fungsi</th></tr>
+    <tr><td class="menu">Marga</td><td>Daftar marga (Silaen, Tampubolon, Gultom, dst), dipakai pada data anggota dan marga istri.</td></tr>
+    <tr><td class="menu">Padan</td><td>Ikatan janji antar-marga, dipakai pada pemeriksaan adat saat menambah pernikahan.</td></tr>
+    <tr><td class="menu">Wilayah</td><td>Provinsi dan kabupaten/kota, dipakai pada domisili dan peta.</td></tr>
+    <tr><td class="menu">Punguan</td><td>Perkumpulan marga beserta wilayahnya.</td></tr>
+    <tr><td class="menu">Bidang</td><td>Bidang pekerjaan (ASN, Wiraswasta, Kesehatan, Pendidik, dst) untuk grafik dan Direktori Keahlian.</td></tr>
+  </table>
+  <figure><img src="img/60-marga.png" alt="Daftar marga"><figcaption>Gambar 8.1 — Contoh data master: Marga.</figcaption></figure>
+  <figure><img src="img/63-punguan.png" alt="Daftar punguan"><figcaption>Gambar 8.2 — Contoh data master: Punguan.</figcaption></figure>
+  <ol class="langkah">
+    <li>Buka menu master yang diinginkan lewat <span class="menu">Konfigurasi</span>.</li>
+    <li>Untuk menambah, klik <span class="btn h">New</span>, isi kolom, lalu simpan.</li>
+    <li>Untuk mengubah, klik baris, ubah isian, lalu simpan.</li>
+  </ol>
+  <div class="kotak awas"><b class="k">Jangan menghapus data master yang sudah dipakai</b>Menghapus marga/wilayah/punguan yang masih dipakai anggota dapat menimbulkan kekeliruan atau ditolak sistem. Cukup ubah namanya bila ada salah ketik.</div>
+
+  <h3>8.2 Laporan Konten (moderasi komentar)</h3>
+  <p>Anggota dapat melaporkan komentar yang tidak pantas pada berita. Buka <span class="menu">Konfigurasi › Laporan Konten</span>. Laporan baru berstatus <b>Baru</b>.</p>
+  <figure><img src="img/66-laporan-konten.png" alt="Laporan konten"><figcaption>Gambar 8.3 — Daftar laporan konten (isi diburamkan).</figcaption></figure>
+  <ol class="langkah">
+    <li>Klik laporan untuk melihat berita, alasan pelapor, serta salinan isi komentar.</li>
+    <li>Klik <span class="btn">Buka Berita</span> bila perlu melihat konteks.</li>
+    <li>Bila komentar melanggar, klik <span class="btn">Hapus Komentar</span>.</li>
+    <li>Bila laporan tidak beralasan, klik <span class="btn">Abaikan Laporan</span>.</li>
+  </ol>
+
+  <h3>8.3 Masukan Pengguna</h3>
+  <p>Kritik, saran, atau kendala yang dikirim anggota dari aplikasi. Buka <span class="menu">Konfigurasi › Masukan Pengguna</span>.</p>
+  <figure><img src="img/67-masukan.png" alt="Masukan pengguna"><figcaption>Gambar 8.4 — Daftar masukan pengguna (isi diburamkan).</figcaption></figure>
+  <ol class="langkah">
+    <li>Baca masukan dan kategorinya.</li>
+    <li>Tindak lanjuti (perbaiki data, jawab, atau teruskan ke pengembang).</li>
+    <li>Klik <span class="btn">Tandai Ditangani</span> agar tidak menumpuk.</li>
+  </ol>
+
+  <h3>8.4 Permintaan Hapus Akun</h3>
+  <p>Sesuai kebijakan privasi dan aturan toko aplikasi, anggota dapat meminta akunnya dihapus dari aplikasi. Permintaan masuk ke <span class="menu">Konfigurasi › Permintaan Hapus Akun</span> dengan status <b>Menunggu Diproses</b>.</p>
+  <figure><img src="img/65-hapus-akun.png" alt="Permintaan hapus akun"><figcaption>Gambar 8.5 — Daftar permintaan hapus akun (data pribadi diburamkan).</figcaption></figure>
+  <ol class="langkah">
+    <li>Buka permintaan dan periksa identitas pemohon.</li>
+    <li>Hapus/nonaktifkan akun penggunanya sesuai prosedur admin sistem (data silsilah milik keluarga tidak ikut dihapus). <b>Tombol di bawah hanya mencatat status</b>, tidak menghapus akun secara otomatis.</li>
+    <li>Setelah akun diproses, klik <span class="btn h">Tandai Sudah Diproses</span> (atau <span class="btn">Tandai Selesai</span> di daftar). Status menjadi <b>Sudah Diproses</b> dan tanggal proses tercatat.</li>
+  </ol>
+  <div class="kotak bahaya"><b class="k">Tenggat waktu</b>Proses permintaan hapus akun secepatnya, dan tidak lebih lama dari batas yang dijanjikan dalam kebijakan privasi aplikasi.</div>
+</section>
+
+<!-- ================= 9. PRAKTIK TERBAIK ================= -->
+<section class="bagian" id="praktik" data-judul="Praktik terbaik">
+  <h2>9. Praktik terbaik pengurus</h2>
+  <table>
+    <tr><th style="width:230px">Rutinitas</th><th>Saran</th></tr>
+    <tr><td><b>Harian / tiap beberapa hari</b></td><td>Cek <i>Usulan Menunggu</i> di Dashboard dan proses klaim akun baru. Respons cepat membuat anggota betah memakai aplikasi.</td></tr>
+    <tr><td><b>Mingguan</b></td><td>Periksa <i>Laporan Konten</i> dan <i>Masukan Pengguna</i>. Terbitkan berita/agenda yang relevan.</td></tr>
+    <tr><td><b>Bulanan</b></td><td>Lihat Dashboard untuk persentase anggota terhubung akun; tinjau sebaran peta dan lengkapi domisili yang masih kosong.</td></tr>
+  </table>
+  <ul>
+    <li><b>Verifikasi sebelum menyetujui</b>: cocokkan dengan sumber yang dapat dipercaya (catatan punguan, kerabat terdekat, dokumen).</li>
+    <li><b>Jelaskan setiap penolakan</b> dengan bahasa yang santun.</li>
+    <li><b>Jangan menghapus</b> data anggota. Bila ada kekeliruan, koreksi datanya. Hapus hanya untuk duplikat yang jelas, dan setelah dikonfirmasi pengurus lain.</li>
+    <li><b>Konsistenkan penulisan nama</b>: gunakan ejaan yang disepakati punguan, tulis marga istri pada kolom <i>Marga Istri</i> (bukan di nama).</li>
+    <li><b>Lindungi data pribadi</b>: jangan menyalin kontak anggota ke luar sistem; jangan menyebar tangkapan layar yang memuat data kontak.</li>
+  </ul>
+</section>
+
+<!-- ================= 10. FAQ ================= -->
+<section class="bagian" id="faq" data-judul="Tanya jawab">
+  <h2>10. Tanya jawab dan pemecahan masalah</h2>
+  <details><summary>Saya tidak melihat menu tertentu (mis. Konfigurasi).</summary>
+    <p>Menu tampil sesuai hak akses. Pastikan akun Anda bergabung ke grup <b>Pengurus Tarombo</b>. Hubungi admin sistem bila perlu.</p></details>
+  <details><summary>Tombol Setujui/Tolak tidak muncul pada usulan.</summary>
+    <p>Tombol hanya muncul pada usulan berstatus <b>Diajukan</b>. Usulan <i>Draft</i> belum dikirim pengaju; usulan <i>Disetujui</i> sudah selesai.</p></details>
+  <details><summary>Hasil partuturan terasa tidak sesuai.</summary>
+    <p>Periksa dulu data pada pohon penjelasan: apakah <i>Ayah</i> dan <i>Anak ke-</i> kedua orang (dan leluhur di percabangan) sudah benar. Sebutan tua/muda mengikuti urutan anak, bukan umur. Bila data sudah benar tetapi hasil dipertanyakan, catat nama kedua orang dan hasilnya, lalu sampaikan ke pengembang.</p></details>
+  <details><summary>Orang yang dicari tidak ada di daftar pencarian partuturan.</summary>
+    <p>Ketik lebih banyak huruf, atau klik <i>Search More…</i>. Bila memang belum ada, tambahkan lewat Anggota atau minta anggota mengusulkan.</p></details>
+  <details><summary>Peta tidak menampilkan titik untuk anggota tertentu.</summary>
+    <p>Pastikan tab <b>Domisili</b> anggota sudah diisi wilayahnya (provinsi/kabupaten). Peta memakai isian wilayah itu.</p></details>
+  <details><summary>Angka di Dashboard belum berubah setelah saya menyimpan data.</summary>
+    <p>Klik tombol <span class="btn">Muat Ulang</span> di kiri atas Dashboard.</p></details>
+  <details><summary>Saya tidak sengaja menyetujui usulan yang salah.</summary>
+    <p>Buka data anggota yang terkait dan koreksi manual (tab Keluarga/Identitas). Catat alasannya lewat <i>Log note</i> pada usulan. Jangan menghapus orang yang sudah dihubungkan akun.</p></details>
+  <details><summary>Halaman terasa lambat atau tampilan aneh setelah pembaruan sistem.</summary>
+    <p>Muat ulang paksa peramban dengan <kbd>Ctrl</kbd> + <kbd>F5</kbd> (Windows) atau <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> (Mac).</p></details>
+  <details><summary>Kepada siapa saya melapor bila ada masalah teknis?</summary>
+    <p>Hubungi admin sistem/pengembang Tarombo. Sertakan tangkapan layar (tanpa data pribadi) dan langkah yang Anda lakukan.</p></details>
+</section>
+
+<footer>Manual Book Pengurus Tarombo · khusus pengurus · jangan disebarkan ke luar</footer>
+<div id="kosong">Tidak ada topik yang cocok dengan pencarian Anda.</div>
+</main>
+</div>
+
+<div id="lightbox"><img alt=""></div>
+
+<script>
+(function () {
+  var bagian = Array.prototype.slice.call(document.querySelectorAll('section.bagian'));
+  var nav = document.getElementById('daftarIsi');
+
+  // Daftar isi dibuat otomatis dari judul bagian dan sub-judul.
+  var html = '';
+  bagian.forEach(function (s) {
+    html += '<a class="bab" href="#' + s.id + '" data-t="' + s.id + '">' + s.dataset.judul + '</a>';
+    s.querySelectorAll('h3').forEach(function (h, i) {
+      if (!h.id) h.id = s.id + '-s' + (i + 1);
+      html += '<a class="sub" href="#' + h.id + '" data-t="' + h.id + '">' + h.textContent + '</a>';
+    });
+  });
+  nav.innerHTML = html;
+
+  // Menandai bagian yang sedang dibaca.
+  var tautan = Array.prototype.slice.call(nav.querySelectorAll('a'));
+  function tandai() {
+    var posisi = window.scrollY + 120, aktif = null;
+    document.querySelectorAll('section.bagian h3[id], section.bagian[id]').forEach(function (e) {
+      if (e.getBoundingClientRect().top + window.scrollY <= posisi) aktif = e.id;
+    });
+    tautan.forEach(function (a) { a.classList.toggle('aktif', a.dataset.t === aktif); });
+  }
+  window.addEventListener('scroll', tandai, { passive: true });
+  tandai();
+
+  // Pencarian: menyaring bagian, menyorot kata, membuka <details>.
+  var cari = document.getElementById('cari'), kosong = document.getElementById('kosong');
+  var asli = new Map();
+  function bersihkan() {
+    document.querySelectorAll('mark').forEach(function (m) {
+      m.replaceWith(document.createTextNode(m.textContent));
+    });
+    document.getElementById('isi').normalize();
+  }
+  function sorot(el, kata) {
+    var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        return n.parentNode.closest('script,style,mark') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var daftar = [], n;
+    while ((n = w.nextNode())) daftar.push(n);
+    var re = new RegExp('(' + kata.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    daftar.forEach(function (t) {
+      if (!re.test(t.nodeValue)) return;
+      re.lastIndex = 0;
+      var span = document.createElement('span');
+      span.innerHTML = t.nodeValue.replace(/[&<>]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
+      }).replace(re, '<mark>$1</mark>');
+      t.replaceWith.apply(t, Array.prototype.slice.call(span.childNodes));
+    });
+  }
+  var timer;
+  cari.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      var q = cari.value.trim();
+      bersihkan();
+      if (q.length < 2) {
+        bagian.forEach(function (s) { s.classList.remove('sembunyi'); });
+        kosong.style.display = 'none';
+        return;
+      }
+      var ada = 0;
+      bagian.forEach(function (s) {
+        var cocok = s.textContent.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+        s.classList.toggle('sembunyi', !cocok);
+        if (cocok) {
+          ada++;
+          sorot(s, q);
+          s.querySelectorAll('details').forEach(function (d) {
+            if (d.textContent.toLowerCase().indexOf(q.toLowerCase()) >= 0) d.open = true;
+          });
+        }
+      });
+      kosong.style.display = ada ? 'none' : 'block';
+    }, 200);
+  });
+
+  // Perbesar gambar.
+  var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
+  document.getElementById('isi').addEventListener('click', function (e) {
+    if (e.target.tagName === 'IMG') {
+      lbImg.src = e.target.src; lb.classList.add('buka');
+    }
+  });
+  lb.addEventListener('click', function () { lb.classList.remove('buka'); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lb.classList.remove('buka'); });
+
+  // Menu samping pada layar kecil.
+  var tombol = document.getElementById('tombolMenu');
+  tombol.addEventListener('click', function () { nav.classList.toggle('buka'); });
+  nav.addEventListener('click', function (e) { if (e.target.tagName === 'A') nav.classList.remove('buka'); });
+})();
+</script>
+</body>
+</html>
