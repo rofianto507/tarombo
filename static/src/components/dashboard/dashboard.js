@@ -109,8 +109,12 @@ export class TaromboDashboard extends Component {
         this._bersihkan();
         this._renderDonut();
         this._renderSundut();
-        this._renderBar(this.pendidikanRef, this.state.data.per_pendidikan, WARNA_PENDIDIKAN);
-        this._renderBar(this.bidangRef, this.state.data.per_bidang, WARNA_BIDANG);
+        this._renderBar(this.pendidikanRef, this.state.data.per_pendidikan, WARNA_PENDIDIKAN, (r) =>
+            this._bukaAnggota("pendidikan_tertinggi", r.key, "Anggota - Pendidikan " + r.name)
+        );
+        this._renderBar(this.bidangRef, this.state.data.per_bidang, WARNA_BIDANG, (r) =>
+            this._bukaAnggota("bidang_kini_id", r.id, "Anggota - Bidang " + r.name)
+        );
         this._renderPeta();
     }
 
@@ -121,18 +125,52 @@ export class TaromboDashboard extends Component {
         }
         const chart = echarts.init(el);
         this._charts.push(chart);
+        const data = this.state.data.jenis_kelamin;
+        const total = data.reduce((j, d) => j + d.value, 0);
+        // Keterangan ditaruh di legenda (bawah), bukan label di irisan, supaya tidak
+        // terpotong di kartu yang sempit. Total ditulis di tengah donat.
         chart.setOption({
             tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
             color: [WARNA_JK.L, WARNA_JK.P],
+            title: {
+                text: String(total),
+                subtext: "anggota",
+                left: "center",
+                top: "31%",
+                textStyle: { fontSize: 22, fontWeight: 700 },
+                subtextStyle: { fontSize: 11 },
+            },
+            legend: {
+                bottom: 4,
+                itemWidth: 12,
+                itemHeight: 12,
+                textStyle: { fontSize: 11 },
+                formatter: (nama) => {
+                    const d = data.find((x) => x.name === nama);
+                    if (!d) {
+                        return nama;
+                    }
+                    const pct = total ? Math.round((d.value / total) * 1000) / 10 : 0;
+                    return `${nama}: ${d.value} (${pct}%)`;
+                },
+            },
             series: [
                 {
                     type: "pie",
-                    radius: ["45%", "70%"],
-                    data: this.state.data.jenis_kelamin.map((d) => ({ name: d.name, value: d.value })),
-                    label: { formatter: "{b}\n{c}", fontSize: 11 },
+                    radius: ["42%", "68%"],
+                    center: ["50%", "42%"],
+                    cursor: "pointer",
+                    data: data.map((d) => ({ name: d.name, value: d.value, key: d.key })),
+                    label: { show: false },
+                    labelLine: { show: false },
                     itemStyle: { borderRadius: 4, borderColor: "#fff", borderWidth: 2 },
                 },
             ],
+        });
+        chart.on("click", (p) => {
+            if (p.data && p.data.key) {
+                this._bukaAnggota("jenis_kelamin", p.data.key, "Anggota - " + p.name);
+            }
         });
     }
 
@@ -145,31 +183,43 @@ export class TaromboDashboard extends Component {
         const chart = echarts.init(el);
         this._charts.push(chart);
         chart.setOption({
-            tooltip: { trigger: "axis" },
-            grid: { left: 36, right: 16, top: 16, bottom: 28 },
+            tooltip: { trigger: "axis", formatter: (p) => `Sundut ${p[0].name}: ${p[0].value} anggota` },
+            // containLabel + jarak kanan: label sumbu paling kanan tidak terpotong.
+            grid: { left: 12, right: 28, top: 20, bottom: 34, containLabel: true },
             xAxis: {
                 type: "category",
-                data: rows.map((r) => "Sundut " + r.sundut),
+                data: rows.map((r) => String(r.sundut)),
                 boundaryGap: false,
-                axisLabel: { fontSize: 10 },
+                axisLabel: { fontSize: 10, interval: 0 },
+                name: "Sundut",
+                nameLocation: "middle",
+                nameGap: 22,
+                nameTextStyle: { fontSize: 10 },
             },
-            yAxis: { type: "value", axisLabel: { fontSize: 10 } },
+            yAxis: { type: "value", minInterval: 1, axisLabel: { fontSize: 10 } },
             series: [
                 {
                     type: "line",
                     data: rows.map((r) => r.jumlah),
                     smooth: false,
                     symbol: "circle",
-                    symbolSize: 6,
+                    symbolSize: 8,
+                    cursor: "pointer",
                     lineStyle: { color: WARNA_SUNDUT, width: 2.5 },
                     itemStyle: { color: WARNA_SUNDUT },
                     areaStyle: { color: "rgba(59, 111, 180, 0.12)" },
                 },
             ],
         });
+        chart.on("click", (p) => {
+            const baris = rows[p.dataIndex];
+            if (baris) {
+                this._bukaAnggota("sundut", baris.sundut, "Anggota - Sundut " + baris.sundut);
+            }
+        });
     }
 
-    _renderBar(ref, rows, warna) {
+    _renderBar(ref, rows, warna, onClick) {
         const el = ref.el;
         if (!el || !rows.length) {
             return;
@@ -184,15 +234,22 @@ export class TaromboDashboard extends Component {
                 data: rows.map((r) => r.name),
                 axisLabel: { rotate: 35, fontSize: 10, interval: 0 },
             },
-            yAxis: { type: "value", axisLabel: { fontSize: 10 } },
+            yAxis: { type: "value", minInterval: 1, axisLabel: { fontSize: 10 } },
             series: [
                 {
+                    cursor: "pointer",
                     type: "bar",
                     data: rows.map((r) => r.jumlah),
                     barMaxWidth: 28,
                     itemStyle: { color: warna, borderRadius: [4, 4, 0, 0] },
                 },
             ],
+        });
+        chart.on("click", (p) => {
+            const baris = rows[p.dataIndex];
+            if (baris && onClick) {
+                onClick(baris);
+            }
         });
     }
 
@@ -209,7 +266,27 @@ export class TaromboDashboard extends Component {
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "&copy; OpenStreetMap",
         }).addTo(map);
-        this._lapisMarker = L.layerGroup().addTo(map);
+        // Grouping marker (Leaflet.markercluster): titik wilayah yang berdekatan
+        // digabung menjadi satu gelembung berisi total anggotanya, dan terurai saat
+        // peta diperbesar. Angka gelembung = jumlah anggota, bukan jumlah titik.
+        this._lapisMarker = L.markerClusterGroup({
+            maxClusterRadius: 55,
+            showCoverageOnHover: false,
+            spiderfyOnMaxZoom: true,
+            zoomToBoundsOnClick: true,
+            iconCreateFunction: (cluster) => {
+                const total = cluster
+                    .getAllChildMarkers()
+                    .reduce((jml, m) => jml + (m.options.jumlahAnggota || 0), 0);
+                const d = Math.round(40 + Math.min(30, Math.log10(total + 1) * 12));
+                return L.divIcon({
+                    html: `<div class="o_tarombo_cluster_marker" style="width:${d}px;height:${d}px;line-height:${d - 6}px;">${total}</div>`,
+                    className: "",
+                    iconSize: [d, d],
+                    iconAnchor: [d / 2, d / 2],
+                });
+            },
+        }).addTo(map);
         this._gambarMarker(true);
         setTimeout(() => map.invalidateSize(), 150);
     }
@@ -219,7 +296,11 @@ export class TaromboDashboard extends Component {
             return;
         }
         this._lapisMarker.clearLayers();
-        const items = this.state.data.sebaran_wilayah[this.state.levelPeta] || [];
+        const level = this.state.levelPeta;
+        // Kolom yang dipakai penghitung sebaran (get_sebaran_wilayah), supaya daftar
+        // anggota yang dibuka persis sama dengan jumlah yang tertera di peta.
+        const kolom = level === "provinsi" ? "provinsi_id" : "kabupaten_id";
+        const items = this.state.data.sebaran_wilayah[level] || [];
         const markers = items.map((w) => {
             const d = Math.round(30 + Math.min(28, Math.log10(w.jumlah + 1) * 14));
             const icon = L.divIcon({
@@ -227,12 +308,24 @@ export class TaromboDashboard extends Component {
                 html: `<div class="o_tarombo_sebaran_marker" style="width:${d}px;height:${d}px;line-height:${d}px;">${w.jumlah}</div>`,
                 iconSize: [d, d],
             });
-            const marker = L.marker([w.lat, w.lng], { icon });
+            const marker = L.marker([w.lat, w.lng], { icon, jumlahAnggota: w.jumlah });
             marker.bindPopup(
                 `<div style="font-weight:600;">${this._escapeHtml(w.nama)}</div>`
                 + `<div style="font-size:11px;color:#666;">${this._escapeHtml(w.nama_lengkap)}</div>`
-                + `<div style="margin-top:4px;">${w.jumlah} anggota</div>`
+                + `<button type="button" class="btn btn-sm btn-primary o_tarombo_popup_lihat" style="margin-top:8px;">`
+                + `Lihat ${w.jumlah} anggota</button>`
             );
+            marker.on("popupopen", (e) => {
+                const tombol = e.popup.getElement().querySelector(".o_tarombo_popup_lihat");
+                if (tombol) {
+                    tombol.onclick = () =>
+                        this._bukaDaftar(
+                            "tarombo.action_tarombo_orang",
+                            [[kolom, "=", w.id]],
+                            "Anggota - " + w.nama
+                        );
+                }
+            });
             marker.addTo(this._lapisMarker);
             return marker;
         });
@@ -254,6 +347,71 @@ export class TaromboDashboard extends Component {
 
     _urlPratinjau(id) {
         return `/web/image/tarombo.arsip/${id}/pratinjau`;
+    }
+
+    /**
+     * Buka daftar data dari sebuah KPI. Memakai action yang sudah ada (tampilan
+     * list/form/dll. tetap sama), hanya domain-nya yang dipersempit.
+     */
+    async _bukaDaftar(xmlid, domain = [], nama = false) {
+        const action = await this.actionService.loadAction(xmlid);
+        action.domain = domain;
+        action.context = {};
+        action.target = "current";
+        if (nama) {
+            action.name = nama;
+        }
+        this.actionService.doAction(action);
+    }
+
+    /** Nilai terbesar kolom Total di tabel domisili, untuk lebar batang kecil per baris. */
+    get maksDomisili() {
+        const baris = (this.state.data && this.state.data.tabel_domisili) || [];
+        return Math.max(1, ...baris.map((r) => r.total));
+    }
+
+    /** Warna lencana jenis usulan. */
+    _kelasJenis(jenis) {
+        const j = (jenis || "").toLowerCase();
+        if (j.includes("tambah")) {
+            return "o_tarombo_pil--hijau";
+        }
+        if (j.includes("koreksi")) {
+            return "o_tarombo_pil--emas";
+        }
+        if (j.includes("istri")) {
+            return "o_tarombo_pil--ungu";
+        }
+        return "o_tarombo_pil--biru";
+    }
+
+    /** Buka anggota di wilayah pada baris tabel domisili (kabupaten, provinsi saja, atau tanpa domisili). */
+    _bukaDomisili(row) {
+        const id = String(row.id);
+        let domain;
+        if (id.startsWith("k")) {
+            domain = [["kabupaten_id", "=", parseInt(id.slice(1), 10)]];
+        } else if (id.startsWith("p")) {
+            domain = [
+                ["provinsi_id", "=", parseInt(id.slice(1), 10)],
+                ["kabupaten_id", "=", false],
+            ];
+        } else {
+            domain = [
+                ["provinsi_id", "=", false],
+                ["kabupaten_id", "=", false],
+            ];
+        }
+        const nama = String(row.name).split(" - ").slice(-1)[0];
+        return this._bukaDaftar("tarombo.action_tarombo_orang", domain, "Anggota - " + nama);
+    }
+
+    _bukaPohonForce() {
+        this.actionService.doAction("tarombo.action_tarombo_pohon_force");
+    }
+
+    _bukaAnggota(kolom, nilai, judul) {
+        return this._bukaDaftar("tarombo.action_tarombo_orang", [[kolom, "=", nilai]], judul);
     }
 
     _bukaOrang(id) {

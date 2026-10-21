@@ -8,5 +8,11 @@
             <field name="target">current</field>
         </record>
 
+        <record id="action_tarombo_pohon_force" model="ir.actions.client">
+            <field name="name">Visualisasi Pohon Silsilah</field>
+            <field name="tag">tarombo_pohon_force</field>
+            <field name="target">current</field>
+        </record>
+
     </data>
 </odoo>

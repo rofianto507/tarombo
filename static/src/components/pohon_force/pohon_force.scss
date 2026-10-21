@@ -1,0 +1,175 @@
+// Halaman visualisasi pohon (grafik force). Tema hijau marga + emas.
+.o_tarombo_force {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #f6f7f4;
+    overflow: hidden;
+}
+
+.o_tarombo_force_bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #fff;
+    border-bottom: 1px solid #e3e8e3;
+}
+
+.o_tarombo_force_cari {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1 1 260px;
+    max-width: 380px;
+    background: #f1f5f2;
+    border: 1px solid #dce5de;
+    border-radius: 8px;
+    padding: 0 10px;
+
+    .fa {
+        color: #7a877e;
+    }
+
+    input {
+        flex: 1;
+        border: 0;
+        background: transparent;
+        padding: 7px 8px;
+        font-size: 13px;
+        outline: none;
+    }
+
+    &:focus-within {
+        border-color: #2e5339;
+        box-shadow: 0 0 0 3px rgba(46, 83, 57, 0.12);
+    }
+}
+
+.o_tarombo_force_hasil {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    max-height: 300px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dce5de;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+    button {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        padding: 8px 12px;
+        border: 0;
+        border-bottom: 1px solid #eef1ee;
+        background: #fff;
+        text-align: left;
+        font-size: 13px;
+        cursor: pointer;
+
+        small {
+            color: #7a877e;
+            font-size: 11px;
+        }
+
+        &:hover {
+            background: #eef4ef;
+        }
+    }
+}
+
+.o_tarombo_force_kontrol {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 12px;
+    color: #5c6b61;
+
+    select {
+        border: 1px solid #dce5de;
+        border-radius: 6px;
+        background: #fff;
+        padding: 4px 6px;
+        font-size: 13px;
+    }
+}
+
+.o_tarombo_force_tombol {
+    border: 1px solid #cfdad2;
+    background: #fff;
+    color: #2e5339;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+
+    .fa {
+        margin-right: 3px;
+    }
+
+    &:hover {
+        border-color: #2e5339;
+        background: #eef4ef;
+    }
+
+    &.is-aktif {
+        background: #2e5339;
+        color: #fff;
+        border-color: #2e5339;
+    }
+}
+
+.o_tarombo_force_info {
+    margin-left: auto;
+    padding: 3px 12px;
+    border-radius: 99px;
+    background: #fbf3dc;
+    color: #8a6d1d;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.o_tarombo_force_canvas {
+    flex: 1 1 auto;
+    min-height: 320px;
+    width: 100%;
+}
+
+.o_tarombo_force_petunjuk {
+    padding: 6px 14px;
+    background: #fff;
+    border-top: 1px solid #e3e8e3;
+    font-size: 11px;
+    color: #7a877e;
+}
+
+.o_tarombo_force_status {
+    position: absolute;
+    top: 64px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 16px;
+    border-radius: 99px;
+    background: #2e5339;
+    color: #fff;
+    font-size: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.o_tarombo_force_galat {
+    position: absolute;
+    inset: 120px 24px auto;
+    padding: 14px 18px;
+    border-radius: 8px;
+    background: #fdecec;
+    color: #9a2b2b;
+    text-align: center;
+}

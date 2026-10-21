@@ -29,6 +29,28 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
+.o_tarombo_kpi_card--klik {
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+        border-color: #2e5339;
+        box-shadow: 0 4px 12px rgba(46, 83, 57, 0.15);
+        transform: translateY(-1px);
+    }
+}
+
+.o_tarombo_kpi_tautan {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed currentColor;
+
+    &:hover {
+        color: #2e5339;
+        border-bottom-style: solid;
+    }
+}
+
 .o_tarombo_kpi_icon {
     width: 40px;
     height: 40px;
@@ -129,6 +151,190 @@
     cursor: pointer;
 }
 
+// ── Tabel bertema (hijau marga + emas) ───────────────────────────────────
+.o_tarombo_tbl_head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.o_tarombo_tbl_title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2e5339;
+
+    .fa {
+        color: #c8a24a;
+        margin-right: 4px;
+    }
+}
+
+.o_tarombo_tbl_count {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 9px;
+    border-radius: 99px;
+    background: #e6efe8;
+    color: #2e5339;
+    font-size: 11px;
+    font-weight: 700;
+
+    &--emas {
+        background: #fbf3dc;
+        color: #8a6d1d;
+    }
+}
+
+.o_tarombo_tbl_semua {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2e5339;
+    text-decoration: none;
+
+    &:hover {
+        color: #c8a24a;
+    }
+}
+
+.o_tarombo_tbl {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+
+    thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f1f5f2;
+        color: #2e5339;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 8px 10px;
+        border-bottom: 2px solid #c8a24a;
+        white-space: nowrap;
+    }
+
+    tbody td {
+        padding: 9px 10px;
+        border-bottom: 1px solid #eef1ee;
+        vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    tbody tr:nth-child(even) td {
+        background: #fafbfa;
+    }
+
+    tbody tr.o_tarombo_row_klik:hover td {
+        background: #eef4ef;
+    }
+}
+
+.o_tarombo_tbl_wilayah {
+    min-width: 190px;
+}
+
+.o_tarombo_tbl_utama {
+    font-weight: 600;
+    color: #1d2a22;
+    line-height: 1.25;
+}
+
+.o_tarombo_tbl_sub {
+    font-size: 11px;
+    color: #7a877e;
+    line-height: 1.2;
+}
+
+.o_tarombo_tbl_bar {
+    height: 3px;
+    margin-top: 5px;
+    border-radius: 2px;
+    background: #eef1ee;
+
+    span {
+        display: block;
+        height: 100%;
+        border-radius: 2px;
+        background: linear-gradient(90deg, #2e5339, #c8a24a);
+    }
+}
+
+.o_tarombo_tbl_total {
+    font-weight: 800;
+    color: #2e5339;
+    font-size: 14px;
+}
+
+.o_tarombo_tbl_kode {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 12px;
+    color: #5c6b61;
+    white-space: nowrap;
+}
+
+.o_tarombo_tbl_tgl {
+    color: #7a877e;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+.o_tarombo_tbl_kosong {
+    text-align: center;
+    color: #7a877e;
+    padding: 28px 10px !important;
+
+    .fa {
+        color: #2e5339;
+        margin-right: 6px;
+    }
+}
+
+.o_tarombo_pil {
+    display: inline-block;
+    min-width: 28px;
+    padding: 2px 9px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+
+    &--hijau {
+        background: #e3f1e8;
+        color: #2e7d4f;
+    }
+
+    &--emas {
+        background: #fbf3dc;
+        color: #8a6d1d;
+    }
+
+    &--biru {
+        background: #e1edf8;
+        color: #2a6fb0;
+    }
+
+    &--ungu {
+        background: #efe6f7;
+        color: #6f3fa0;
+    }
+
+    &--nol {
+        background: #f1f3f1;
+        color: #a3aca6;
+        font-weight: 600;
+    }
+}
+
 // ── Map ──────────────────────────────────────────────────────────────────
 .o_tarombo_map_card {
     background: #fff;
@@ -148,6 +354,19 @@
     font-weight: 700;
     font-size: 12px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+// Gelembung hasil grouping marker: lebih besar dengan cincin emas supaya
+// terbedakan dari titik wilayah tunggal.
+.o_tarombo_cluster_marker {
+    background: #2e5339;
+    color: #fff;
+    border: 3px solid #c8a24a;
+    border-radius: 50%;
+    text-align: center;
+    font-weight: 800;
+    font-size: 13px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .o_tarombo_map_canvas {

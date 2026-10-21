@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tarombo.PohonForce">
+        <Layout display="display">
+            <div class="o_tarombo_force" t-ref="root">
+                <div class="o_tarombo_force_bar">
+                    <div class="o_tarombo_force_cari">
+                        <i class="fa fa-search"/>
+                        <input type="text" placeholder="Cari nama orang di pohon..." t-att-value="state.cari"
+                               t-on-input="onKetikCari" autocomplete="off"/>
+                        <div t-if="state.hasil.length" class="o_tarombo_force_hasil">
+                            <t t-foreach="state.hasil" t-as="h" t-key="h.id">
+                                <button type="button" t-on-click="() => this.pilihHasil(h)">
+                                    <span><t t-esc="h.label"/></span>
+                                    <small t-if="h.ayah">ayah: <t t-esc="h.ayah"/></small>
+                                </button>
+                            </t>
+                        </div>
+                    </div>
+                    <label class="o_tarombo_force_kontrol">
+                        <span>Tingkat awal</span>
+                        <select t-on-change="onUbahKedalaman">
+                            <t t-foreach="[1, 2, 3, 4, 5, 6]" t-as="k" t-key="k">
+                                <option t-att-value="k" t-att-selected="k === state.kedalaman"><t t-esc="k"/></option>
+                            </t>
+                        </select>
+                    </label>
+                    <button type="button" class="o_tarombo_force_tombol" t-on-click="onPerluasSatuTingkat"
+                            title="Tampilkan satu tingkat anak lagi untuk semua simpul berlingkar emas">
+                        <i class="fa fa-expand"/> Perluas
+                    </button>
+                    <button type="button" class="o_tarombo_force_tombol" t-on-click="onCiutkanSemua"
+                            title="Sembunyikan semua keturunan, sisakan titik awal">
+                        <i class="fa fa-compress"/> Ciutkan
+                    </button>
+                    <button type="button" class="o_tarombo_force_tombol" t-on-click="onAturUlang"
+                            title="Susun ulang tata letak simpul">
+                        <i class="fa fa-random"/> Atur ulang
+                    </button>
+                    <button type="button" t-attf-class="o_tarombo_force_tombol #{state.tampilLabel ? 'is-aktif' : ''}"
+                            t-on-click="onToggleLabel" title="Tampilkan atau sembunyikan nama">
+                        <i class="fa fa-font"/> Nama
+                    </button>
+                    <button type="button" class="o_tarombo_force_tombol" t-on-click="onAtasi"
+                            title="Kembali ke leluhur utama">
+                        <i class="fa fa-home"/> Leluhur utama
+                    </button>
+                    <span class="o_tarombo_force_info">
+                        <t t-esc="state.jumlah"/> tokoh
+                        <t t-if="state.terpotong"><i class="fa fa-exclamation-triangle" title="Dibatasi demi kelancaran; ciutkan sebagian cabang atau cari orang tertentu."/></t>
+                    </span>
+                </div>
+
+                <div class="o_tarombo_force_canvas" t-ref="canvas"/>
+
+                <div class="o_tarombo_force_petunjuk">
+                    Seret simpul untuk memindahkan · gulir untuk zoom · klik: buka/tutup keturunan · klik dua kali: buka profil.
+                    Cincin emas = ada keturunan yang belum ditampilkan.
+                </div>
+
+                <div t-if="state.loading || state.bekerja" class="o_tarombo_force_status">
+                    <i class="fa fa-spinner fa-spin"/> Memuat...
+                </div>
+                <div t-if="state.error" class="o_tarombo_force_galat">
+                    Visualisasi tidak dapat dimuat. Muat ulang halaman, atau hubungi pengelola.
+                </div>
+            </div>
+        </Layout>
+    </t>
+
+</templates>

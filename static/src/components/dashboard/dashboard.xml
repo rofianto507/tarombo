@@ -8,6 +8,11 @@
                     <i class="fa fa-refresh"/> Muat Ulang
                 </button>
             </t>
+            <t t-set-slot="control-panel-navigation-additional">
+                <button type="button" class="btn btn-sm btn-primary o_tarombo_btn_pohon" t-on-click="_bukaPohonForce">
+                    <i class="fa fa-share-alt"/> Visualisasi Pohon
+                </button>
+            </t>
             <div class="o_tarombo_dashboard" t-ref="root">
                 <t t-if="state.loading">
                     <div class="o_tarombo_dashboard_status">
@@ -23,7 +28,8 @@
                 <t t-else="">
                     <!-- KPI -->
                     <div class="o_tarombo_kpi_row">
-                        <div class="o_tarombo_kpi_card">
+                        <div class="o_tarombo_kpi_card o_tarombo_kpi_card--klik" role="button" title="Lihat daftar anggota"
+                             t-on-click="() => this._bukaDaftar('tarombo.action_tarombo_orang')">
                             <div class="o_tarombo_kpi_icon"><i class="fa fa-users"/></div>
                             <div class="o_tarombo_kpi_body">
                                 <div class="o_tarombo_kpi_value"><t t-esc="state.data.kpi.total_anggota"/></div>
@@ -31,15 +37,17 @@
                                 <div class="o_tarombo_kpi_sub">anggota tercatat</div>
                             </div>
                         </div>
-                        <div class="o_tarombo_kpi_card">
+                        <div class="o_tarombo_kpi_card o_tarombo_kpi_card--klik" role="button" title="Lihat anggota yang sudah terhubung akun"
+                             t-on-click="() => this._bukaDaftar('tarombo.action_tarombo_orang', [['user_id', '!=', false]], 'Anggota Terhubung Akun')">
                             <div class="o_tarombo_kpi_icon"><i class="fa fa-check-circle"/></div>
                             <div class="o_tarombo_kpi_body">
-                                <div class="o_tarombo_kpi_value"><t t-esc="state.data.kpi.persen_terverifikasi"/>%</div>
-                                <div class="o_tarombo_kpi_label">Terverifikasi</div>
-                                <div class="o_tarombo_kpi_sub">anggota yang sudah terverifikasi</div>
+                                <div class="o_tarombo_kpi_value"><t t-esc="state.data.kpi.terhubung_akun"/></div>
+                                <div class="o_tarombo_kpi_label">Terhubung Akun</div>
+                                <div class="o_tarombo_kpi_sub">terverifikasi, <t t-esc="state.data.kpi.persen_terhubung"/>% dari total</div>
                             </div>
                         </div>
-                        <div class="o_tarombo_kpi_card">
+                        <div class="o_tarombo_kpi_card o_tarombo_kpi_card--klik" role="button" title="Lihat usulan yang menunggu ditinjau"
+                             t-on-click="() => this._bukaDaftar('tarombo.action_tarombo_usulan', [['state', '=', 'diajukan']], 'Usulan Menunggu')">
                             <div class="o_tarombo_kpi_icon"><i class="fa fa-clock-o"/></div>
                             <div class="o_tarombo_kpi_body">
                                 <div class="o_tarombo_kpi_value"><t t-esc="state.data.kpi.usulan_menunggu"/></div>
@@ -51,10 +59,14 @@
                             <div class="o_tarombo_kpi_icon"><i class="fa fa-sitemap"/></div>
                             <div class="o_tarombo_kpi_body">
                                 <div class="o_tarombo_kpi_value">
-                                    <t t-esc="state.data.kpi.total_punguan"/> / <t t-esc="state.data.kpi.total_marga"/>
+                                    <a href="#" class="o_tarombo_kpi_tautan" title="Lihat daftar punguan"
+                                       t-on-click.prevent="() => this._bukaDaftar('tarombo.action_tarombo_punguan')"><t t-esc="state.data.kpi.total_punguan"/></a>
+                                    /
+                                    <a href="#" class="o_tarombo_kpi_tautan" title="Lihat daftar marga"
+                                       t-on-click.prevent="() => this._bukaDaftar('tarombo.action_tarombo_marga')"><t t-esc="state.data.kpi.total_marga"/></a>
                                 </div>
                                 <div class="o_tarombo_kpi_label">Punguan / Marga</div>
-                                <div class="o_tarombo_kpi_sub">terdaftar</div>
+                                <div class="o_tarombo_kpi_sub">terdaftar (klik angkanya)</div>
                             </div>
                         </div>
                     </div>
@@ -87,7 +99,7 @@
                             <div t-else="" t-ref="pendidikan" class="o_tarombo_chart_canvas"/>
                         </div>
                         <div class="o_tarombo_chart_card">
-                            <div class="o_tarombo_chart_title"><i class="fa fa-briefcase"/> Anggota per Bidang Pekerjaan (Top 8)</div>
+                            <div class="o_tarombo_chart_title"><i class="fa fa-briefcase"/> Anggota per Bidang Pekerjaan</div>
                             <t t-if="!state.data.per_bidang.length">
                                 <div class="o_tarombo_chart_empty">Tidak ada data</div>
                             </t>
@@ -97,56 +109,81 @@
 
                     <!-- Tabel -->
                     <div class="o_tarombo_table_row">
+                        <!-- Ringkasan per domisili -->
                         <div class="o_tarombo_table_card">
-                            <div class="o_tarombo_chart_title"><i class="fa fa-map-marker"/> Ringkasan per Domisili (Kota/Kabupaten)</div>
+                            <div class="o_tarombo_tbl_head">
+                                <div class="o_tarombo_tbl_title"><i class="fa fa-map-marker"/> Ringkasan per Domisili</div>
+                                <span class="o_tarombo_tbl_count"><t t-esc="state.data.tabel_domisili.length"/> wilayah</span>
+                            </div>
                             <div class="o_tarombo_table_scroll">
-                                <table class="table table-sm table-hover mb-0">
+                                <table class="o_tarombo_tbl">
                                     <thead>
                                         <tr>
-                                            <th>Provinsi - Kabupaten/Kota</th>
+                                            <th>Wilayah</th>
                                             <th class="text-end">Terverifikasi</th>
-                                            <th class="text-end">Belum Terverifikasi</th>
+                                            <th class="text-end">Belum</th>
                                             <th class="text-end">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <t t-if="!state.data.tabel_domisili.length">
-                                            <tr><td colspan="4" class="text-center text-muted">Tidak ada data</td></tr>
+                                            <tr><td colspan="4" class="o_tarombo_tbl_kosong">Belum ada data domisili</td></tr>
                                         </t>
                                         <t t-foreach="state.data.tabel_domisili" t-as="row" t-key="row.id">
-                                            <tr>
-                                                <td><t t-esc="row.name"/></td>
-                                                <td class="text-end"><t t-esc="row.terverifikasi"/></td>
-                                                <td class="text-end"><t t-esc="row.rumpang"/></td>
-                                                <td class="text-end"><strong><t t-esc="row.total"/></strong></td>
+                                            <t t-set="bagian" t-value="row.name.split(' - ')"/>
+                                            <tr class="o_tarombo_row_klik" t-on-click="() => this._bukaDomisili(row)" title="Lihat anggota di wilayah ini">
+                                                <td class="o_tarombo_tbl_wilayah">
+                                                    <div class="o_tarombo_tbl_utama">
+                                                        <t t-if="bagian.length > 1"><t t-esc="bagian.slice(1).join(' - ')"/></t>
+                                                        <t t-else=""><t t-esc="row.name"/></t>
+                                                    </div>
+                                                    <div t-if="bagian.length > 1" class="o_tarombo_tbl_sub"><t t-esc="bagian[0]"/></div>
+                                                    <div class="o_tarombo_tbl_bar"><span t-attf-style="width: #{Math.round(row.total * 100 / maksDomisili)}%"/></div>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-attf-class="o_tarombo_pil #{row.terverifikasi ? 'o_tarombo_pil--hijau' : 'o_tarombo_pil--nol'}"><t t-esc="row.terverifikasi"/></span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-attf-class="o_tarombo_pil #{row.rumpang ? 'o_tarombo_pil--emas' : 'o_tarombo_pil--nol'}"><t t-esc="row.rumpang"/></span>
+                                                </td>
+                                                <td class="text-end o_tarombo_tbl_total"><t t-esc="row.total"/></td>
                                             </tr>
                                         </t>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+
+                        <!-- Usulan menunggu tinjauan -->
                         <div class="o_tarombo_table_card">
-                            <div class="o_tarombo_chart_title"><i class="fa fa-clock-o"/> Usulan Menunggu Tinjauan</div>
+                            <div class="o_tarombo_tbl_head">
+                                <div class="o_tarombo_tbl_title">
+                                    <i class="fa fa-clock-o"/> Usulan Menunggu Tinjauan
+                                    <span class="o_tarombo_tbl_count o_tarombo_tbl_count--emas"><t t-esc="state.data.kpi.usulan_menunggu"/></span>
+                                </div>
+                                <a href="#" class="o_tarombo_tbl_semua"
+                                   t-on-click.prevent="() => this._bukaDaftar('tarombo.action_tarombo_usulan', [['state', '=', 'diajukan']], 'Usulan Menunggu')">Lihat semua <i class="fa fa-angle-right"/></a>
+                            </div>
                             <div class="o_tarombo_table_scroll">
-                                <table class="table table-sm table-hover mb-0">
+                                <table class="o_tarombo_tbl">
                                     <thead>
                                         <tr>
                                             <th>Usulan</th>
                                             <th>Jenis</th>
                                             <th>Sasaran</th>
-                                            <th>Tanggal</th>
+                                            <th class="text-end">Diajukan</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <t t-if="!state.data.usulan_menunggu_list.length">
-                                            <tr><td colspan="4" class="text-center text-muted">Tidak ada usulan menunggu</td></tr>
+                                            <tr><td colspan="4" class="o_tarombo_tbl_kosong"><i class="fa fa-check-circle"/> Tidak ada usulan yang menunggu</td></tr>
                                         </t>
                                         <t t-foreach="state.data.usulan_menunggu_list" t-as="row" t-key="row.id">
-                                            <tr class="o_tarombo_row_klik" t-on-click="() => this._bukaUsulan(row.id)">
-                                                <td><t t-esc="row.name"/></td>
-                                                <td><t t-esc="row.jenis"/></td>
-                                                <td><t t-esc="row.sasaran"/></td>
-                                                <td><t t-esc="row.tanggal_ajukan"/></td>
+                                            <tr class="o_tarombo_row_klik" t-on-click="() => this._bukaUsulan(row.id)" title="Buka usulan">
+                                                <td class="o_tarombo_tbl_kode"><t t-esc="row.name"/></td>
+                                                <td><span t-attf-class="o_tarombo_pil #{this._kelasJenis(row.jenis)}"><t t-esc="row.jenis"/></span></td>
+                                                <td class="o_tarombo_tbl_utama"><t t-esc="row.sasaran"/></td>
+                                                <td class="text-end o_tarombo_tbl_tgl"><t t-esc="row.tanggal_ajukan"/></td>
                                             </tr>
                                         </t>
                                     </tbody>

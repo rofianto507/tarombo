@@ -28,11 +28,18 @@ class TaromboOrang(models.Model):
         total_terverifikasi = Orang.search_count([('status', '=', 'sahih')])
         # Terverifikasi: porsi anggota dengan status terverifikasi (bukan kelengkapan isi profil).
         persen_terverifikasi = round(total_terverifikasi / total_anggota * 100, 1) if total_anggota else 0.0
+        # Terhubung akun: anggota yang sudah tertaut ke akun pengguna (di aplikasi tampil
+        # dengan lencana terverifikasi). Berbeda dari status data 'sahih' di atas, yang
+        # hampir semuanya terisi dari hasil impor.
+        total_terhubung = Orang.search_count([('user_id', '!=', False)])
+        persen_terhubung = round(total_terhubung / total_anggota * 100, 1) if total_anggota else 0.0
 
         return {
             'kpi': {
                 'total_anggota': total_anggota,
                 'persen_terverifikasi': persen_terverifikasi,
+                'terhubung_akun': total_terhubung,
+                'persen_terhubung': persen_terhubung,
                 'usulan_menunggu': Usulan.search_count([('state', '=', 'diajukan')]),
                 'total_punguan': Punguan.search_count([]),
                 'total_marga': Marga.search_count([]),
@@ -52,7 +59,7 @@ class TaromboOrang(models.Model):
         label = dict(self._fields['jenis_kelamin'].selection)
         hasil = self._read_group([], ['jenis_kelamin'], ['__count'])
         return [
-            {'name': label.get(jk, jk or 'Tidak diisi'), 'value': jumlah}
+            {'key': jk or False, 'name': label.get(jk, jk or 'Tidak diisi'), 'value': jumlah}
             for jk, jumlah in hasil
         ]
 
@@ -66,20 +73,28 @@ class TaromboOrang(models.Model):
         yang belum diisi (mayoritas data impor) tidak dimasukkan supaya tidak
         menenggelamkan batang lain."""
         label = dict(self._fields['pendidikan_tertinggi'].selection)
-        urutan = list(label)
-        hasil = self._read_group(
-            [('pendidikan_tertinggi', '!=', False)], ['pendidikan_tertinggi'], ['__count'])
-        baris = [(jenjang, jumlah) for jenjang, jumlah in hasil]
-        baris.sort(key=lambda r: urutan.index(r[0]) if r[0] in urutan else len(urutan))
-        return [{'name': label.get(j, j), 'jumlah': jumlah} for j, jumlah in baris]
+        hasil = dict(self._read_group(
+            [('pendidikan_tertinggi', '!=', False)], ['pendidikan_tertinggi'], ['__count']))
+        # Semua jenjang ditampilkan berurutan (SD -> S3), termasuk yang jumlahnya 0.
+        return [
+            {'key': j, 'name': nama, 'jumlah': hasil.get(j, 0)}
+            for j, nama in label.items()
+        ]
 
     def _dashboard_per_bidang(self):
         """Jumlah anggota menurut bidang pekerjaan saat ini (terbanyak dulu).
         Sama seperti pendidikan: hanya yang bidangnya sudah tercatat."""
-        hasil = self._read_group(
-            [('bidang_kini_id', '!=', False)], ['bidang_kini_id'], ['__count'],
-            order='__count desc', limit=TOP_N)
-        return [{'name': bidang.name, 'jumlah': jumlah} for bidang, jumlah in hasil]
+        hasil = {
+            bidang.id: jumlah for bidang, jumlah in self._read_group(
+                [('bidang_kini_id', '!=', False)], ['bidang_kini_id'], ['__count'])
+        }
+        # Semua bidang ditampilkan, termasuk yang jumlahnya 0 (terbanyak dulu).
+        baris = [
+            {'id': b.id, 'name': b.name, 'jumlah': hasil.get(b.id, 0)}
+            for b in self.env['tarombo.bidang'].search([])
+        ]
+        baris.sort(key=lambda r: (-r['jumlah'], r['name']))
+        return baris
 
     def _dashboard_tabel_domisili(self):
         """Ringkasan anggota per kota/kabupaten, berlabel "Provinsi - Kabupaten".

@@ -14,6 +14,7 @@ from . import tarombo_berita
 from . import tarombo_laporan_konten
 from . import tarombo_masukan
 from . import tarombo_pohon
+from . import tarombo_graf
 from . import tarombo_dashboard
 from . import tarombo_klaim_akun
 from . import tarombo_lokasi_mobile
